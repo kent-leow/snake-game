@@ -82,6 +82,10 @@ Creates the foundation for strategic gameplay that differentiates this game from
 - US-1.4 (Food Consumption and Snake Growth)
 - US-1.7 (Canvas-Based Game Rendering)
 
+### Generated Tasks
+- T-2.1.1: Implement Multiple Food Block System
+- T-2.1.2: Implement Food Block Visual Design
+
 ---
 
 *Story establishes the multi-food foundation required for strategic combo gameplay.*

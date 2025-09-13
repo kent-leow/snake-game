@@ -82,6 +82,10 @@ Adds dynamic difficulty progression that keeps gameplay challenging and engaging
 - US-2.2 (Order-Based Combo System)
 - US-1.3 (Basic Snake Movement)
 
+### Generated Tasks
+- T-2.3.1: Implement Progressive Speed System
+- T-2.3.2: Implement Speed Level UI Indicator
+
 ---
 
 *Story adds dynamic difficulty progression that enhances the strategic combo system with meaningful risk/reward mechanics.*

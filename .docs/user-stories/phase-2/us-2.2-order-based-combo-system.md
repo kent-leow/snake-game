@@ -83,6 +83,11 @@ Creates the primary differentiating feature that makes this game unique and enga
 - US-2.1 (Multiple Numbered Food Blocks)
 - US-1.4 (Food Consumption and Snake Growth)
 
+### Generated Tasks
+- T-2.2.1: Implement Combo State Management
+- T-2.2.2: Implement Combo Visual Feedback System
+- T-2.2.3: Integrate Combo System with Score Management
+
 ---
 
 *Story implements the core strategic mechanic that defines the unique gameplay experience and scoring system.*

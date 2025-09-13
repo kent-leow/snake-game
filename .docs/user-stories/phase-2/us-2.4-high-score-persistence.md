@@ -84,6 +84,11 @@ Increases player engagement and retention by providing persistent progress track
 - US-2.2 (Order-Based Combo System)
 - US-1.5 (Collision Detection and Game Over)
 
+### Generated Tasks
+- T-2.4.1: Design MongoDB Score Schema
+- T-2.4.2: Implement Score API Endpoints
+- T-2.4.3: Implement Client-Side Score Management
+
 ---
 
 *Story enables persistent progress tracking that increases player engagement and provides motivation for continued improvement.*
