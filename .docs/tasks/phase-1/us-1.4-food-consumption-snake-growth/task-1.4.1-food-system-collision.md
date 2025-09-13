@@ -1,6 +1,7 @@
 # Task: Food System and Collision Detection
 
 ## Task Header
+
 - **ID**: T-1.4.1
 - **Title**: Implement food spawning system and collision detection
 - **Story ID**: US-1.4
@@ -12,18 +13,22 @@
 ## Task Content
 
 ### Objective
+
 Create a comprehensive food system that spawns food items randomly on the game board, detects collisions between snake head and food, and ensures food never spawns on the snake's body.
 
 ### Description
+
 Build the food management system that provides the core reward mechanism for the snake game, including intelligent food placement that avoids conflicts with the snake's current position and accurate collision detection for seamless gameplay.
 
 ### Acceptance Criteria Covered
+
 - GIVEN food on game board WHEN snake head touches food THEN food is consumed
 - GIVEN food consumed WHEN consumption occurs THEN new food appears at random location
 - GIVEN new food spawning WHEN location chosen THEN food does not appear on snake body
 - GIVEN food collision detection WHEN checking THEN accuracy is pixel-perfect
 
 ### Implementation Notes
+
 1. Implement food data structure and management
 2. Create random food placement algorithm with collision avoidance
 3. Implement precise collision detection between snake head and food
@@ -33,22 +38,27 @@ Build the food management system that provides the core reward mechanism for the
 ## Technical Specs
 
 ### File Targets
+
 **New Files:**
+
 - `src/lib/game/food.ts` - Food system implementation
 - `src/lib/game/foodRenderer.ts` - Food rendering utilities
 - `src/lib/game/collisionDetection.ts` - Collision detection system
 - `src/lib/utils/randomPosition.ts` - Random positioning utilities
 
 **Modified Files:**
+
 - `src/lib/game/gameEngine.ts` - Integrate food system
 - `src/lib/game/types.ts` - Add food-related types
 - `src/lib/game/constants.ts` - Add food configuration
 
 **Test Files:**
+
 - `src/lib/game/__tests__/food.test.ts` - Food system tests
 - `src/lib/game/__tests__/collisionDetection.test.ts` - Collision tests
 
 ### Food System Implementation
+
 ```typescript
 // Food types and interfaces
 interface Food {
@@ -88,7 +98,7 @@ export class FoodManager {
       position = this.generateRandomPosition();
       attempts++;
     } while (
-      this.isPositionOccupied(position, occupiedPositions) && 
+      this.isPositionOccupied(position, occupiedPositions) &&
       attempts < maxAttempts
     );
 
@@ -102,7 +112,7 @@ export class FoodManager {
       value: 10,
       id: `food-${Date.now()}-${Math.random()}`,
       type: 'normal',
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     return this.currentFood;
@@ -114,13 +124,16 @@ export class FoodManager {
 
     return {
       x: Math.floor(Math.random() * maxX) * this.gridSize,
-      y: Math.floor(Math.random() * maxY) * this.gridSize
+      y: Math.floor(Math.random() * maxY) * this.gridSize,
     };
   }
 
-  private isPositionOccupied(position: Position, occupiedPositions: Position[]): boolean {
-    return occupiedPositions.some(occupied => 
-      occupied.x === position.x && occupied.y === position.y
+  private isPositionOccupied(
+    position: Position,
+    occupiedPositions: Position[]
+  ): boolean {
+    return occupiedPositions.some(
+      occupied => occupied.x === position.x && occupied.y === position.y
     );
   }
 
@@ -148,6 +161,7 @@ export class FoodManager {
 ```
 
 ### Collision Detection System
+
 ```typescript
 // Collision detection utilities
 export class CollisionDetector {
@@ -158,13 +172,14 @@ export class CollisionDetector {
   }
 
   public checkFoodCollision(snakeHead: Position, food: Food): boolean {
-    return (
-      snakeHead.x === food.position.x &&
-      snakeHead.y === food.position.y
-    );
+    return snakeHead.x === food.position.x && snakeHead.y === food.position.y;
   }
 
-  public checkWallCollision(position: Position, canvasWidth: number, canvasHeight: number): boolean {
+  public checkWallCollision(
+    position: Position,
+    canvasWidth: number,
+    canvasHeight: number
+  ): boolean {
     return (
       position.x < 0 ||
       position.x >= canvasWidth ||
@@ -175,9 +190,9 @@ export class CollisionDetector {
 
   public checkSelfCollision(head: Position, body: Position[]): boolean {
     // Skip the head itself (first element)
-    return body.slice(1).some(segment =>
-      segment.x === head.x && segment.y === head.y
-    );
+    return body
+      .slice(1)
+      .some(segment => segment.x === head.x && segment.y === head.y);
   }
 
   // Bounding box collision for more precise detection if needed
@@ -196,6 +211,7 @@ export class CollisionDetector {
 ```
 
 ### Food Rendering
+
 ```typescript
 // Food rendering utilities
 export class FoodRenderer {
@@ -251,17 +267,20 @@ export class FoodRenderer {
 ## Testing Requirements
 
 ### Unit Tests
+
 - Food spawning in valid positions
 - Collision detection accuracy
 - Food placement avoids snake body
 - Random position generation within bounds
 
 ### Integration Tests
+
 - Food system integrates with game loop
 - Collision detection works with snake movement
 - Food rendering updates correctly
 
 ### E2E Scenarios
+
 - Complete food consumption cycle
 - Food spawning after consumption
 - Edge cases with limited available space
@@ -269,29 +288,35 @@ export class FoodRenderer {
 ## Dependencies
 
 ### Prerequisite Tasks
+
 - T-1.3.1 (Game Canvas and Snake Structure)
 - T-1.3.2 (Keyboard Input and Movement Logic)
 
 ### Blocking Tasks
+
 - None
 
 ### External Dependencies
+
 - Canvas rendering context
 - Game grid system
 
 ## Risks and Considerations
 
 ### Technical Risks
+
 - Infinite loops in food placement when board is nearly full
 - Collision detection accuracy with different grid sizes
 - Performance impact of collision checking
 
 ### Implementation Challenges
+
 - Balancing random placement with guaranteed valid positions
 - Ensuring pixel-perfect collision detection
 - Managing food state during game pause/resume
 
 ### Mitigation Strategies
+
 - Implement maximum attempt limits for food placement
 - Use grid-based collision detection for accuracy
 - Add comprehensive testing for edge cases

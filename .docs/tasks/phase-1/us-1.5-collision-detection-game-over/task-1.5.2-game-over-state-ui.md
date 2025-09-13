@@ -1,6 +1,7 @@
 # Task: Game Over State and UI Implementation
 
 ## Task Header
+
 - **ID**: T-1.5.2
 - **Title**: Implement game over state management and UI components
 - **Story ID**: US-1.5
@@ -12,12 +13,15 @@
 ## Task Content
 
 ### Objective
+
 Create game over state management system and user interface components that provide clear feedback when the game ends and offer intuitive options for restarting or returning to the main menu.
 
 ### Description
+
 Build the complete game over experience including state management, UI components, and user flow that handles game termination gracefully and encourages replay through clear visual design and accessible controls.
 
 ### Acceptance Criteria Covered
+
 - GIVEN game over WHEN it occurs THEN game loop stops and no further movement happens
 - GIVEN game over WHEN it occurs THEN clear "Game Over" message displays
 - GIVEN game over screen WHEN shown THEN final score is prominently displayed
@@ -25,6 +29,7 @@ Build the complete game over experience including state management, UI component
 - GIVEN collision moment WHEN it happens THEN visual feedback indicates the collision point
 
 ### Implementation Notes
+
 1. Create game over state management in game engine
 2. Design and implement game over UI component
 3. Add visual feedback for collision moment
@@ -34,7 +39,9 @@ Build the complete game over experience including state management, UI component
 ## Technical Specs
 
 ### File Targets
+
 **New Files:**
+
 - `src/components/game/GameOverModal.tsx` - Game over UI component
 - `src/components/game/CollisionFeedback.tsx` - Visual collision feedback
 - `src/lib/game/gameOverState.ts` - Game over state management
@@ -42,16 +49,19 @@ Build the complete game over experience including state management, UI component
 - `src/styles/gameOver.css` - Game over specific styles
 
 **Modified Files:**
+
 - `src/lib/game/gameEngine.ts` - Integrate game over state
 - `src/components/game/GameCanvas.tsx` - Add game over integration
 - `src/lib/game/types.ts` - Add game over types
 - `src/styles/game.css` - Add game over styling
 
 **Test Files:**
+
 - `src/components/__tests__/GameOverModal.test.tsx` - Game over UI tests
 - `src/lib/game/__tests__/gameOverState.test.ts` - State management tests
 
 ### Game Over State Management
+
 ```typescript
 // Game over state types
 interface GameOverState {
@@ -80,7 +90,7 @@ export class GameOverManager {
       isGameOver: false,
       cause: null,
       finalScore: 0,
-      timestamp: 0
+      timestamp: 0,
     };
   }
 
@@ -96,7 +106,7 @@ export class GameOverManager {
       finalScore,
       collisionPosition,
       timestamp: Date.now(),
-      gameStats
+      gameStats,
     };
 
     // Notify all subscribers
@@ -108,7 +118,7 @@ export class GameOverManager {
       isGameOver: false,
       cause: null,
       finalScore: 0,
-      timestamp: 0
+      timestamp: 0,
     };
 
     // Notify subscribers of reset
@@ -121,7 +131,7 @@ export class GameOverManager {
 
   public subscribe(callback: (state: GameOverState) => void): () => void {
     this.callbacks.push(callback);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.callbacks.indexOf(callback);
@@ -138,6 +148,7 @@ export class GameOverManager {
 ```
 
 ### Game Over Modal Component
+
 ```typescript
 // Game Over Modal React component
 interface GameOverModalProps {
@@ -223,15 +234,15 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
         )}
 
         <div className="game-over-actions">
-          <button 
-            className="btn btn-primary" 
+          <button
+            className="btn btn-primary"
             onClick={handleRestart}
             autoFocus
           >
             Play Again
           </button>
-          <button 
-            className="btn btn-secondary" 
+          <button
+            className="btn btn-secondary"
             onClick={handleMainMenu}
           >
             Main Menu
@@ -244,6 +255,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
 ```
 
 ### Collision Feedback Component
+
 ```typescript
 // Visual collision feedback component
 interface CollisionFeedbackProps {
@@ -271,7 +283,7 @@ export const CollisionFeedback: React.FC<CollisionFeedbackProps> = ({
   if (!position || !isVisible) return null;
 
   return (
-    <div 
+    <div
       className={`collision-feedback collision-${type}`}
       style={{
         left: position.x,
@@ -288,6 +300,7 @@ export const CollisionFeedback: React.FC<CollisionFeedbackProps> = ({
 ```
 
 ### Game Over Hook
+
 ```typescript
 // React hook for game over management
 interface UseGameOverOptions {
@@ -295,18 +308,21 @@ interface UseGameOverOptions {
   onRestart?: () => void;
 }
 
-export const useGameOver = ({ onGameOver, onRestart }: UseGameOverOptions = {}) => {
+export const useGameOver = ({
+  onGameOver,
+  onRestart,
+}: UseGameOverOptions = {}) => {
   const [gameOverState, setGameOverState] = useState<GameOverState>({
     isGameOver: false,
     cause: null,
     finalScore: 0,
-    timestamp: 0
+    timestamp: 0,
   });
 
   const gameOverManagerRef = useRef<GameOverManager>(new GameOverManager());
 
   useEffect(() => {
-    const unsubscribe = gameOverManagerRef.current.subscribe((state) => {
+    const unsubscribe = gameOverManagerRef.current.subscribe(state => {
       setGameOverState(state);
       onGameOver?.(state);
     });
@@ -314,14 +330,22 @@ export const useGameOver = ({ onGameOver, onRestart }: UseGameOverOptions = {}) 
     return unsubscribe;
   }, [onGameOver]);
 
-  const triggerGameOver = useCallback((
-    cause: 'boundary' | 'self',
-    finalScore: number,
-    collisionPosition?: Position,
-    gameStats?: GameStatistics
-  ) => {
-    gameOverManagerRef.current.triggerGameOver(cause, finalScore, collisionPosition, gameStats);
-  }, []);
+  const triggerGameOver = useCallback(
+    (
+      cause: 'boundary' | 'self',
+      finalScore: number,
+      collisionPosition?: Position,
+      gameStats?: GameStatistics
+    ) => {
+      gameOverManagerRef.current.triggerGameOver(
+        cause,
+        finalScore,
+        collisionPosition,
+        gameStats
+      );
+    },
+    []
+  );
 
   const resetGameOver = useCallback(() => {
     gameOverManagerRef.current.resetGameOver();
@@ -332,12 +356,13 @@ export const useGameOver = ({ onGameOver, onRestart }: UseGameOverOptions = {}) 
     gameOverState,
     triggerGameOver,
     resetGameOver,
-    isGameOver: gameOverState.isGameOver
+    isGameOver: gameOverState.isGameOver,
   };
 };
 ```
 
 ### CSS Styling
+
 ```css
 /* Game over modal styles */
 .game-over-overlay {
@@ -383,26 +408,38 @@ export const useGameOver = ({ onGameOver, onRestart }: UseGameOverOptions = {}) 
 }
 
 @keyframes collisionPulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.5); opacity: 0.7; }
-  100% { transform: scale(2); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 ```
 
 ## Testing Requirements
 
 ### Unit Tests
+
 - Game over state management functionality
 - Game over modal component rendering
 - Collision feedback visual effects
 - State reset and cleanup
 
 ### Integration Tests
+
 - Game over integration with collision detection
 - Modal display and user interaction
 - Navigation flow from game over to restart/menu
 
 ### E2E Scenarios
+
 - Complete game over flow from collision to restart
 - Game over modal accessibility and keyboard navigation
 - Visual feedback timing and animation
@@ -410,30 +447,36 @@ export const useGameOver = ({ onGameOver, onRestart }: UseGameOverOptions = {}) 
 ## Dependencies
 
 ### Prerequisite Tasks
+
 - T-1.5.1 (Collision Detection System)
 - T-1.3.3 (Game Loop and Performance)
 - T-1.4.2 (Snake Growth and Scoring)
 
 ### Blocking Tasks
+
 - None
 
 ### External Dependencies
+
 - React hooks for state management
 - CSS animations for visual effects
 
 ## Risks and Considerations
 
 ### Technical Risks
+
 - Modal z-index conflicts with other UI elements
 - Animation performance on low-end devices
 - State cleanup issues between games
 
 ### Implementation Challenges
+
 - Proper timing of game over sequence
 - Accessible keyboard navigation in modal
 - Consistent visual feedback across devices
 
 ### Mitigation Strategies
+
 - Use proper z-index hierarchy for modals
 - Test animations on various devices
 - Implement proper cleanup in useEffect hooks

@@ -1,6 +1,7 @@
 # Task: Game State Management System
 
 ## Task Header
+
 - **ID**: T-1.6.1
 - **Title**: Implement comprehensive game state management system
 - **Story ID**: US-1.6
@@ -12,12 +13,15 @@
 ## Task Content
 
 ### Objective
+
 Create a robust game state management system that handles all game states (playing, paused, game-over, menu) with proper transitions, state persistence, and integration with React components.
 
 ### Description
+
 Build a centralized state management system that coordinates all game states, ensures proper state transitions, and provides a clean API for components to interact with game state while maintaining consistency and preventing invalid state combinations.
 
 ### Acceptance Criteria Covered
+
 - GIVEN main menu or game page WHEN user clicks "Start Game" THEN new game begins
 - GIVEN active game WHEN user clicks "Pause" or presses spacebar THEN game pauses
 - GIVEN paused game WHEN user clicks "Resume" or presses spacebar THEN game resumes
@@ -26,6 +30,7 @@ Build a centralized state management system that coordinates all game states, en
 - GIVEN resumed state WHEN user resumes THEN snake continues from exact pause position
 
 ### Implementation Notes
+
 1. Design comprehensive game state enum and management
 2. Implement state transition logic with validation
 3. Create React hooks for state management
@@ -35,7 +40,9 @@ Build a centralized state management system that coordinates all game states, en
 ## Technical Specs
 
 ### File Targets
+
 **New Files:**
+
 - `src/lib/game/gameState.ts` - Core game state management
 - `src/lib/game/stateTransitions.ts` - State transition logic
 - `src/hooks/useGameState.ts` - React game state hook
@@ -43,17 +50,20 @@ Build a centralized state management system that coordinates all game states, en
 - `src/lib/game/gameStateMachine.ts` - State machine implementation
 
 **Modified Files:**
+
 - `src/lib/game/gameEngine.ts` - Integrate state management
 - `src/components/game/GameCanvas.tsx` - Use state management
 - `src/lib/game/types.ts` - Add state management types
 - `src/lib/game/constants.ts` - Add state-related constants
 
 **Test Files:**
+
 - `src/lib/game/__tests__/gameState.test.ts` - State management tests
 - `src/lib/game/__tests__/stateTransitions.test.ts` - Transition tests
 - `src/hooks/__tests__/useGameState.test.ts` - Hook tests
 
 ### Game State Types and Management
+
 ```typescript
 // Game state enumeration
 export enum GameState {
@@ -61,7 +71,7 @@ export enum GameState {
   PLAYING = 'playing',
   PAUSED = 'paused',
   GAME_OVER = 'game_over',
-  LOADING = 'loading'
+  LOADING = 'loading',
 }
 
 // Extended game state with data
@@ -81,8 +91,10 @@ export class GameStateManager {
   private currentState: GameState = GameState.MENU;
   private gameData: GameStateData;
   private stateHistory: GameState[] = [];
-  private callbacks: Map<GameState, Array<(data: GameStateData) => void>> = new Map();
-  private transitionCallbacks: Array<(from: GameState, to: GameState) => void> = [];
+  private callbacks: Map<GameState, Array<(data: GameStateData) => void>> =
+    new Map();
+  private transitionCallbacks: Array<(from: GameState, to: GameState) => void> =
+    [];
 
   constructor() {
     this.initializeGameData();
@@ -101,8 +113,8 @@ export class GameStateManager {
         duration: 0,
         foodConsumed: 0,
         maxSnakeLength: 3,
-        averageSpeed: 0
-      }
+        averageSpeed: 0,
+      },
     };
   }
 
@@ -116,7 +128,9 @@ export class GameStateManager {
 
   public transitionTo(newState: GameState): boolean {
     if (!this.isValidTransition(this.currentState, newState)) {
-      console.warn(`Invalid state transition from ${this.currentState} to ${newState}`);
+      console.warn(
+        `Invalid state transition from ${this.currentState} to ${newState}`
+      );
       return false;
     }
 
@@ -129,7 +143,7 @@ export class GameStateManager {
     this.handleStateEntry(newState, previousState);
 
     // Notify transition callbacks
-    this.transitionCallbacks.forEach(callback => 
+    this.transitionCallbacks.forEach(callback =>
       callback(previousState, newState)
     );
 
@@ -144,15 +158,26 @@ export class GameStateManager {
     const validTransitions: Record<GameState, GameState[]> = {
       [GameState.MENU]: [GameState.LOADING, GameState.PLAYING],
       [GameState.LOADING]: [GameState.PLAYING, GameState.MENU],
-      [GameState.PLAYING]: [GameState.PAUSED, GameState.GAME_OVER, GameState.MENU],
-      [GameState.PAUSED]: [GameState.PLAYING, GameState.MENU, GameState.GAME_OVER],
-      [GameState.GAME_OVER]: [GameState.MENU, GameState.PLAYING]
+      [GameState.PLAYING]: [
+        GameState.PAUSED,
+        GameState.GAME_OVER,
+        GameState.MENU,
+      ],
+      [GameState.PAUSED]: [
+        GameState.PLAYING,
+        GameState.MENU,
+        GameState.GAME_OVER,
+      ],
+      [GameState.GAME_OVER]: [GameState.MENU, GameState.PLAYING],
     };
 
     return validTransitions[from]?.includes(to) || false;
   }
 
-  private handleStateEntry(newState: GameState, previousState: GameState): void {
+  private handleStateEntry(
+    newState: GameState,
+    previousState: GameState
+  ): void {
     switch (newState) {
       case GameState.PLAYING:
         if (previousState === GameState.MENU) {
@@ -191,7 +216,8 @@ export class GameStateManager {
 
   private resumeGame(): void {
     if (this.gameData.pausedTime > 0) {
-      this.gameData.totalPausedDuration += Date.now() - this.gameData.pausedTime;
+      this.gameData.totalPausedDuration +=
+        Date.now() - this.gameData.pausedTime;
       this.gameData.pausedTime = 0;
     }
   }
@@ -210,11 +236,11 @@ export class GameStateManager {
       segments: [
         { x: 200, y: 200, id: 'head' },
         { x: 180, y: 200, id: 'body-1' },
-        { x: 160, y: 200, id: 'body-2' }
+        { x: 160, y: 200, id: 'body-2' },
       ],
       direction: 'RIGHT',
       nextDirection: 'RIGHT',
-      isGrowing: false
+      isGrowing: false,
     };
   }
 
@@ -223,17 +249,23 @@ export class GameStateManager {
       duration: 0,
       foodConsumed: 0,
       maxSnakeLength: 3,
-      averageSpeed: 0
+      averageSpeed: 0,
     };
   }
 
   private updateFinalGameStats(): void {
-    const totalTime = Date.now() - this.gameData.gameStartTime - this.gameData.totalPausedDuration;
+    const totalTime =
+      Date.now() -
+      this.gameData.gameStartTime -
+      this.gameData.totalPausedDuration;
     this.gameData.gameStats.duration = Math.floor(totalTime / 1000);
   }
 
   // Subscription methods
-  public onStateChange(state: GameState, callback: (data: GameStateData) => void): () => void {
+  public onStateChange(
+    state: GameState,
+    callback: (data: GameStateData) => void
+  ): () => void {
     if (!this.callbacks.has(state)) {
       this.callbacks.set(state, []);
     }
@@ -250,7 +282,9 @@ export class GameStateManager {
     };
   }
 
-  public onStateTransition(callback: (from: GameState, to: GameState) => void): () => void {
+  public onStateTransition(
+    callback: (from: GameState, to: GameState) => void
+  ): () => void {
     this.transitionCallbacks.push(callback);
 
     return () => {
@@ -285,6 +319,7 @@ export class GameStateManager {
 ```
 
 ### React Hook for Game State
+
 ```typescript
 // useGameState hook for React components
 interface UseGameStateOptions {
@@ -292,7 +327,10 @@ interface UseGameStateOptions {
   onTransition?: (from: GameState, to: GameState) => void;
 }
 
-export const useGameState = ({ onStateChange, onTransition }: UseGameStateOptions = {}) => {
+export const useGameState = ({
+  onStateChange,
+  onTransition,
+}: UseGameStateOptions = {}) => {
   const [currentState, setCurrentState] = useState<GameState>(GameState.MENU);
   const [gameData, setGameData] = useState<GameStateData | null>(null);
   const stateManagerRef = useRef<GameStateManager>(new GameStateManager());
@@ -301,8 +339,8 @@ export const useGameState = ({ onStateChange, onTransition }: UseGameStateOption
     const stateManager = stateManagerRef.current;
 
     // Subscribe to all state changes
-    const unsubscribers = Object.values(GameState).map(state => 
-      stateManager.onStateChange(state, (data) => {
+    const unsubscribers = Object.values(GameState).map(state =>
+      stateManager.onStateChange(state, data => {
         setCurrentState(data.state);
         setGameData(data);
         onStateChange?.(data.state, data);
@@ -310,9 +348,11 @@ export const useGameState = ({ onStateChange, onTransition }: UseGameStateOption
     );
 
     // Subscribe to transitions
-    const transitionUnsubscriber = stateManager.onStateTransition((from, to) => {
-      onTransition?.(from, to);
-    });
+    const transitionUnsubscriber = stateManager.onStateTransition(
+      (from, to) => {
+        onTransition?.(from, to);
+      }
+    );
 
     return () => {
       unsubscribers.forEach(unsubscribe => unsubscribe());
@@ -320,38 +360,48 @@ export const useGameState = ({ onStateChange, onTransition }: UseGameStateOption
     };
   }, [onStateChange, onTransition]);
 
-  const actions = useMemo(() => ({
-    startGame: () => stateManagerRef.current.transitionTo(GameState.PLAYING),
-    pauseGame: () => stateManagerRef.current.transitionTo(GameState.PAUSED),
-    resumeGame: () => stateManagerRef.current.transitionTo(GameState.PLAYING),
-    endGame: () => stateManagerRef.current.transitionTo(GameState.GAME_OVER),
-    goToMenu: () => stateManagerRef.current.transitionTo(GameState.MENU),
-    restartGame: () => {
-      stateManagerRef.current.transitionTo(GameState.MENU);
-      setTimeout(() => stateManagerRef.current.transitionTo(GameState.PLAYING), 100);
-    }
-  }), []);
+  const actions = useMemo(
+    () => ({
+      startGame: () => stateManagerRef.current.transitionTo(GameState.PLAYING),
+      pauseGame: () => stateManagerRef.current.transitionTo(GameState.PAUSED),
+      resumeGame: () => stateManagerRef.current.transitionTo(GameState.PLAYING),
+      endGame: () => stateManagerRef.current.transitionTo(GameState.GAME_OVER),
+      goToMenu: () => stateManagerRef.current.transitionTo(GameState.MENU),
+      restartGame: () => {
+        stateManagerRef.current.transitionTo(GameState.MENU);
+        setTimeout(
+          () => stateManagerRef.current.transitionTo(GameState.PLAYING),
+          100
+        );
+      },
+    }),
+    []
+  );
 
-  const selectors = useMemo(() => ({
-    isPlaying: currentState === GameState.PLAYING,
-    isPaused: currentState === GameState.PAUSED,
-    isGameOver: currentState === GameState.GAME_OVER,
-    isMenu: currentState === GameState.MENU,
-    canPause: stateManagerRef.current.canPause(),
-    canResume: stateManagerRef.current.canResume()
-  }), [currentState]);
+  const selectors = useMemo(
+    () => ({
+      isPlaying: currentState === GameState.PLAYING,
+      isPaused: currentState === GameState.PAUSED,
+      isGameOver: currentState === GameState.GAME_OVER,
+      isMenu: currentState === GameState.MENU,
+      canPause: stateManagerRef.current.canPause(),
+      canResume: stateManagerRef.current.canResume(),
+    }),
+    [currentState]
+  );
 
   return {
     currentState,
     gameData,
     actions,
     selectors,
-    stateManager: stateManagerRef.current
+    stateManager: stateManagerRef.current,
   };
 };
 ```
 
 ### State Persistence Hook
+
 ```typescript
 // useGamePersistence hook for state persistence during pause
 interface GamePersistenceData {
@@ -367,7 +417,7 @@ export const useGamePersistence = () => {
       snake: data.snake,
       food: data.food,
       score: data.score,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     localStorage.setItem('snake-game-state', JSON.stringify(persistenceData));
@@ -379,7 +429,7 @@ export const useGamePersistence = () => {
       if (!saved) return null;
 
       const data = JSON.parse(saved) as GamePersistenceData;
-      
+
       // Check if saved state is not too old (e.g., 1 hour)
       const maxAge = 60 * 60 * 1000; // 1 hour in milliseconds
       if (Date.now() - data.timestamp > maxAge) {
@@ -402,7 +452,7 @@ export const useGamePersistence = () => {
   return {
     saveGameState,
     loadGameState,
-    clearSavedState
+    clearSavedState,
   };
 };
 ```
@@ -410,17 +460,20 @@ export const useGamePersistence = () => {
 ## Testing Requirements
 
 ### Unit Tests
+
 - Game state transitions and validation
 - State manager subscription system
 - State persistence and loading
 - Invalid transition handling
 
 ### Integration Tests
+
 - State management integration with game loop
 - React hook integration with components
 - State persistence across browser sessions
 
 ### E2E Scenarios
+
 - Complete game state flow from menu to game over
 - Pause and resume functionality during gameplay
 - State persistence and recovery
@@ -428,30 +481,36 @@ export const useGamePersistence = () => {
 ## Dependencies
 
 ### Prerequisite Tasks
+
 - T-1.3.1 (Game Canvas and Snake Structure)
 - T-1.3.2 (Keyboard Input and Movement Logic)
 - T-1.4.2 (Snake Growth and Scoring)
 
 ### Blocking Tasks
+
 - None
 
 ### External Dependencies
+
 - React hooks for component integration
 - LocalStorage for state persistence
 
 ## Risks and Considerations
 
 ### Technical Risks
+
 - State synchronization issues between components
 - Memory leaks from subscription callbacks
 - State persistence corruption or conflicts
 
 ### Implementation Challenges
+
 - Complex state transition validation
 - Timing issues with pause/resume functionality
 - Integration with existing game systems
 
 ### Mitigation Strategies
+
 - Comprehensive state transition testing
 - Proper cleanup of subscriptions in useEffect
 - Robust error handling for state persistence

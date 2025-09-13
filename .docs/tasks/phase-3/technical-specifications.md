@@ -3,6 +3,7 @@
 ## API Endpoints
 
 ### Existing Endpoints (from Phase 2)
+
 ```typescript
 // Score Management
 GET    /api/scores              // Retrieve all scores
@@ -12,9 +13,10 @@ PUT    /api/scores/:id          // Update existing score
 ```
 
 ### New Endpoints (Phase 3)
+
 ```typescript
 // Health Check
-GET    /api/health              // System health status
+GET / api / health; // System health status
 
 // Health Check Response
 interface HealthResponse {
@@ -34,6 +36,7 @@ interface HealthResponse {
 ## Database Schema
 
 ### MongoDB Atlas Configuration
+
 ```javascript
 // Production Cluster
 cluster: {
@@ -46,13 +49,14 @@ cluster: {
 // Indexes
 db.scores.createIndex({ score: -1 });        // High score queries
 db.scores.createIndex({ timestamp: -1 });    // Recent scores
-db.scores.createIndex({ 
-  playerName: 1, 
-  score: -1 
+db.scores.createIndex({
+  playerName: 1,
+  score: -1
 });  // Player-specific queries
 ```
 
 ### Data Models (Existing from Phase 2)
+
 ```typescript
 interface Score {
   id: string;
@@ -68,13 +72,14 @@ interface Score {
 ### New Components
 
 #### High Score Page Components
+
 ```typescript
 // Main Page Component
 interface HighScorePageProps {
   initialScores?: Score[];
 }
 
-// High Score Table Component  
+// High Score Table Component
 interface HighScoreTableProps {
   scores: Score[];
   loading: boolean;
@@ -92,6 +97,7 @@ interface ScoreEntryProps {
 ```
 
 #### Responsive Hook
+
 ```typescript
 interface UseResponsiveReturn {
   viewMode: 'mobile' | 'tablet' | 'desktop';
@@ -104,6 +110,7 @@ interface UseResponsiveReturn {
 ## File Structure
 
 ### New Files
+
 ```
 src/
 ├── pages/
@@ -153,6 +160,7 @@ scripts/
 ```
 
 ### Modified Files
+
 ```
 src/
 ├── components/
@@ -175,6 +183,7 @@ README.md                           # Deployment instructions
 ## Configuration Changes
 
 ### Environment Variables
+
 ```bash
 # Production (Vercel)
 MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/snake-game
@@ -187,6 +196,7 @@ MONGODB_URI_DEV=mongodb://localhost:27017/snake-game-dev
 ```
 
 ### Next.js Configuration
+
 ```javascript
 // next.config.js additions
 module.exports = {
@@ -194,30 +204,31 @@ module.exports = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  
+
   // Image optimization
   images: {
     domains: ['vercel.app'],
     formats: ['image/webp', 'image/avif'],
   },
-  
+
   // Compression and optimization
   compress: true,
   experimental: {
     optimizeCss: true,
     optimizeImages: true,
-  }
+  },
 };
 ```
 
 ### Vercel Configuration
+
 ```json
 {
   "version": 2,
   "name": "snake-game",
   "builds": [
     {
-      "src": "package.json", 
+      "src": "package.json",
       "use": "@vercel/next"
     }
   ],
@@ -237,12 +248,14 @@ module.exports = {
 ## Performance Requirements
 
 ### Target Metrics
+
 - **Initial Load Time**: < 5 seconds
-- **API Response Time**: < 2 seconds  
+- **API Response Time**: < 2 seconds
 - **Uptime**: 99%
 - **Concurrent Users**: Effective handling
 
 ### Optimization Strategies
+
 - Next.js static optimization
 - Image optimization and compression
 - API response caching
@@ -252,18 +265,21 @@ module.exports = {
 ## Testing Strategy
 
 ### Unit Tests
+
 - Component rendering and props
 - Hook functionality
 - Utility function accuracy
 - API endpoint responses
 
-### Integration Tests  
+### Integration Tests
+
 - Page data fetching
 - Component integration
 - Database connectivity
 - Error handling
 
 ### E2E Tests
+
 - Full page functionality
 - Cross-browser compatibility
 - Mobile responsiveness
@@ -272,12 +288,14 @@ module.exports = {
 ## Security Considerations
 
 ### MongoDB Atlas
+
 - IP whitelisting for Vercel
 - Database user with minimal permissions
 - TLS/SSL encrypted connections
 - Connection string security
 
 ### Vercel Deployment
+
 - Environment variable security
 - Asset optimization
 - HTTPS enforcement

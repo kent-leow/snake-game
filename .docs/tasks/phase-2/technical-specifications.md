@@ -1,6 +1,7 @@
 # Technical Specifications - Phase 2
 
 ## Overview
+
 This document provides detailed technical specifications for Phase 2 implementation, covering API designs, database schemas, component interfaces, and system integration patterns for the combo system features.
 
 ## API Specifications
@@ -8,9 +9,11 @@ This document provides detailed technical specifications for Phase 2 implementat
 ### Score Management Endpoints
 
 #### POST /api/scores
+
 **Purpose**: Save a new game score with comprehensive metrics
 
 **Request Body**:
+
 ```typescript
 {
   playerName: string; // 1-20 characters, alphanumeric + spaces/hyphens/underscores
@@ -39,6 +42,7 @@ This document provides detailed technical specifications for Phase 2 implementat
 ```
 
 **Response** (201 Created):
+
 ```typescript
 {
   success: true;
@@ -48,27 +52,31 @@ This document provides detailed technical specifications for Phase 2 implementat
     score: number;
     timestamp: string; // ISO 8601
     // ... other fields
-  };
-  message: "Score saved successfully";
+  }
+  message: 'Score saved successfully';
 }
 ```
 
 **Error Responses**:
+
 - 400: Validation failed
-- 403: Security check failed 
+- 403: Security check failed
 - 429: Rate limit exceeded
 - 503: Database unavailable
 
 #### GET /api/scores
+
 **Purpose**: Retrieve scores with pagination and sorting
 
 **Query Parameters**:
+
 - `limit`: number (default: 50, max: 100)
 - `offset`: number (default: 0)
 - `sortBy`: string (default: 'score')
 - `order`: 'asc' | 'desc' (default: 'desc')
 
 **Response** (200 OK):
+
 ```typescript
 {
   success: true;
@@ -83,9 +91,11 @@ This document provides detailed technical specifications for Phase 2 implementat
 ```
 
 #### GET /api/scores/player/[name]
+
 **Purpose**: Get scores for specific player
 
 **Response** (200 OK):
+
 ```typescript
 {
   success: true;
@@ -99,13 +109,16 @@ This document provides detailed technical specifications for Phase 2 implementat
 ```
 
 #### GET /api/scores/leaderboard
+
 **Purpose**: Get top scores for leaderboard
 
 **Query Parameters**:
+
 - `period`: 'daily' | 'weekly' | 'monthly' | 'all' (default: 'all')
 - `limit`: number (default: 10, max: 50)
 
 **Response** (200 OK):
+
 ```typescript
 {
   success: true;
@@ -120,13 +133,14 @@ This document provides detailed technical specifications for Phase 2 implementat
 ## Database Schema
 
 ### Score Collection
+
 ```typescript
 interface IScore extends Document {
   // Identity and basic info
   playerName: string; // Required, 1-20 chars, validated pattern
   score: number; // Required, integer, 0-1,000,000
   timestamp: Date; // Required, defaults to Date.now
-  
+
   // Game performance metrics
   gameMetrics: {
     totalFood: number; // Required, integer, min 0
@@ -136,7 +150,7 @@ interface IScore extends Document {
     gameTimeSeconds: number; // Required, 1-7200 seconds
     finalSnakeLength: number; // Required, integer, 1-10000
   };
-  
+
   // Scoring breakdown
   comboStats: {
     totalComboPoints: number; // Required, integer, min 0
@@ -144,7 +158,7 @@ interface IScore extends Document {
     comboEfficiency: number; // Required, 0-100 percentage
     averageComboLength: number; // Required, 0-5 average
   };
-  
+
   // Optional metadata
   metadata?: {
     browserInfo: string; // Max 200 chars
@@ -152,7 +166,7 @@ interface IScore extends Document {
     gameVersion: string; // Max 10 chars
     difficulty?: 'easy' | 'normal' | 'hard';
   };
-  
+
   // Auto-generated
   createdAt: Date;
   updatedAt: Date;
@@ -160,6 +174,7 @@ interface IScore extends Document {
 ```
 
 ### Indexes
+
 ```typescript
 // Performance indexes
 { score: -1 } // High scores first
@@ -174,6 +189,7 @@ interface IScore extends Document {
 ### Core Game Components
 
 #### FoodManager
+
 ```typescript
 interface NumberedFood {
   id: string;
@@ -191,6 +207,7 @@ class FoodManager {
 ```
 
 #### ComboManager
+
 ```typescript
 interface ComboState {
   currentSequence: number[];
@@ -215,6 +232,7 @@ class ComboManager {
 ```
 
 #### SpeedManager
+
 ```typescript
 interface SpeedConfig {
   baseSpeed: number; // 150ms default
@@ -243,6 +261,7 @@ class SpeedManager {
 ### UI Components
 
 #### ComboProgressIndicator
+
 ```typescript
 interface ComboProgressProps {
   currentProgress: 0 | 1 | 2 | 3 | 4 | 5;
@@ -255,6 +274,7 @@ const ComboProgressIndicator: React.FC<ComboProgressProps>;
 ```
 
 #### SpeedIndicator
+
 ```typescript
 interface SpeedIndicatorProps {
   speedLevel: number;
@@ -268,6 +288,7 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps>;
 ```
 
 #### ScoreSubmissionModal
+
 ```typescript
 interface ScoreSubmissionModalProps {
   isOpen: boolean;
@@ -282,10 +303,11 @@ const ScoreSubmissionModal: React.FC<ScoreSubmissionModalProps>;
 ## Configuration Constants
 
 ### Food System
+
 ```typescript
 const FOOD_COLORS: Record<1 | 2 | 3 | 4 | 5, string> = {
   1: '#FF6B6B', // Red
-  2: '#4ECDC4', // Teal  
+  2: '#4ECDC4', // Teal
   3: '#45B7D1', // Blue
   4: '#96CEB4', // Green
   5: '#FECA57', // Yellow
@@ -296,6 +318,7 @@ const FOOD_NUMBERS = [1, 2, 3, 4, 5] as const;
 ```
 
 ### Combo System
+
 ```typescript
 const COMBO_CONFIG = {
   SEQUENCE: [1, 2, 3, 4, 5] as const,
@@ -305,6 +328,7 @@ const COMBO_CONFIG = {
 ```
 
 ### Speed System
+
 ```typescript
 const SPEED_CONFIG = {
   BASE_SPEED: 150, // ms between moves
@@ -316,6 +340,7 @@ const SPEED_CONFIG = {
 ```
 
 ### Score System
+
 ```typescript
 const SCORE_CONFIG = {
   BASE_POINTS: 10,
@@ -382,18 +407,21 @@ pages/
 ## Performance Considerations
 
 ### Frontend Optimizations
+
 - Canvas rendering optimized for 60 FPS with multiple food blocks
 - Efficient collision detection using spatial partitioning
 - Debounced score submissions to prevent rapid API calls
 - Memoized component renders for combo and speed indicators
 
 ### Backend Optimizations
+
 - Database indexes on commonly queried fields
 - Connection pooling for MongoDB
 - Rate limiting to prevent abuse
 - Efficient aggregation queries for leaderboards
 
 ### Storage Optimizations
+
 - LocalStorage fallback with size limits
 - Automatic cleanup of old offline scores
 - Compressed score data for storage efficiency
@@ -401,21 +429,24 @@ pages/
 ## Security Measures
 
 ### Input Validation
+
 - Comprehensive server-side validation for all score data
 - Client-side validation for immediate feedback
 - Sanitization of player names and text inputs
 
 ### Anti-Cheating Measures
+
 - Game time vs score ratio validation
 - Maximum score limits and bounds checking
 - Rate limiting for score submissions
 - Logging of suspicious score patterns
 
 ### Data Protection
+
 - No sensitive personal data collection
 - Optional player names only
 - Secure API endpoints with proper error handling
 
 ---
 
-*This technical specification provides the detailed implementation guidance needed for all Phase 2 development tasks.*
+_This technical specification provides the detailed implementation guidance needed for all Phase 2 development tasks._

@@ -4,11 +4,13 @@
 ## Audio System Architecture
 
 ### Overview
+
 Phase 4 implements a comprehensive audio system using a hybrid approach combining Web Audio API for low-latency sound effects and HTML5 Audio for background music playback.
 
 ## Core Components
 
 ### AudioManager Class
+
 ```typescript
 interface AudioManagerConfig {
   musicVolume: number;
@@ -39,11 +41,12 @@ class AudioManager {
 ```
 
 ### Audio Context Management
+
 ```typescript
 interface AudioContextManager {
   context: AudioContext | null;
   state: 'suspended' | 'running' | 'closed' | 'unavailable';
-  
+
   initialize(): Promise<AudioContext | null>;
   resume(): Promise<void>;
   suspend(): Promise<void>;
@@ -54,6 +57,7 @@ interface AudioContextManager {
 ## API Specifications
 
 ### Audio Manager Interface
+
 ```typescript
 // Core audio management interface
 interface IAudioManager {
@@ -61,23 +65,23 @@ interface IAudioManager {
   initialize(): Promise<boolean>;
   isSupported(): boolean;
   getState(): AudioState;
-  
+
   // Music controls
   playBackgroundMusic(track: string): Promise<void>;
   pauseMusic(): void;
   resumeMusic(): void;
   setMusicVolume(volume: number): void;
-  
+
   // Sound effects
   playSound(soundId: SoundId): void;
   preloadSounds(sounds: SoundMap): Promise<void>;
   setEffectsVolume(volume: number): void;
-  
+
   // Global controls
   mute(): void;
   unmute(): void;
   setMasterVolume(volume: number): void;
-  
+
   // Settings persistence
   saveSettings(): void;
   loadSettings(): AudioSettings;
@@ -88,7 +92,7 @@ enum SoundId {
   EAT_FOOD = 'eat-food',
   COMBO_COMPLETE = 'combo-complete',
   GAME_OVER = 'game-over',
-  MENU_CLICK = 'menu-click'
+  MENU_CLICK = 'menu-click',
 }
 
 // Audio settings interface
@@ -103,6 +107,7 @@ interface AudioSettings {
 ```
 
 ### Game Integration Interface
+
 ```typescript
 // Game event audio triggers
 interface GameAudioEvents {
@@ -126,6 +131,7 @@ interface AudioEventEmitter {
 ## Component Specifications
 
 ### AudioControls Component
+
 ```typescript
 interface AudioControlsProps {
   audioManager: IAudioManager;
@@ -140,7 +146,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   showVolumeSlider = true,
   showMuteButton = true,
   orientation = 'horizontal',
-  size = 'medium'
+  size = 'medium',
 }) => {
   // Volume slider with real-time feedback
   // Mute/unmute toggle button
@@ -150,6 +156,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 ```
 
 ### AudioProvider Context
+
 ```typescript
 interface AudioContextValue {
   audioManager: IAudioManager;
@@ -161,7 +168,9 @@ interface AudioContextValue {
   error: string | null;
 }
 
-const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   // Initialize audio manager
   // Provide audio context to components
   // Handle browser compatibility
@@ -172,6 +181,7 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 ## Database Schema Extensions
 
 ### Audio Settings Storage
+
 ```typescript
 // Extend existing user preferences or create new schema
 interface UserPreferences extends Document {
@@ -198,6 +208,7 @@ interface LocalAudioSettings {
 ## File Structure
 
 ### Audio System Files
+
 ```
 src/
 ├── lib/
@@ -234,6 +245,7 @@ src/
 ### New File Targets
 
 #### Core Audio System
+
 - `src/lib/audio/AudioManager.ts` - Main audio management class
 - `src/lib/audio/AudioContext.ts` - Audio context lifecycle management
 - `src/lib/audio/SoundLoader.ts` - Audio asset loading and caching
@@ -241,11 +253,13 @@ src/
 - `src/lib/audio/types.ts` - TypeScript interfaces and enums
 
 #### React Components
+
 - `src/components/audio/AudioControls.tsx` - Volume and mute controls UI
 - `src/components/audio/AudioProvider.tsx` - React context for audio state
 - `src/components/audio/AudioIndicator.tsx` - Audio status display
 
 #### Hooks and Utilities
+
 - `src/hooks/useAudio.ts` - Custom hook for audio management
 - `src/hooks/useAudioSettings.ts` - Settings persistence hook
 - `src/hooks/useGameAudio.ts` - Game event audio integration
@@ -253,12 +267,14 @@ src/
 - `src/lib/utils/storageUtils.ts` - Local storage management
 
 #### Audio Assets
+
 - `public/audio/music/background-music.mp3` - Game background music
 - `public/audio/sounds/eat-food.wav` - Food consumption sound effect
 - `public/audio/sounds/combo-complete.wav` - Combo achievement sound
 - `public/audio/sounds/game-over.wav` - Game over sound effect
 
 ### Modified Files
+
 - `src/components/game/GameCanvas.tsx` - Integration with audio events
 - `src/pages/game.tsx` - Audio provider and controls integration
 - `src/lib/game/GameEngine.ts` - Audio event emission
@@ -268,11 +284,12 @@ src/
 ## Configuration Changes
 
 ### Next.js Configuration
+
 ```javascript
 // next.config.js additions
 module.exports = {
   // ... existing config
-  webpack: (config) => {
+  webpack: config => {
     // Audio file handling
     config.module.rules.push({
       test: /\.(mp3|wav|ogg)$/,
@@ -290,6 +307,7 @@ module.exports = {
 ```
 
 ### TypeScript Configuration
+
 ```json
 {
   "compilerOptions": {
@@ -305,6 +323,7 @@ module.exports = {
 ```
 
 ### Environment Variables
+
 ```bash
 # Audio-related environment variables
 NEXT_PUBLIC_AUDIO_ENABLED=true
@@ -314,16 +333,17 @@ NEXT_PUBLIC_AUDIO_CDN_URL=""
 
 ## Browser Compatibility Matrix
 
-| Feature | Chrome | Firefox | Safari | Edge | Mobile Safari | Mobile Chrome |
-|---------|--------|---------|--------|------|---------------|---------------|
-| Web Audio API | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| HTML5 Audio | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Autoplay (user gesture) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Autoplay (no gesture) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Audio Context Resume | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Multiple Audio Sources | ✅ | ✅ | ✅ | ✅ | Limited | ✅ |
+| Feature                 | Chrome | Firefox | Safari | Edge | Mobile Safari | Mobile Chrome |
+| ----------------------- | ------ | ------- | ------ | ---- | ------------- | ------------- |
+| Web Audio API           | ✅     | ✅      | ✅     | ✅   | ✅            | ✅            |
+| HTML5 Audio             | ✅     | ✅      | ✅     | ✅   | ✅            | ✅            |
+| Autoplay (user gesture) | ✅     | ✅      | ✅     | ✅   | ✅            | ✅            |
+| Autoplay (no gesture)   | ❌     | ❌      | ❌     | ❌   | ❌            | ❌            |
+| Audio Context Resume    | ✅     | ✅      | ✅     | ✅   | ✅            | ✅            |
+| Multiple Audio Sources  | ✅     | ✅      | ✅     | ✅   | Limited       | ✅            |
 
 ### Fallback Strategy
+
 1. **Primary**: Web Audio API + HTML5 Audio
 2. **Fallback 1**: HTML5 Audio only (older browsers)
 3. **Fallback 2**: Silent operation (audio blocked/unsupported)
@@ -331,6 +351,7 @@ NEXT_PUBLIC_AUDIO_CDN_URL=""
 ## Performance Specifications
 
 ### Audio Performance Targets
+
 - **Sound Effect Latency**: < 50ms from trigger to playback
 - **Music Loading Time**: < 2 seconds for background music
 - **Memory Usage**: < 10MB for all audio assets
@@ -338,6 +359,7 @@ NEXT_PUBLIC_AUDIO_CDN_URL=""
 - **Audio Buffer Size**: 4096 samples (for low latency)
 
 ### Optimization Strategies
+
 - Preload critical sound effects during game initialization
 - Use compressed audio formats (MP3 for music, WAV for effects)
 - Implement audio asset lazy loading for non-critical sounds

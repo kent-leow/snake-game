@@ -6,7 +6,9 @@ Point: eat one block = 10pts, one combo = 5pts.
 Snake growth = speed and length
 speed increase every combo, combo break back to normal speed.
 length increase one block every 100pts
-------
+
+---
+
 Stacks/Requirements:
 Deployment to Vercel, linked from Github to Vercel. (this can be ignore because I will link it manually, every commit into master it will go to vercel)
 Page: Main Menu, Highscore, Snake Game, Settings

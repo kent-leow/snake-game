@@ -1,6 +1,7 @@
 # Task: Implement Score API Endpoints
 
 ## Task Header
+
 - **ID**: T-2.4.2
 - **Title**: Implement Score API Endpoints
 - **Story ID**: US-2.4
@@ -10,17 +11,21 @@
 - **Complexity**: moderate
 
 ## Objective
+
 Create robust Next.js API routes for score management, including saving new scores, retrieving high scores, and handling error scenarios with proper validation and security measures.
 
 ## Description
+
 Implement RESTful API endpoints that handle score persistence, retrieval, and validation while providing proper error handling, security measures, and performance optimization.
 
 ## Acceptance Criteria Covered
+
 - GIVEN game over WHEN score achieved THEN score is automatically saved to database
 - GIVEN high scores WHEN viewing THEN personal best scores display in descending order
 - GIVEN database unavailable WHEN saving THEN graceful fallback occurs
 
 ## Implementation Notes
+
 - Follow RESTful conventions for API design
 - Implement proper error handling and validation
 - Add security measures to prevent score manipulation
@@ -29,7 +34,9 @@ Implement RESTful API endpoints that handle score persistence, retrieval, and va
 ## Technical Specifications
 
 ### File Targets
+
 #### New Files
+
 - `pages/api/scores/index.ts` - Main scores endpoint (GET, POST)
 - `pages/api/scores/player/[name].ts` - Player-specific scores
 - `pages/api/scores/leaderboard.ts` - Top scores leaderboard
@@ -37,11 +44,13 @@ Implement RESTful API endpoints that handle score persistence, retrieval, and va
 - `src/lib/api/errorHandler.ts` - Centralized error handling
 
 #### Modified Files
+
 - `src/lib/mongodb.ts` - Ensure proper connection handling
 
 ### API Endpoint Specifications
 
 #### Main Scores Endpoint
+
 ```typescript
 // pages/api/scores/index.ts
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -59,9 +68,9 @@ export default async function handler(
       case 'POST':
         return await createScore(req, res);
       default:
-        return res.status(405).json({ 
+        return res.status(405).json({
           error: 'Method not allowed',
-          allowedMethods: ['GET', 'POST']
+          allowedMethods: ['GET', 'POST'],
         });
     }
   } catch (error) {
@@ -70,11 +79,11 @@ export default async function handler(
 }
 
 async function getScores(req: NextApiRequest, res: NextApiResponse) {
-  const { 
-    limit = 50, 
-    offset = 0, 
+  const {
+    limit = 50,
+    offset = 0,
     sortBy = 'score',
-    order = 'desc' 
+    order = 'desc',
   } = req.query;
 
   const scoreService = new ScoreService();
@@ -82,7 +91,7 @@ async function getScores(req: NextApiRequest, res: NextApiResponse) {
     limit: Number(limit),
     offset: Number(offset),
     sortBy: sortBy as string,
-    order: order as 'asc' | 'desc'
+    order: order as 'asc' | 'desc',
   });
 
   res.status(200).json({
@@ -92,20 +101,21 @@ async function getScores(req: NextApiRequest, res: NextApiResponse) {
       total: result.total,
       limit: Number(limit),
       offset: Number(offset),
-      hasMore: result.total > Number(offset) + Number(limit)
-    }
+      hasMore: result.total > Number(offset) + Number(limit),
+    },
   });
 }
 
 async function createScore(req: NextApiRequest, res: NextApiResponse) {
   const scoreData = req.body;
-  
+
   // Rate limiting check
-  const clientId = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const clientId =
+    req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   if (await ScoreService.isRateLimited(clientId as string)) {
     return res.status(429).json({
       error: 'Rate limit exceeded',
-      message: 'Please wait before submitting another score'
+      message: 'Please wait before submitting another score',
     });
   }
 
@@ -115,12 +125,13 @@ async function createScore(req: NextApiRequest, res: NextApiResponse) {
   res.status(201).json({
     success: true,
     data: result,
-    message: 'Score saved successfully'
+    message: 'Score saved successfully',
   });
 }
 ```
 
 #### Player Scores Endpoint
+
 ```typescript
 // pages/api/scores/player/[name].ts
 export default async function handler(
@@ -148,8 +159,8 @@ export default async function handler(
         playerName: name,
         scores,
         bestScore: scores[0]?.score || 0,
-        totalGames: scores.length
-      }
+        totalGames: scores.length,
+      },
     });
   } catch (error) {
     return handleApiError(error, res);
@@ -158,6 +169,7 @@ export default async function handler(
 ```
 
 #### Leaderboard Endpoint
+
 ```typescript
 // pages/api/scores/leaderboard.ts
 export default async function handler(
@@ -174,7 +186,7 @@ export default async function handler(
     const scoreService = new ScoreService();
     const leaderboard = await scoreService.getLeaderboard({
       period: period as 'daily' | 'weekly' | 'monthly' | 'all',
-      limit: Number(limit)
+      limit: Number(limit),
     });
 
     res.status(200).json({
@@ -182,8 +194,8 @@ export default async function handler(
       data: {
         period,
         leaderboard,
-        lastUpdated: new Date().toISOString()
-      }
+        lastUpdated: new Date().toISOString(),
+      },
     });
   } catch (error) {
     return handleApiError(error, res);
@@ -192,6 +204,7 @@ export default async function handler(
 ```
 
 ### Service Layer Implementation
+
 ```typescript
 // src/lib/api/scoreService.ts
 import { Score } from '@/models/Score';
@@ -229,38 +242,33 @@ export class ScoreService {
 
   async getScores(options: GetScoresOptions) {
     const { limit, offset, sortBy, order } = options;
-    
+
     const sortObj: any = {};
     sortObj[sortBy] = order === 'desc' ? -1 : 1;
 
     const [scores, total] = await Promise.all([
-      Score.find({})
-        .sort(sortObj)
-        .limit(limit)
-        .skip(offset)
-        .lean(),
-      Score.countDocuments({})
+      Score.find({}).sort(sortObj).limit(limit).skip(offset).lean(),
+      Score.countDocuments({}),
     ]);
 
     return { scores, total };
   }
 
   async getPlayerScores(playerName: string, limit: number) {
-    return Score.find({ playerName })
-      .sort({ score: -1 })
-      .limit(limit)
-      .lean();
+    return Score.find({ playerName }).sort({ score: -1 }).limit(limit).lean();
   }
 
   async getLeaderboard(options: LeaderboardOptions) {
     const { period, limit } = options;
-    
+
     let dateFilter = {};
     const now = new Date();
-    
+
     switch (period) {
       case 'daily':
-        dateFilter = { timestamp: { $gte: new Date(now.setHours(0, 0, 0, 0)) } };
+        dateFilter = {
+          timestamp: { $gte: new Date(now.setHours(0, 0, 0, 0)) },
+        };
         break;
       case 'weekly':
         const weekStart = new Date(now.setDate(now.getDate() - now.getDay()));
@@ -300,28 +308,33 @@ export class ScoreService {
     // Simple in-memory rate limiting (consider Redis for production)
     const key = `score_submission_${clientId}`;
     const lastSubmission = global.rateLimitCache?.[key];
-    
-    if (lastSubmission && Date.now() - lastSubmission < 60000) { // 1 minute
+
+    if (lastSubmission && Date.now() - lastSubmission < 60000) {
+      // 1 minute
       return true;
     }
-    
+
     if (!global.rateLimitCache) {
       global.rateLimitCache = {};
     }
     global.rateLimitCache[key] = Date.now();
-    
+
     return false;
   }
 }
 ```
 
 ### Error Handling
+
 ```typescript
 // src/lib/api/errorHandler.ts
 import { NextApiResponse } from 'next';
 
 export class ValidationError extends Error {
-  constructor(message: string, public details: string[]) {
+  constructor(
+    message: string,
+    public details: string[]
+  ) {
     super(message);
     this.name = 'ValidationError';
   }
@@ -341,29 +354,32 @@ export function handleApiError(error: Error, res: NextApiResponse) {
     return res.status(400).json({
       error: 'Validation failed',
       message: error.message,
-      details: error.details
+      details: error.details,
     });
   }
 
   if (error instanceof SecurityError) {
     return res.status(403).json({
       error: 'Security check failed',
-      message: error.message
+      message: error.message,
     });
   }
 
   // Database connection errors
-  if (error.name === 'MongoNetworkError' || error.name === 'MongoTimeoutError') {
+  if (
+    error.name === 'MongoNetworkError' ||
+    error.name === 'MongoTimeoutError'
+  ) {
     return res.status(503).json({
       error: 'Database temporarily unavailable',
-      message: 'Please try again later'
+      message: 'Please try again later',
     });
   }
 
   // Generic server error
   return res.status(500).json({
     error: 'Internal server error',
-    message: 'An unexpected error occurred'
+    message: 'An unexpected error occurred',
   });
 }
 ```
@@ -371,17 +387,20 @@ export function handleApiError(error: Error, res: NextApiResponse) {
 ## Testing Requirements
 
 ### Unit Tests
+
 - Test all API endpoints with valid data
 - Test validation and error handling
 - Test rate limiting functionality
 - Test security checks
 
 ### Integration Tests
+
 - Test database integration with real MongoDB
 - Test API performance under load
 - Test error scenarios (network issues, etc.)
 
 ### E2E Scenarios
+
 - Submit score and verify persistence
 - Retrieve leaderboard and verify ordering
 - Test rate limiting with rapid submissions
@@ -389,12 +408,15 @@ export function handleApiError(error: Error, res: NextApiResponse) {
 ## Dependencies
 
 ### Prerequisite Tasks
+
 - T-2.4.1 (MongoDB Score Schema)
 
 ### Blocking Tasks
+
 None
 
 ### External Dependencies
+
 - Next.js API routes
 - MongoDB connection
 - Mongoose ODM
@@ -402,14 +424,17 @@ None
 ## Risks and Considerations
 
 ### Technical Risks
+
 - **Score Manipulation**: Users submitting fake scores
 - **Database Performance**: Slow queries under high load
 
 ### Implementation Challenges
+
 - **Rate Limiting**: Preventing abuse while allowing legitimate play
 - **Error Handling**: Graceful degradation when database is unavailable
 
 ### Mitigation Strategies
+
 - Implement comprehensive input validation
 - Add rate limiting and security checks
 - Use database indexes for query optimization
@@ -418,4 +443,4 @@ None
 
 ---
 
-*This task creates a secure, performant API layer for score persistence that handles both normal operation and error scenarios gracefully.*
+_This task creates a secure, performant API layer for score persistence that handles both normal operation and error scenarios gracefully._

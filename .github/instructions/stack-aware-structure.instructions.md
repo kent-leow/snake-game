@@ -1,5 +1,5 @@
 ---
-applyTo:: "**"
+applyTo:: '**'
 ---
 
 # Stack-Aware Structure & Architecture
@@ -17,6 +17,7 @@ Always implement using the standard folder structure and architecture for the de
 **Never improvise structure—always align with the stack's standards.**
 
 Common canonical folders (non‑exhaustive)
+
 - Node/Express/Nest: `src/controllers/`, `src/services/`, `src/routes/`, `src/middlewares/`, `src/models/`, `src/repositories/`, `src/config/`, `src/utils/`, `tests/`
 - React/Vite/Next: `app/` or `pages/`, `src/components/`, `src/hooks/`, `src/context/`, `src/lib/`, `src/services/`, `src/types/`, `src/styles/`, `public/`, `tests/`
 - Python (Django): project `settings/`, app `models.py`, `views.py`, `urls.py`, `templates/`, `static/`, `migrations/`, `tests/`

@@ -1,6 +1,7 @@
 # Task: Mobile-Responsive UI Layout
 
 ## Task Header
+
 - **ID**: 5.1.2
 - **Title**: Mobile-Responsive UI Layout
 - **Story ID**: US-5.1
@@ -10,12 +11,15 @@
 - **Complexity**: moderate
 
 ## Objective
+
 Create a fully responsive UI layout that adapts seamlessly to different mobile screen sizes and orientations, providing an optimal gaming experience across all mobile devices.
 
 ## Description
+
 Implement comprehensive responsive design for the game interface, ensuring the game canvas, controls, and UI elements properly scale and position themselves across various mobile devices. This includes handling orientation changes, safe area considerations for modern mobile devices, and optimizing layout for both portrait and landscape modes.
 
 ## Acceptance Criteria Covered
+
 - GIVEN orientation change WHEN device rotates THEN game adapts layout appropriately
 - GIVEN mobile interface WHEN displayed THEN touch controls for start/pause/restart are accessible
 - GIVEN mobile device WHEN viewing THEN all UI elements are appropriately sized for touch
@@ -24,20 +28,21 @@ Implement comprehensive responsive design for the game interface, ensuring the g
 ## Implementation Notes
 
 ### Responsive Breakpoint System
+
 ```typescript
 // Responsive breakpoint configuration
 export const BREAKPOINTS = {
-  MOBILE_SMALL: 360,   // Small phones (Galaxy S8, iPhone SE)
-  MOBILE_LARGE: 414,   // Large phones (iPhone 14 Pro Max)
-  TABLET: 768,         // iPads and Android tablets
-  DESKTOP: 1024        // Desktop and laptop screens
+  MOBILE_SMALL: 360, // Small phones (Galaxy S8, iPhone SE)
+  MOBILE_LARGE: 414, // Large phones (iPhone 14 Pro Max)
+  TABLET: 768, // iPads and Android tablets
+  DESKTOP: 1024, // Desktop and laptop screens
 } as const;
 
 export const DEVICE_CATEGORIES = {
   PHONE_PORTRAIT: { minWidth: 0, maxWidth: 414, minHeight: 667 },
   PHONE_LANDSCAPE: { minWidth: 667, maxWidth: 844, maxHeight: 414 },
   TABLET_PORTRAIT: { minWidth: 768, maxWidth: 1024, minHeight: 1024 },
-  TABLET_LANDSCAPE: { minWidth: 1024, maxWidth: 1366, maxHeight: 768 }
+  TABLET_LANDSCAPE: { minWidth: 1024, maxWidth: 1366, maxHeight: 768 },
 } as const;
 
 // Hook for responsive design
@@ -45,14 +50,17 @@ export const useResponsiveLayout = () => {
   const [screenSize, setScreenSize] = useState<ScreenSize>('medium');
   const [orientation, setOrientation] = useState<Orientation>('portrait');
   const [safeAreaInsets, setSafeAreaInsets] = useState<SafeAreaInsets>({
-    top: 0, bottom: 0, left: 0, right: 0
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
   });
 
   useEffect(() => {
     const updateLayout = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
-      
+
       // Determine screen size category
       if (width <= BREAKPOINTS.MOBILE_SMALL) {
         setScreenSize('small');
@@ -86,6 +94,7 @@ export const useResponsiveLayout = () => {
 ```
 
 ### Game Container Responsive Component
+
 ```typescript
 interface GameContainerProps {
   children: React.ReactNode;
@@ -93,7 +102,7 @@ interface GameContainerProps {
 
 export const GameContainer: React.FC<GameContainerProps> = ({ children }) => {
   const { screenSize, orientation, safeAreaInsets } = useResponsiveLayout();
-  
+
   const containerStyles = useMemo(() => ({
     '--safe-area-top': `${safeAreaInsets.top}px`,
     '--safe-area-bottom': `${safeAreaInsets.bottom}px`,
@@ -102,7 +111,7 @@ export const GameContainer: React.FC<GameContainerProps> = ({ children }) => {
   }), [safeAreaInsets]);
 
   return (
-    <div 
+    <div
       className={`game-container ${screenSize} ${orientation}`}
       style={containerStyles}
       data-testid="game-container"
@@ -114,6 +123,7 @@ export const GameContainer: React.FC<GameContainerProps> = ({ children }) => {
 ```
 
 ### Mobile Game Canvas Component
+
 ```typescript
 interface MobileGameCanvasProps {
   width: number;
@@ -189,6 +199,7 @@ export const MobileGameCanvas: React.FC<MobileGameCanvasProps> = ({
 ```
 
 ### Mobile Control Panel Component
+
 ```typescript
 interface MobileControlPanelProps {
   gameState: GameState;
@@ -219,7 +230,7 @@ export const MobileControlPanel: React.FC<MobileControlPanelProps> = ({
             size="large"
           />
         )}
-        
+
         {gameState === 'playing' && (
           <TouchButton
             onClick={onPause}
@@ -229,7 +240,7 @@ export const MobileControlPanel: React.FC<MobileControlPanelProps> = ({
             size="medium"
           />
         )}
-        
+
         {(gameState === 'paused' || gameState === 'gameOver') && (
           <>
             <TouchButton
@@ -249,7 +260,7 @@ export const MobileControlPanel: React.FC<MobileControlPanelProps> = ({
           </>
         )}
       </div>
-      
+
       <div className="secondary-controls">
         <TouchButton
           onClick={onSettings}
@@ -265,6 +276,7 @@ export const MobileControlPanel: React.FC<MobileControlPanelProps> = ({
 ```
 
 ### Touch-Optimized Button Component
+
 ```typescript
 interface TouchButtonProps {
   onClick: () => void;
@@ -322,6 +334,7 @@ export const TouchButton: React.FC<TouchButtonProps> = ({
 ### File Targets
 
 #### New Files
+
 - `src/components/Mobile/GameContainer.tsx` - Responsive game container
 - `src/components/Mobile/MobileGameCanvas.tsx` - Mobile-optimized canvas component
 - `src/components/Mobile/MobileControlPanel.tsx` - Touch control panel
@@ -332,17 +345,21 @@ export const TouchButton: React.FC<TouchButtonProps> = ({
 - `src/styles/responsive.css` - Responsive breakpoint styles
 
 #### Modified Files
+
 - `src/pages/game.tsx` - Integrate mobile components
 - `src/components/Game/GamePage.tsx` - Add responsive layout support
 - `src/styles/globals.css` - Add mobile-first base styles
 
 ### API Endpoints
+
 N/A - Frontend-only responsive design
 
 ### Database Changes
+
 N/A - No data persistence for layout
 
 ### Component Specs
+
 ```typescript
 // Responsive layout interfaces
 interface ScreenSize {
@@ -390,6 +407,7 @@ interface TouchButtonConfig {
 ```
 
 ### DTO Definitions
+
 ```typescript
 // Layout state data transfer objects
 interface LayoutStateDTO {
@@ -413,6 +431,7 @@ interface ResponsiveConfigDTO {
 ```
 
 ### Configuration Changes
+
 ```css
 /* CSS Custom Properties for responsive design */
 :root {
@@ -421,17 +440,17 @@ interface ResponsiveConfigDTO {
   --mobile-large: 414px;
   --tablet: 768px;
   --desktop: 1024px;
-  
+
   /* Touch target sizes */
   --touch-target-min: 44px;
   --touch-spacing: 8px;
-  
+
   /* Safe area support */
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-left: env(safe-area-inset-left, 0px);
   --safe-area-right: env(safe-area-inset-right, 0px);
-  
+
   /* Mobile-specific spacing */
   --mobile-padding: 16px;
   --mobile-gap: 12px;
@@ -446,7 +465,7 @@ interface ResponsiveConfigDTO {
   .mobile-only {
     display: block;
   }
-  
+
   .desktop-only {
     display: none;
   }
@@ -456,6 +475,7 @@ interface ResponsiveConfigDTO {
 ## Testing Requirements
 
 ### Unit Tests
+
 - Responsive layout hook behavior with different screen sizes
 - Canvas size calculations for various devices
 - Safe area inset detection and application
@@ -463,12 +483,14 @@ interface ResponsiveConfigDTO {
 - Orientation change handling
 
 ### Integration Tests
+
 - Game container layout updates with window resize
 - Canvas scaling integration with game rendering
 - Touch button integration with game controls
 - Mobile control panel state synchronization
 
 ### E2E Scenarios
+
 - Complete responsive layout testing across device sizes
 - Orientation change handling during active gameplay
 - Touch target accessibility and usability testing
@@ -477,40 +499,42 @@ interface ResponsiveConfigDTO {
 ## Dependencies
 
 ### Prerequisite Tasks
+
 - US-5.1.1 (Touch Event System) - For touch control integration
 - US-1.7 (Canvas-Based Game Rendering) - For canvas component integration
 
 ### Blocking Tasks
+
 - None - Can be developed in parallel with touch system
 
 ### External Dependencies
-- CSS Environment Variables (safe-area-inset-*)
+
+- CSS Environment Variables (safe-area-inset-\*)
 - Viewport meta tag configuration
 - CSS Grid and Flexbox browser support
 
 ## Risks and Considerations
 
 ### Technical Risks
+
 - **Safe Area Detection**: Not all browsers support CSS environment variables for safe areas
-  - *Mitigation*: Provide fallback values and feature detection
-  
+  - _Mitigation_: Provide fallback values and feature detection
 - **Dynamic Viewport Heights**: iOS Safari changing viewport height causes layout issues
-  - *Mitigation*: Use CSS custom properties and proper viewport units (dvh)
-  
+  - _Mitigation_: Use CSS custom properties and proper viewport units (dvh)
 - **Canvas Scaling**: Performance impact of canvas scaling on mobile devices
-  - *Mitigation*: Optimize scaling calculations and cache values
+  - _Mitigation_: Optimize scaling calculations and cache values
 
 ### Implementation Challenges
+
 - **Cross-Device Consistency**: Ensuring consistent appearance across different mobile devices
-  - *Mitigation*: Comprehensive device testing and flexible layout system
-  
+  - _Mitigation_: Comprehensive device testing and flexible layout system
 - **Orientation Changes**: Smooth transitions and layout recalculation during device rotation
-  - *Mitigation*: Debounced resize handlers and CSS transition animations
-  
+  - _Mitigation_: Debounced resize handlers and CSS transition animations
 - **Touch Target Accessibility**: Meeting platform-specific touch target size requirements
-  - *Mitigation*: Platform-aware touch target sizing and spacing
+  - _Mitigation_: Platform-aware touch target sizing and spacing
 
 ### Mitigation Strategies
+
 - Use mobile-first responsive design approach
 - Implement progressive enhancement for advanced mobile features
 - Test on real devices with different screen sizes and resolutions
@@ -518,6 +542,7 @@ interface ResponsiveConfigDTO {
 - Monitor performance impact of responsive calculations
 
 ## Definition of Done
+
 - [ ] Game interface adapts properly to all target mobile screen sizes
 - [ ] Orientation changes trigger appropriate layout updates
 - [ ] Safe area insets are respected on devices with notches/home indicators
@@ -530,6 +555,7 @@ interface ResponsiveConfigDTO {
 - [ ] Integration testing validates layout with touch controls
 
 ## Implementation Strategy
+
 1. **Phase 1**: Core responsive layout hook and breakpoint system
 2. **Phase 2**: Game container and canvas responsive components
 3. **Phase 3**: Mobile control panel and touch button implementation

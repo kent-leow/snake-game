@@ -1,11 +1,13 @@
 # Phase 1 Technical Specifications
 
 ## Overview
+
 This document provides comprehensive technical specifications for Phase 1 implementation tasks, including API designs, database schemas, component interfaces, and configuration details.
 
 ## Architecture Overview
 
 ### Technology Stack
+
 - **Frontend**: Next.js 14+ with TypeScript, React 18+, HTML5 Canvas API
 - **Backend**: Next.js API Routes (Node.js runtime)
 - **Database**: MongoDB with Mongoose ODM (Docker containerized)
@@ -13,6 +15,7 @@ This document provides comprehensive technical specifications for Phase 1 implem
 - **Development**: Docker Compose, ESLint, Prettier
 
 ### Project Structure
+
 ```
 src/
 ├── app/                          # Next.js app directory
@@ -61,6 +64,7 @@ src/
 ## Core Type Definitions
 
 ### Game Types
+
 ```typescript
 // Position and direction types
 interface Position {
@@ -114,6 +118,7 @@ interface ScoreEvent {
 ## Component Interface Specifications
 
 ### GameCanvas Component
+
 ```typescript
 interface GameCanvasProps {
   width: number;
@@ -134,6 +139,7 @@ interface GameCanvasRef {
 ```
 
 ### Navigation Components
+
 ```typescript
 interface NavigationProps {
   currentPath: string;
@@ -155,6 +161,7 @@ interface MainMenuProps {
 ```
 
 ### Score Display Components
+
 ```typescript
 interface ScoreDisplayProps {
   score: number;
@@ -175,6 +182,7 @@ interface ScoreAnimationProps {
 ### Core Classes and Methods
 
 #### Snake Class
+
 ```typescript
 class Snake {
   private segments: SnakeSegment[];
@@ -194,6 +202,7 @@ class Snake {
 ```
 
 #### Food Manager Class
+
 ```typescript
 class FoodManager {
   private currentFood: Food | null;
@@ -204,23 +213,31 @@ class FoodManager {
   public spawnFood(occupiedPositions: Position[]): Food;
   public getCurrentFood(): Food | null;
   public clearFood(): void;
-  public isValidPosition(position: Position, occupiedPositions: Position[]): boolean;
+  public isValidPosition(
+    position: Position,
+    occupiedPositions: Position[]
+  ): boolean;
 }
 ```
 
 #### Collision Detector Class
+
 ```typescript
 class CollisionDetector {
   private gridSize: number;
 
   constructor(gridSize: number);
   public checkFoodCollision(snakeHead: Position, food: Food): boolean;
-  public checkWallCollision(position: Position, bounds: { width: number; height: number }): boolean;
+  public checkWallCollision(
+    position: Position,
+    bounds: { width: number; height: number }
+  ): boolean;
   public checkSelfCollision(head: Position, body: Position[]): boolean;
 }
 ```
 
 #### Game Engine Class
+
 ```typescript
 class GameEngine {
   private snake: Snake;
@@ -243,23 +260,24 @@ class GameEngine {
 ## Configuration Constants
 
 ### Game Configuration
+
 ```typescript
 export const GAME_CONFIG = {
   // Canvas settings
   CANVAS_WIDTH: 800,
   CANVAS_HEIGHT: 600,
   GRID_SIZE: 20,
-  
+
   // Game mechanics
   INITIAL_SNAKE_LENGTH: 3,
   INITIAL_GAME_SPEED: 150, // milliseconds per frame
   FOOD_VALUE: 10,
-  
+
   // Performance settings
   TARGET_FPS: 60,
   MIN_FPS_MOBILE: 30,
   MAX_DELTA_TIME: 100,
-  
+
   // Colors
   COLORS: {
     BACKGROUND: '#1a1a1a',
@@ -269,47 +287,49 @@ export const GAME_CONFIG = {
     BORDER: '#374151',
     SCORE_TEXT: '#ffffff',
     UI_PRIMARY: '#3b82f6',
-    UI_SECONDARY: '#6b7280'
+    UI_SECONDARY: '#6b7280',
   },
-  
+
   // Input settings
   INPUT_BUFFER_SIZE: 3,
   INPUT_DEADZONE: 50, // milliseconds
-  
+
   // Animation settings
   SCORE_ANIMATION_DURATION: 300,
   GROWTH_ANIMATION_DURATION: 200,
-  GAME_OVER_FADE_DURATION: 500
+  GAME_OVER_FADE_DURATION: 500,
 } as const;
 ```
 
 ### Performance Configuration
+
 ```typescript
 export const PERFORMANCE_CONFIG = {
   // Frame rate settings
   TARGET_FPS: 60,
   MIN_FPS_MOBILE: 30,
   MAX_DELTA_TIME: 100,
-  
+
   // Performance monitoring
   PERFORMANCE_SAMPLE_SIZE: 60,
   FPS_UPDATE_INTERVAL: 1000,
   FRAME_TIME_WARNING_THRESHOLD: 16.67,
-  
+
   // Device detection
   HIGH_PERFORMANCE_THRESHOLD: 8, // CPU cores
   MEDIUM_PERFORMANCE_THRESHOLD: 4,
-  
+
   // Memory management
   MAX_SCORE_HISTORY: 100,
   MAX_ANIMATION_QUEUE: 10,
-  CLEANUP_INTERVAL: 30000 // 30 seconds
+  CLEANUP_INTERVAL: 30000, // 30 seconds
 } as const;
 ```
 
 ## Database Specifications
 
 ### MongoDB Configuration
+
 ```typescript
 // Database connection configuration
 interface DatabaseConfig {
@@ -334,6 +354,7 @@ interface EnvironmentVariables {
 ```
 
 ### Future Database Models (Phase 2)
+
 ```typescript
 // Score model for Phase 2 implementation
 interface ScoreModel {
@@ -363,6 +384,7 @@ interface GameSessionModel {
 ## API Specifications (Future Phase 2)
 
 ### Score Management Endpoints
+
 ```typescript
 // GET /api/scores - Retrieve high scores
 interface GetScoresResponse {
@@ -401,11 +423,13 @@ interface PostScoreResponse {
 ## Testing Specifications
 
 ### Unit Test Coverage Requirements
+
 - **Minimum Coverage**: 80% for business logic
 - **Critical Path Coverage**: 95% for game engine components
 - **Component Coverage**: 70% for UI components
 
 ### Test File Organization
+
 ```
 src/
 ├── lib/
@@ -430,16 +454,19 @@ src/
 ## Performance Requirements
 
 ### Frame Rate Targets
+
 - **Desktop**: 60 FPS consistent
 - **Mobile**: 30 FPS minimum, 60 FPS target
 - **Low-end devices**: 30 FPS minimum with reduced effects
 
 ### Memory Usage Targets
+
 - **Initial load**: < 50MB
 - **Peak gameplay**: < 100MB
 - **Memory growth**: < 1MB per 10 minutes of gameplay
 
 ### Loading Time Targets
+
 - **Initial page load**: < 3 seconds
 - **Game start**: < 1 second
 - **Page transitions**: < 500ms
@@ -447,18 +474,21 @@ src/
 ## Accessibility Requirements
 
 ### Keyboard Navigation
+
 - Tab order follows logical flow
 - All interactive elements keyboard accessible
 - Escape key closes modals/menus
 - Space/Enter activates buttons
 
 ### Screen Reader Support
+
 - Semantic HTML structure
 - ARIA labels for game elements
 - Score announcements for screen readers
 - Game state announcements
 
 ### Visual Accessibility
+
 - Color contrast ratio >= 4.5:1
 - Focus indicators clearly visible
 - Text scalable up to 200%

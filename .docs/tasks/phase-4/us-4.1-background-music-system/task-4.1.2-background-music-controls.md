@@ -2,6 +2,7 @@
 # Task: Background Music Integration and Controls
 
 ## Task Header
+
 - **ID**: 4.1.2
 - **Title**: Background Music Integration and Controls
 - **Story ID**: US-4.1
@@ -11,12 +12,15 @@
 - **Complexity**: moderate
 
 ## Objective
+
 Implement background music playback functionality with seamless looping and user-friendly volume controls, building on the AudioManager foundation to provide an immersive gaming experience.
 
 ## Description
+
 Create the background music system that uses HTML5 Audio for reliable music playback with seamless looping capabilities. Implement user controls for volume adjustment and mute functionality, integrated with the existing AudioManager. This includes the UI components for audio controls and the integration with the game page.
 
 ## Acceptance Criteria Covered
+
 - GIVEN background music WHEN playing THEN loops seamlessly without gaps
 - GIVEN audio controls WHEN used THEN volume adjusts correctly
 - GIVEN mute control WHEN activated THEN background music stops immediately
@@ -25,6 +29,7 @@ Create the background music system that uses HTML5 Audio for reliable music play
 ## Implementation Notes
 
 ### Background Music System
+
 ```typescript
 interface MusicManager {
   currentTrack: HTMLAudioElement | null;
@@ -32,7 +37,7 @@ interface MusicManager {
   isPlaying: boolean;
   currentTime: number;
   duration: number;
-  
+
   loadTrack(src: string): Promise<void>;
   play(): Promise<void>;
   pause(): void;
@@ -45,6 +50,7 @@ interface MusicManager {
 ```
 
 ### Audio Controls Component Design
+
 - Volume slider with real-time visual feedback
 - Mute/unmute toggle button with state indication
 - Audio availability indicator
@@ -52,6 +58,7 @@ interface MusicManager {
 - Accessibility support with ARIA labels
 
 ### Seamless Looping Implementation
+
 - Use HTML5 Audio loop property for automatic looping
 - Handle loop transition smoothly without gaps
 - Implement crossfade between tracks (future enhancement)
@@ -62,6 +69,7 @@ interface MusicManager {
 ### File Targets
 
 #### New Files
+
 - `src/lib/audio/MusicManager.ts` - Background music management class
 - `src/components/audio/AudioControls.tsx` - Audio control UI component
 - `src/components/audio/VolumeSlider.tsx` - Volume control slider component
@@ -70,18 +78,20 @@ interface MusicManager {
 - `public/audio/music/background-music.mp3` - Background music asset
 
 #### Modified Files
+
 - `src/lib/audio/AudioManager.ts` - Add music management integration
 - `src/pages/game.tsx` - Integrate audio controls and music playback
 - `src/components/layout/Layout.tsx` - Add global audio controls
 
 ### Component Specs
+
 ```typescript
 // MusicManager class extending AudioManager functionality
 class MusicManager {
   private audioManager: AudioManager;
   private currentMusic: HTMLAudioElement | null = null;
   private musicGainNode: GainNode | null = null;
-  
+
   constructor(audioManager: AudioManager);
   async loadBackgroundMusic(src: string): Promise<void>;
   async playMusic(): Promise<void>;
@@ -123,21 +133,22 @@ interface MuteButtonProps {
 ```
 
 ### Game Integration Points
+
 ```typescript
 // Game page integration
 const GamePage: React.FC = () => {
   const { audioManager, playBackgroundMusic, pauseMusic } = useAudio();
-  
+
   useEffect(() => {
     // Start background music when game page loads
     playBackgroundMusic('/audio/music/background-music.mp3');
-    
+
     return () => {
       // Cleanup when leaving game page
       pauseMusic();
     };
   }, []);
-  
+
   return (
     <div className="game-page">
       <AudioControls className="game-audio-controls" />
@@ -148,6 +159,7 @@ const GamePage: React.FC = () => {
 ```
 
 ### DTO Definitions
+
 ```typescript
 // Music state information
 interface MusicState {
@@ -171,6 +183,7 @@ interface AudioControlEvent {
 ```
 
 ### CSS Styling Framework
+
 ```css
 /* Audio controls styling */
 .audio-controls {
@@ -194,7 +207,7 @@ interface AudioControlEvent {
 
 .volume-slider__track {
   height: 100%;
-  background: #4CAF50;
+  background: #4caf50;
   border-radius: inherit;
   transition: width 0.1s ease;
 }
@@ -224,6 +237,7 @@ interface AudioControlEvent {
 ## Testing Requirements
 
 ### Unit Tests
+
 - MusicManager initialization and track loading
 - Volume control functionality and range validation
 - Mute/unmute state management
@@ -231,6 +245,7 @@ interface AudioControlEvent {
 - Seamless looping verification
 
 ### Integration Tests
+
 - Background music starts when game page loads
 - Volume changes reflect in actual audio playback
 - Mute functionality stops audio immediately
@@ -238,6 +253,7 @@ interface AudioControlEvent {
 - Integration with existing AudioManager
 
 ### E2E Scenarios
+
 - Complete game session with background music
 - Volume adjustments during gameplay
 - Mute/unmute during active gameplay
@@ -247,12 +263,15 @@ interface AudioControlEvent {
 ## Dependencies
 
 ### Prerequisite Tasks
+
 - **4.1.1** (Audio Manager Core Implementation) - Core audio infrastructure required
 
 ### Blocking Tasks
+
 - None - Can proceed after 4.1.1 completion
 
 ### External Dependencies
+
 - Background music audio file (MP3 format)
 - HTML5 Audio API support
 - CSS3 for styling and animations
@@ -260,26 +279,25 @@ interface AudioControlEvent {
 ## Risks and Considerations
 
 ### Technical Risks
+
 - **Audio Loading Delays**: Large music files may cause loading delays
-  - *Mitigation*: Optimize audio file size, implement loading indicators
-  
+  - _Mitigation_: Optimize audio file size, implement loading indicators
 - **Seamless Looping Gaps**: Some browsers may have small gaps in audio loops
-  - *Mitigation*: Use HTML5 Audio loop property, test across browsers
-  
+  - _Mitigation_: Use HTML5 Audio loop property, test across browsers
 - **Mobile Audio Restrictions**: iOS and Android have specific audio limitations
-  - *Mitigation*: Test on actual devices, implement touch-based audio triggers
+  - _Mitigation_: Test on actual devices, implement touch-based audio triggers
 
 ### Implementation Challenges
+
 - **Volume Control Precision**: Ensuring smooth volume transitions
-  - *Mitigation*: Use gain nodes for precise volume control
-  
+  - _Mitigation_: Use gain nodes for precise volume control
 - **UI Responsiveness**: Controls must work well on touch devices
-  - *Mitigation*: Implement touch-friendly controls with appropriate sizing
-  
+  - _Mitigation_: Implement touch-friendly controls with appropriate sizing
 - **Performance Impact**: Background music shouldn't affect game performance
-  - *Mitigation*: Profile audio performance, optimize audio processing
+  - _Mitigation_: Profile audio performance, optimize audio processing
 
 ### Mitigation Strategies
+
 - Compress audio files appropriately for web delivery
 - Implement progressive loading for large audio assets
 - Test audio controls on various device types and screen sizes
@@ -287,6 +305,7 @@ interface AudioControlEvent {
 - Implement proper error handling for audio loading failures
 
 ## Definition of Done
+
 - [ ] MusicManager class implemented with full functionality
 - [ ] Background music loads and plays automatically on game page
 - [ ] Seamless looping implemented without audible gaps
@@ -301,6 +320,7 @@ interface AudioControlEvent {
 - [ ] Performance testing shows no negative impact on gameplay
 
 ## Implementation Strategy
+
 1. **Phase 1**: MusicManager class implementation and HTML5 Audio integration
 2. **Phase 2**: Basic audio controls UI components (volume, mute)
 3. **Phase 3**: Game page integration and automatic music playback

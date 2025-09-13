@@ -1,6 +1,7 @@
 # Task: Keyboard Input and Movement Logic
 
 ## Task Header
+
 - **ID**: T-1.3.2
 - **Title**: Implement keyboard input handling and snake movement logic
 - **Story ID**: US-1.3
@@ -12,12 +13,15 @@
 ## Task Content
 
 ### Objective
+
 Create keyboard input handling for arrow keys and WASD controls, implement snake movement logic with direction changes, and ensure smooth continuous movement with proper input validation.
 
 ### Description
+
 Build the core movement system that responds to player input, manages snake direction changes, prevents invalid moves (like reversing into body), and provides smooth continuous movement that forms the foundation of the gameplay experience.
 
 ### Acceptance Criteria Covered
+
 - GIVEN game is running WHEN user presses up arrow or W THEN snake moves upward
 - GIVEN game is running WHEN user presses down arrow or S THEN snake moves downward
 - GIVEN game is running WHEN user presses left arrow or A THEN snake moves leftward
@@ -26,6 +30,7 @@ Build the core movement system that responds to player input, manages snake dire
 - GIVEN snake moving in any direction WHEN no input given THEN snake continues in current direction
 
 ### Implementation Notes
+
 1. Implement keyboard event listeners for arrow keys and WASD
 2. Create direction change validation logic
 3. Implement smooth snake movement with timing
@@ -35,22 +40,27 @@ Build the core movement system that responds to player input, manages snake dire
 ## Technical Specs
 
 ### File Targets
+
 **New Files:**
+
 - `src/hooks/useKeyboardInput.ts` - Keyboard input management hook
 - `src/lib/game/movement.ts` - Snake movement logic
 - `src/lib/game/inputHandler.ts` - Input processing and validation
 - `src/lib/utils/direction.ts` - Direction utilities and validation
 
 **Modified Files:**
+
 - `src/lib/game/snake.ts` - Add movement methods to snake class
 - `src/components/game/GameCanvas.tsx` - Integrate keyboard input
 - `src/lib/game/types.ts` - Add movement-related types
 
 **Test Files:**
+
 - `src/hooks/__tests__/useKeyboardInput.test.ts` - Input hook tests
 - `src/lib/game/__tests__/movement.test.ts` - Movement logic tests
 
 ### Keyboard Input Implementation
+
 ```typescript
 // useKeyboardInput hook
 interface KeyboardInputOptions {
@@ -58,13 +68,25 @@ interface KeyboardInputOptions {
   enabled: boolean;
 }
 
-export const useKeyboardInput = ({ onDirectionChange, enabled }: KeyboardInputOptions) => {
+export const useKeyboardInput = ({
+  onDirectionChange,
+  enabled,
+}: KeyboardInputOptions) => {
   useEffect(() => {
     if (!enabled) return;
 
     const handleKeyPress = (event: KeyboardEvent) => {
       // Prevent default browser behavior
-      const validKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'];
+      const validKeys = [
+        'ArrowUp',
+        'ArrowDown',
+        'ArrowLeft',
+        'ArrowRight',
+        'w',
+        'a',
+        's',
+        'd',
+      ];
       if (validKeys.includes(event.key)) {
         event.preventDefault();
       }
@@ -96,24 +118,28 @@ export const useKeyboardInput = ({ onDirectionChange, enabled }: KeyboardInputOp
 ```
 
 ### Movement Logic
+
 ```typescript
 // Direction utilities
 export const OPPOSITE_DIRECTIONS: Record<Direction, Direction> = {
   UP: 'DOWN',
   DOWN: 'UP',
   LEFT: 'RIGHT',
-  RIGHT: 'LEFT'
+  RIGHT: 'LEFT',
 };
 
 export const DIRECTION_VECTORS: Record<Direction, Position> = {
   UP: { x: 0, y: -1 },
   DOWN: { x: 0, y: 1 },
   LEFT: { x: -1, y: 0 },
-  RIGHT: { x: 1, y: 0 }
+  RIGHT: { x: 1, y: 0 },
 };
 
 // Movement validation
-export const isValidDirectionChange = (currentDirection: Direction, newDirection: Direction): boolean => {
+export const isValidDirectionChange = (
+  currentDirection: Direction,
+  newDirection: Direction
+): boolean => {
   // Cannot reverse directly into opposite direction
   return OPPOSITE_DIRECTIONS[currentDirection] !== newDirection;
 };
@@ -149,11 +175,11 @@ export class SnakeMovement {
     // Calculate new head position
     const currentHead = this.snake.segments[0];
     const directionVector = DIRECTION_VECTORS[this.snake.direction];
-    
+
     const newHead: SnakeSegment = {
       x: currentHead.x + directionVector.x * this.gridSize,
       y: currentHead.y + directionVector.y * this.gridSize,
-      id: `head-${Date.now()}`
+      id: `head-${Date.now()}`,
     };
 
     // Add new head
@@ -170,9 +196,13 @@ export class SnakeMovement {
 ```
 
 ### Game Loop Integration
+
 ```typescript
 // Game loop with movement
-export const useGameLoop = (gameState: GameState, movementHandler: SnakeMovement) => {
+export const useGameLoop = (
+  gameState: GameState,
+  movementHandler: SnakeMovement
+) => {
   const [lastUpdateTime, setLastUpdateTime] = useState(0);
   const animationRef = useRef<number>();
 
@@ -184,7 +214,7 @@ export const useGameLoop = (gameState: GameState, movementHandler: SnakeMovement
         movementHandler.moveSnake();
         setLastUpdateTime(currentTime);
       }
-      
+
       animationRef.current = requestAnimationFrame(gameLoop);
     };
 
@@ -195,24 +225,32 @@ export const useGameLoop = (gameState: GameState, movementHandler: SnakeMovement
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [gameState.isPlaying, gameState.isPaused, lastUpdateTime, movementHandler]);
+  }, [
+    gameState.isPlaying,
+    gameState.isPaused,
+    lastUpdateTime,
+    movementHandler,
+  ]);
 };
 ```
 
 ## Testing Requirements
 
 ### Unit Tests
+
 - Keyboard input detection for all supported keys
 - Direction change validation logic
 - Movement queue functionality
 - Snake position calculations after movement
 
 ### Integration Tests
+
 - Input handling integrates with React components
 - Movement logic works with game loop
 - Direction changes apply correctly during gameplay
 
 ### E2E Scenarios
+
 - Complete keyboard control testing (all directions)
 - Rapid direction changes and input queue handling
 - Prevention of reverse direction moves
@@ -221,28 +259,34 @@ export const useGameLoop = (gameState: GameState, movementHandler: SnakeMovement
 ## Dependencies
 
 ### Prerequisite Tasks
+
 - T-1.3.1 (Game Canvas and Snake Structure)
 
 ### Blocking Tasks
+
 - None
 
 ### External Dependencies
+
 - Browser keyboard event API
 - React hooks for component lifecycle
 
 ## Risks and Considerations
 
 ### Technical Risks
+
 - Keyboard event handling differences across browsers
 - Input lag or responsiveness issues
 - Input queue overflow with rapid key presses
 
 ### Implementation Challenges
+
 - Smooth movement timing with requestAnimationFrame
 - Input validation without interfering with gameplay flow
 - Cross-browser keyboard event consistency
 
 ### Mitigation Strategies
+
 - Test keyboard handling on multiple browsers and devices
 - Implement input debouncing for smooth gameplay
 - Use event.preventDefault() to avoid browser interference

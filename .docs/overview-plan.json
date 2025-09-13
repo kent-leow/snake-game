@@ -13,11 +13,16 @@
       {
         "name": "Game Engine",
         "description": "Core game logic, snake movement, collision detection, combo system",
-        "responsibilities": ["Game loop", "Snake mechanics", "Combo logic", "Collision detection"],
+        "responsibilities": [
+          "Game loop",
+          "Snake mechanics",
+          "Combo logic",
+          "Collision detection"
+        ],
         "technologies": ["TypeScript", "Canvas API"]
       },
       {
-        "name": "Rendering Engine", 
+        "name": "Rendering Engine",
         "description": "Canvas-based graphics rendering and animations",
         "responsibilities": ["Game visuals", "Animations", "UI rendering"],
         "technologies": ["Canvas API", "RequestAnimationFrame"]
@@ -25,13 +30,21 @@
       {
         "name": "Audio Manager",
         "description": "Sound effects and background music management",
-        "responsibilities": ["Music playback", "Sound effects", "Volume control"],
+        "responsibilities": [
+          "Music playback",
+          "Sound effects",
+          "Volume control"
+        ],
         "technologies": ["Web Audio API", "HTML5 Audio"]
       },
       {
         "name": "State Manager",
         "description": "Game state, settings, and score management",
-        "responsibilities": ["Game state", "Score tracking", "Settings persistence"],
+        "responsibilities": [
+          "Game state",
+          "Score tracking",
+          "Settings persistence"
+        ],
         "technologies": ["React Context", "LocalStorage"]
       },
       {
@@ -79,12 +92,19 @@
       {
         "pattern": "RESTful API",
         "description": "Next.js API routes for score management",
-        "endpoints": ["/api/scores GET", "/api/scores POST", "/api/scores/:id PUT"]
+        "endpoints": [
+          "/api/scores GET",
+          "/api/scores POST",
+          "/api/scores/:id PUT"
+        ]
       },
       {
         "pattern": "Browser APIs",
         "description": "Canvas, Audio, and Storage APIs",
-        "fallbacks": ["Silent operation for audio", "Memory storage for persistence"]
+        "fallbacks": [
+          "Silent operation for audio",
+          "Memory storage for persistence"
+        ]
       }
     ]
   },
@@ -128,7 +148,15 @@
       "id": "phase-1",
       "name": "MVP Core Foundation",
       "description": "Basic game setup, snake mechanics, and core infrastructure",
-      "requirements": ["FR-001", "FR-002", "FR-003", "FR-011", "FR-012", "FR-015", "FR-016"],
+      "requirements": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-011",
+        "FR-012",
+        "FR-015",
+        "FR-016"
+      ],
       "components": ["Game Engine", "Rendering Engine", "UI Components"],
       "effort_estimate": "5-7 days",
       "dependencies": [],
@@ -149,11 +177,24 @@
       ]
     },
     {
-      "id": "phase-2", 
+      "id": "phase-2",
       "name": "Combo System Implementation",
       "description": "Advanced game mechanics, scoring system, and database integration",
-      "requirements": ["FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "FR-009", "FR-027"],
-      "components": ["Game Engine", "State Manager", "API Layer", "Database Layer"],
+      "requirements": [
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-027"
+      ],
+      "components": [
+        "Game Engine",
+        "State Manager",
+        "API Layer",
+        "Database Layer"
+      ],
       "effort_estimate": "5-7 days",
       "dependencies": ["phase-1"],
       "deliverables": [
@@ -178,7 +219,7 @@
       "description": "User interface completion, visual polish, and production deployment",
       "requirements": ["FR-013", "FR-022", "FR-026"],
       "components": ["UI Components", "Rendering Engine"],
-      "effort_estimate": "3-5 days", 
+      "effort_estimate": "3-5 days",
       "dependencies": ["phase-2"],
       "deliverables": [
         "High score page implementation",
@@ -200,7 +241,15 @@
       "id": "phase-4",
       "name": "Audio System and Enhanced Features",
       "description": "Audio integration and advanced visual features",
-      "requirements": ["FR-017", "FR-018", "FR-019", "FR-020", "FR-021", "FR-023", "FR-024"],
+      "requirements": [
+        "FR-017",
+        "FR-018",
+        "FR-019",
+        "FR-020",
+        "FR-021",
+        "FR-023",
+        "FR-024"
+      ],
       "components": ["Audio Manager", "Rendering Engine"],
       "effort_estimate": "4-6 days",
       "dependencies": ["phase-3"],
@@ -303,7 +352,7 @@
       },
       {
         "risk": "MongoDB Atlas connection limits",
-        "probability": "medium", 
+        "probability": "medium",
         "impact": "medium",
         "mitigation": "Connection pooling, error handling, local storage fallback"
       },
@@ -324,7 +373,7 @@
       {
         "risk": "Feature scope creep",
         "probability": "medium",
-        "impact": "medium", 
+        "impact": "medium",
         "mitigation": "Strict MVP focus, phased development approach"
       },
       {
@@ -336,7 +385,7 @@
     ],
     "mitigation_strategies": [
       "Prototype critical features early to validate feasibility",
-      "Implement fallback strategies for browser API limitations", 
+      "Implement fallback strategies for browser API limitations",
       "Use incremental development with frequent validation",
       "Maintain flexible deployment schedule for personal project",
       "Focus on core gameplay mechanics before polish features"
@@ -345,12 +394,30 @@
   "requirement_mapping": {
     "core_game_mechanics": {
       "component": "Game Engine",
-      "requirements": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "FR-009", "FR-010"],
+      "requirements": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010"
+      ],
       "phase": "phase-1 and phase-2"
     },
     "user_interface": {
-      "component": "UI Components", 
-      "requirements": ["FR-011", "FR-012", "FR-013", "FR-014", "FR-015", "FR-016"],
+      "component": "UI Components",
+      "requirements": [
+        "FR-011",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "FR-015",
+        "FR-016"
+      ],
       "phase": "phase-1 and phase-3"
     },
     "audio_system": {

@@ -1,6 +1,7 @@
 # Task: Implement Speed Level UI Indicator
 
 ## Task Header
+
 - **ID**: T-2.3.2
 - **Title**: Implement Speed Level UI Indicator
 - **Story ID**: US-2.3
@@ -10,16 +11,20 @@
 - **Complexity**: simple
 
 ## Objective
+
 Create a visual indicator that displays the current speed level to players, showing both the numeric level and providing visual feedback for speed changes.
 
 ## Description
+
 Design and implement a UI component that clearly shows the current speed level, provides visual feedback when speed changes occur, and helps players understand the relationship between combos and speed progression.
 
 ## Acceptance Criteria Covered
+
 - GIVEN speed changes WHEN occurring THEN visual indicator shows current speed level
 - GIVEN current speed WHEN displayed THEN player can see their current speed level
 
 ## Implementation Notes
+
 - Create a subtle but clear speed indicator that doesn't obstruct gameplay
 - Use animations to highlight speed changes
 - Ensure indicator is readable at all screen sizes
@@ -28,14 +33,18 @@ Design and implement a UI component that clearly shows the current speed level, 
 ## Technical Specifications
 
 ### File Targets
+
 #### New Files
+
 - `src/components/SpeedIndicator.tsx` - Speed level display component
 - `src/styles/speed-indicator.module.css` - Speed indicator styling
 
 #### Modified Files
+
 - `src/components/GameUI.tsx` - Add speed indicator to game interface
 
 ### Component Specifications
+
 ```typescript
 interface SpeedIndicatorProps {
   speedLevel: number;
@@ -53,14 +62,14 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({
   maxLevel = 10
 }) => {
   const speedPercentage = ((baseSpeed - currentSpeed) / baseSpeed) * 100;
-  
+
   return (
     <div className={styles.speedIndicator}>
       <div className={styles.speedLabel}>
         Speed Level: {speedLevel}
       </div>
       <div className={styles.speedBar}>
-        <div 
+        <div
           className={`${styles.speedFill} ${isTransitioning ? styles.transitioning : ''}`}
           style={{ width: `${Math.min(speedPercentage, 100)}%` }}
         />
@@ -74,6 +83,7 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({
 ```
 
 ### CSS Styling
+
 ```css
 .speedIndicator {
   position: absolute;
@@ -105,7 +115,7 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({
 
 .speedFill {
   height: 100%;
-  background: linear-gradient(90deg, #4CAF50 0%, #FFC107 50%, #F44336 100%);
+  background: linear-gradient(90deg, #4caf50 0%, #ffc107 50%, #f44336 100%);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -121,8 +131,13 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({
 }
 
 @keyframes speedPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* Mobile responsive */
@@ -134,7 +149,7 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({
     font-size: 12px;
     min-width: 100px;
   }
-  
+
   .speedBar {
     height: 6px;
   }
@@ -142,6 +157,7 @@ const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({
 ```
 
 ### Animation and Feedback
+
 ```typescript
 const useSpeedAnimation = (speedLevel: number) => {
   const [previousLevel, setPreviousLevel] = useState(speedLevel);
@@ -151,7 +167,7 @@ const useSpeedAnimation = (speedLevel: number) => {
     if (speedLevel !== previousLevel) {
       setShowChange(true);
       setPreviousLevel(speedLevel);
-      
+
       const timer = setTimeout(() => {
         setShowChange(false);
       }, 1000);
@@ -167,16 +183,19 @@ const useSpeedAnimation = (speedLevel: number) => {
 ## Testing Requirements
 
 ### Unit Tests
+
 - Test speed indicator rendering with different speed levels
 - Test animation triggers on speed changes
 - Test responsive design across screen sizes
 
 ### Integration Tests
+
 - Test speed indicator integration with speed manager
 - Test real-time updates during gameplay
 - Test accessibility features
 
 ### E2E Scenarios
+
 - Verify speed indicator updates when combos are completed
 - Test indicator resets when combos are broken
 - Validate mobile display and readability
@@ -184,26 +203,32 @@ const useSpeedAnimation = (speedLevel: number) => {
 ## Dependencies
 
 ### Prerequisite Tasks
+
 - T-2.3.1 (Progressive Speed System)
 
 ### Blocking Tasks
+
 None
 
 ### External Dependencies
+
 - React for component rendering
 - CSS modules for styling
 
 ## Risks and Considerations
 
 ### Technical Risks
+
 - **Screen Real Estate**: Indicator taking up too much space on mobile
 - **Performance**: Frequent updates affecting rendering performance
 
 ### Implementation Challenges
+
 - **Visual Design**: Making indicator informative but not distracting
 - **Accessibility**: Ensuring indicator works for users with visual impairments
 
 ### Mitigation Strategies
+
 - Use minimal, clean design that's easy to ignore when not needed
 - Implement smooth animations to draw attention only when speed changes
 - Test on multiple device sizes for optimal placement
@@ -212,4 +237,4 @@ None
 
 ---
 
-*This task provides clear visual feedback about speed progression, helping players understand the consequences of their strategic choices.*
+_This task provides clear visual feedback about speed progression, helping players understand the consequences of their strategic choices._

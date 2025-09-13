@@ -1,6 +1,7 @@
 # Task: Game Control Interface and User Interaction
 
 ## Task Header
+
 - **ID**: T-1.6.2
 - **Title**: Implement game control interface and user interaction system
 - **Story ID**: US-1.6
@@ -12,12 +13,15 @@
 ## Task Content
 
 ### Objective
+
 Create an intuitive game control interface with buttons and keyboard shortcuts that provide clear visual feedback and seamless interaction for starting, pausing, resuming, and restarting the game.
 
 ### Description
+
 Build user-friendly control components that integrate with the game state management system to provide accessible and responsive game controls with clear visual indicators of current game state and available actions.
 
 ### Acceptance Criteria Covered
+
 - GIVEN control input WHEN button clicked THEN state change occurs within 100ms
 - GIVEN keyboard shortcuts WHEN used THEN respond equivalently to button clicks
 - GIVEN game controls WHEN displayed THEN buttons are clearly labeled and visible
@@ -26,6 +30,7 @@ Build user-friendly control components that integrate with the game state manage
 - GIVEN mobile device WHEN using controls THEN buttons are appropriately sized for touch
 
 ### Implementation Notes
+
 1. Create game control components with clear labeling and state indicators
 2. Implement keyboard shortcuts (spacebar for pause/resume)
 3. Add visual feedback and state-based button enabling/disabling
@@ -35,7 +40,9 @@ Build user-friendly control components that integrate with the game state manage
 ## Technical Specs
 
 ### File Targets
+
 **New Files:**
+
 - `src/components/game/GameControls.tsx` - Main game controls component
 - `src/components/game/ControlButton.tsx` - Reusable control button component
 - `src/components/game/GameStateIndicator.tsx` - Game state visual indicator
@@ -44,16 +51,19 @@ Build user-friendly control components that integrate with the game state manage
 - `src/styles/gameControls.css` - Game controls styling
 
 **Modified Files:**
+
 - `src/components/game/GameCanvas.tsx` - Integrate game controls
 - `src/app/game/page.tsx` - Add controls to game page
 - `src/styles/game.css` - Add control styling integration
 
 **Test Files:**
+
 - `src/components/__tests__/GameControls.test.tsx` - Game controls tests
 - `src/components/__tests__/ControlButton.test.tsx` - Button component tests
 - `src/hooks/__tests__/useKeyboardShortcuts.test.ts` - Keyboard tests
 
 ### Game Controls Component
+
 ```typescript
 // Main game controls component
 interface GameControlsProps {
@@ -191,7 +201,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
   return (
     <div className={`game-controls ${className || ''}`}>
       <GameStateIndicator currentState={currentState} />
-      
+
       <div className="controls-buttons">
         {getControlButtons()}
       </div>
@@ -205,6 +215,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
 ```
 
 ### Control Button Component
+
 ```typescript
 // Reusable control button component
 interface ControlButtonProps {
@@ -232,10 +243,10 @@ export const ControlButton: React.FC<ControlButtonProps> = ({
 
   const handleClick = () => {
     if (disabled) return;
-    
+
     setIsPressed(true);
     onClick();
-    
+
     // Visual feedback
     setTimeout(() => setIsPressed(false), 150);
   };
@@ -250,8 +261,8 @@ export const ControlButton: React.FC<ControlButtonProps> = ({
   return (
     <button
       className={`
-        control-button 
-        control-button--${variant} 
+        control-button
+        control-button--${variant}
         control-button--${size}
         ${isPressed ? 'control-button--pressed' : ''}
         ${disabled ? 'control-button--disabled' : ''}
@@ -276,6 +287,7 @@ export const ControlButton: React.FC<ControlButtonProps> = ({
 ```
 
 ### Game State Indicator Component
+
 ```typescript
 // Visual game state indicator
 interface GameStateIndicatorProps {
@@ -334,6 +346,7 @@ export const GameStateIndicator: React.FC<GameStateIndicatorProps> = ({
 ```
 
 ### Keyboard Shortcuts Hook
+
 ```typescript
 // Keyboard shortcuts management hook
 interface KeyboardShortcutsOptions {
@@ -349,15 +362,17 @@ export const useKeyboardShortcuts = ({
   onResume,
   onRestart,
   onMenu,
-  enabled
+  enabled,
 }: KeyboardShortcutsOptions) => {
   useEffect(() => {
     if (!enabled) return;
 
     const handleKeyPress = (event: KeyboardEvent) => {
       // Prevent shortcuts when typing in input fields
-      if (event.target instanceof HTMLInputElement || 
-          event.target instanceof HTMLTextAreaElement) {
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement
+      ) {
         return;
       }
 
@@ -391,6 +406,7 @@ export const useKeyboardShortcuts = ({
 ```
 
 ### Keyboard Shortcuts Display Component
+
 ```typescript
 // Display keyboard shortcuts to user
 interface KeyboardShortcutsProps {
@@ -440,6 +456,7 @@ export const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({
 ```
 
 ### CSS Styling
+
 ```css
 /* Game controls styling */
 .game-controls {
@@ -513,7 +530,7 @@ export const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({
   .controls-buttons {
     flex-direction: column;
   }
-  
+
   .control-button {
     width: 100%;
     min-height: 48px; /* Larger touch targets on mobile */
@@ -524,17 +541,20 @@ export const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({
 ## Testing Requirements
 
 ### Unit Tests
+
 - Control button component functionality
 - Keyboard shortcut handling
 - State indicator display logic
 - Component props and event handling
 
 ### Integration Tests
+
 - Game controls integration with state management
 - Keyboard shortcuts with game state changes
 - Mobile touch interaction testing
 
 ### E2E Scenarios
+
 - Complete control flow during gameplay
 - Keyboard shortcut functionality across different states
 - Mobile device control interaction
@@ -542,29 +562,35 @@ export const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({
 ## Dependencies
 
 ### Prerequisite Tasks
+
 - T-1.6.1 (Game State Management System)
 - T-1.2.2 (Responsive Navigation)
 
 ### Blocking Tasks
+
 - None
 
 ### External Dependencies
+
 - React hooks for component state
 - CSS for responsive design
 
 ## Risks and Considerations
 
 ### Technical Risks
+
 - Keyboard event conflicts with browser shortcuts
 - Touch target sizing on mobile devices
 - Component re-rendering performance
 
 ### Implementation Challenges
+
 - Consistent visual feedback across different devices
 - Accessible keyboard navigation
 - State synchronization with game engine
 
 ### Mitigation Strategies
+
 - Test keyboard shortcuts across different browsers
 - Use proper touch target sizes (44px minimum)
 - Implement proper accessibility attributes

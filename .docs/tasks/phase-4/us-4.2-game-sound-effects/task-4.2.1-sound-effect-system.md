@@ -2,6 +2,7 @@
 # Task: Sound Effect System Implementation
 
 ## Task Header
+
 - **ID**: 4.2.1
 - **Title**: Sound Effect System Implementation
 - **Story ID**: US-4.2
@@ -11,12 +12,15 @@
 - **Complexity**: moderate
 
 ## Objective
+
 Implement a high-performance sound effect system using Web Audio API for low-latency audio playback, creating the foundation for responsive game audio feedback that enhances player experience without impacting game performance.
 
 ## Description
+
 Create a dedicated sound effect management system that handles rapid audio playback, audio buffer management, and concurrent sound playing. This system will use Web Audio API for optimal performance and integrate with the existing AudioManager to provide consistent volume control and settings management.
 
 ## Acceptance Criteria Covered
+
 - GIVEN sound effects WHEN triggered THEN play within 50ms of game event
 - GIVEN multiple sounds WHEN overlapping THEN audio system handles simultaneous playback
 - GIVEN sound effects WHEN playing THEN no impact on game performance
@@ -25,13 +29,14 @@ Create a dedicated sound effect management system that handles rapid audio playb
 ## Implementation Notes
 
 ### Sound Effect Architecture
+
 ```typescript
 interface SoundEffectManager {
   soundBuffers: Map<SoundId, AudioBuffer>;
   activeSources: Set<AudioBufferSourceNode>;
   effectsGainNode: GainNode | null;
   maxConcurrentSounds: number;
-  
+
   preloadSounds(soundMap: Record<SoundId, string>): Promise<void>;
   playSound(soundId: SoundId, options?: PlaySoundOptions): void;
   stopSound(sourceNode: AudioBufferSourceNode): void;
@@ -49,13 +54,14 @@ interface PlaySoundOptions {
 
 enum SoundId {
   EAT_FOOD = 'eat-food',
-  COMBO_COMPLETE = 'combo-complete', 
+  COMBO_COMPLETE = 'combo-complete',
   GAME_OVER = 'game-over',
-  MENU_CLICK = 'menu-click'
+  MENU_CLICK = 'menu-click',
 }
 ```
 
 ### Web Audio API Implementation
+
 - Use AudioBuffer for preloaded sound data
 - Create AudioBufferSourceNode for each sound playback
 - Implement gain control for individual effects
@@ -63,6 +69,7 @@ enum SoundId {
 - Optimize for minimal latency and memory usage
 
 ### Sound Buffer Management
+
 - Preload all sound effects during initialization
 - Cache AudioBuffer objects for reuse
 - Implement memory cleanup for disposed sounds
@@ -74,6 +81,7 @@ enum SoundId {
 ### File Targets
 
 #### New Files
+
 - `src/lib/audio/SoundEffectManager.ts` - Core sound effects management
 - `src/lib/audio/SoundLoader.ts` - Audio buffer loading and caching
 - `src/lib/audio/AudioBufferPool.ts` - Buffer reuse and memory management
@@ -83,10 +91,12 @@ enum SoundId {
 - `public/audio/sounds/game-over.wav` - Game over sound effect
 
 #### Modified Files
+
 - `src/lib/audio/AudioManager.ts` - Integrate sound effect system
 - `src/lib/audio/types.ts` - Add sound effect type definitions
 
 ### Component Specs
+
 ```typescript
 // SoundEffectManager class implementation
 class SoundEffectManager {
@@ -96,12 +106,15 @@ class SoundEffectManager {
   private activeSources: Set<AudioBufferSourceNode> = new Set();
   private effectsGainNode: GainNode | null = null;
   private maxConcurrentSounds: number = 8;
-  
+
   constructor(audioContext: AudioContext, audioManager: AudioManager);
-  
+
   async initialize(): Promise<void>;
   async preloadSounds(soundMap: Record<SoundId, string>): Promise<void>;
-  playSound(soundId: SoundId, options?: PlaySoundOptions): AudioBufferSourceNode | null;
+  playSound(
+    soundId: SoundId,
+    options?: PlaySoundOptions
+  ): AudioBufferSourceNode | null;
   stopSound(sourceNode: AudioBufferSourceNode): void;
   stopAllSounds(): void;
   setEffectsVolume(volume: number): void;
@@ -112,15 +125,15 @@ class SoundEffectManager {
 // Sound loading utilities
 class SoundLoader {
   static async loadAudioBuffer(
-    audioContext: AudioContext, 
+    audioContext: AudioContext,
     url: string
   ): Promise<AudioBuffer>;
-  
+
   static async loadMultipleBuffers(
     audioContext: AudioContext,
     soundMap: Record<string, string>
   ): Promise<Map<string, AudioBuffer>>;
-  
+
   static validateAudioBuffer(buffer: AudioBuffer): boolean;
   static optimizeBufferForPlayback(buffer: AudioBuffer): AudioBuffer;
 }
@@ -129,8 +142,11 @@ class SoundLoader {
 class AudioBufferPool {
   private pools: Map<SoundId, AudioBufferSourceNode[]> = new Map();
   private maxPoolSize: number = 4;
-  
-  getSourceNode(soundId: SoundId, audioBuffer: AudioBuffer): AudioBufferSourceNode;
+
+  getSourceNode(
+    soundId: SoundId,
+    audioBuffer: AudioBuffer
+  ): AudioBufferSourceNode;
   returnSourceNode(soundId: SoundId, sourceNode: AudioBufferSourceNode): void;
   clearPool(soundId?: SoundId): void;
   getPoolSize(soundId: SoundId): number;
@@ -138,6 +154,7 @@ class AudioBufferPool {
 ```
 
 ### Performance Optimization Features
+
 ```typescript
 // Performance monitoring and optimization
 interface SoundEffectPerformance {
@@ -145,7 +162,7 @@ interface SoundEffectPerformance {
   maxConcurrentSounds: number;
   memoryUsage: number;
   bufferHitRate: number;
-  
+
   measureLatency(startTime: number, soundId: SoundId): void;
   optimizePerformance(): void;
   getPerformanceReport(): PerformanceReport;
@@ -160,7 +177,7 @@ class ConcurrentSoundManager {
     startTime: number;
     priority: number;
   }> = [];
-  
+
   addSound(source: AudioBufferSourceNode, soundId: SoundId): boolean;
   removeSound(source: AudioBufferSourceNode): void;
   limitConcurrentSounds(maxSounds: number): void;
@@ -169,32 +186,37 @@ class ConcurrentSoundManager {
 ```
 
 ### React Hook Integration
+
 ```typescript
 // useSoundEffects hook for component integration
 const useSoundEffects = () => {
   const audioManager = useContext(AudioContext);
   const [soundEffectsReady, setSoundEffectsReady] = useState(false);
-  
-  const playSound = useCallback((soundId: SoundId, options?: PlaySoundOptions) => {
-    if (!audioManager || !soundEffectsReady) return;
-    audioManager.soundEffects.playSound(soundId, options);
-  }, [audioManager, soundEffectsReady]);
-  
+
+  const playSound = useCallback(
+    (soundId: SoundId, options?: PlaySoundOptions) => {
+      if (!audioManager || !soundEffectsReady) return;
+      audioManager.soundEffects.playSound(soundId, options);
+    },
+    [audioManager, soundEffectsReady]
+  );
+
   const stopAllSounds = useCallback(() => {
     if (!audioManager) return;
     audioManager.soundEffects.stopAllSounds();
   }, [audioManager]);
-  
+
   return {
     playSound,
     stopAllSounds,
     soundEffectsReady,
-    canPlaySounds: audioManager?.isAudioSupported() ?? false
+    canPlaySounds: audioManager?.isAudioSupported() ?? false,
   };
 };
 ```
 
 ### Audio Asset Specifications
+
 ```typescript
 // Sound effect asset requirements
 const soundEffectSpecs = {
@@ -203,28 +225,29 @@ const soundEffectSpecs = {
     duration: '0.2s',
     frequency: '440Hz-880Hz',
     volume: 'medium',
-    description: 'Short, pleasant eating sound'
+    description: 'Short, pleasant eating sound',
   },
   'combo-complete': {
-    format: 'wav', 
+    format: 'wav',
     duration: '0.5s',
     frequency: '880Hz-1760Hz',
     volume: 'high',
-    description: 'Celebratory achievement sound'
+    description: 'Celebratory achievement sound',
   },
   'game-over': {
     format: 'wav',
     duration: '1.0s',
-    frequency: '220Hz-440Hz', 
+    frequency: '220Hz-440Hz',
     volume: 'medium',
-    description: 'Descending failure tone'
-  }
+    description: 'Descending failure tone',
+  },
 };
 ```
 
 ## Testing Requirements
 
 ### Unit Tests
+
 - SoundEffectManager initialization and configuration
 - Audio buffer loading and validation
 - Sound playback latency measurements
@@ -233,6 +256,7 @@ const soundEffectSpecs = {
 - Volume control functionality
 
 ### Integration Tests
+
 - Integration with existing AudioManager
 - React hook functionality and state management
 - Audio context integration
@@ -240,6 +264,7 @@ const soundEffectSpecs = {
 - Performance under rapid sound triggers
 
 ### E2E Scenarios
+
 - Rapid consecutive sound effect triggers
 - Concurrent sound playback during intense gameplay
 - Sound effect volume changes during playback
@@ -247,41 +272,45 @@ const soundEffectSpecs = {
 - Sound effect behavior with different browser audio states
 
 ### Performance Tests
+
 ```javascript
 // Performance test scenarios
 const performanceTests = [
   {
     name: 'rapid_sound_triggers',
     description: 'Trigger 10 sounds within 100ms',
-    target: 'All sounds play within 50ms'
+    target: 'All sounds play within 50ms',
   },
   {
     name: 'concurrent_sound_limit',
     description: 'Play maximum concurrent sounds',
-    target: 'No audio distortion or performance degradation'
+    target: 'No audio distortion or performance degradation',
   },
   {
     name: 'memory_usage_monitoring',
     description: 'Monitor memory during 1000 sound plays',
-    target: 'Memory usage remains under 10MB'
+    target: 'Memory usage remains under 10MB',
   },
   {
     name: 'latency_measurement',
     description: 'Measure trigger-to-playback latency',
-    target: 'Average latency under 50ms'
-  }
+    target: 'Average latency under 50ms',
+  },
 ];
 ```
 
 ## Dependencies
 
 ### Prerequisite Tasks
+
 - **4.1.1** (Audio Manager Core Implementation) - Foundation audio system required
 
 ### Blocking Tasks
+
 - None - Can be developed in parallel with background music system
 
 ### External Dependencies
+
 - Web Audio API support
 - Audio file assets (WAV format recommended for low latency)
 - AudioContext from AudioManager
@@ -289,26 +318,25 @@ const performanceTests = [
 ## Risks and Considerations
 
 ### Technical Risks
+
 - **Audio Buffer Memory Usage**: Large number of buffers can consume significant memory
-  - *Mitigation*: Implement buffer pooling and lazy loading strategies
-  
+  - _Mitigation_: Implement buffer pooling and lazy loading strategies
 - **Concurrent Playback Limits**: Browsers may limit simultaneous audio sources
-  - *Mitigation*: Implement priority system and source management
-  
+  - _Mitigation_: Implement priority system and source management
 - **Web Audio API Latency**: Some browsers may have higher audio latency
-  - *Mitigation*: Optimize buffer sizes and use AudioWorklet if needed
+  - _Mitigation_: Optimize buffer sizes and use AudioWorklet if needed
 
 ### Implementation Challenges
+
 - **Rapid Sound Triggers**: Fast gameplay may trigger many sounds quickly
-  - *Mitigation*: Implement sound prioritization and concurrent limits
-  
+  - _Mitigation_: Implement sound prioritization and concurrent limits
 - **Cross-Browser Performance**: Audio performance varies across browsers
-  - *Mitigation*: Profile and optimize for each target browser
-  
+  - _Mitigation_: Profile and optimize for each target browser
 - **Memory Leak Prevention**: AudioBufferSourceNode objects need proper cleanup
-  - *Mitigation*: Implement automatic cleanup and resource management
+  - _Mitigation_: Implement automatic cleanup and resource management
 
 ### Mitigation Strategies
+
 - Start with conservative concurrent sound limits and test performance
 - Implement performance monitoring to detect audio system bottlenecks
 - Use short, optimized audio files to minimize memory usage
@@ -316,6 +344,7 @@ const performanceTests = [
 - Test extensively on lower-powered devices and browsers
 
 ## Definition of Done
+
 - [ ] SoundEffectManager class implemented with Web Audio API
 - [ ] Audio buffer loading and caching system functional
 - [ ] Concurrent sound playback management working
@@ -330,6 +359,7 @@ const performanceTests = [
 - [ ] Cross-browser compatibility verified
 
 ## Implementation Strategy
+
 1. **Phase 1**: Core SoundEffectManager class with basic Web Audio API integration
 2. **Phase 2**: Audio buffer loading and caching system
 3. **Phase 3**: Concurrent sound management and performance optimization

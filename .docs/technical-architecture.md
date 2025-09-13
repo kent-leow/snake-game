@@ -3,9 +3,11 @@
 ## Architecture Overview
 
 ### System Architecture Pattern
+
 **Monolithic Web Application** - Appropriate for personal project scale with integrated frontend and backend components.
 
 ### Core Architectural Principles
+
 - **Type Safety**: TypeScript strict mode throughout
 - **Component Separation**: Clear boundaries between game logic, rendering, and data
 - **Browser Compatibility**: Graceful degradation for unsupported features
@@ -15,9 +17,11 @@
 ## System Components
 
 ### 1. Game Engine (`lib/game-engine/`)
+
 **Purpose**: Core game logic and mechanics
 **Technologies**: TypeScript, Canvas API
 **Responsibilities**:
+
 - Game loop management (60 FPS target)
 - Snake movement and collision detection
 - Combo system implementation
@@ -25,6 +29,7 @@
 - Game state management
 
 **Key Interfaces**:
+
 ```typescript
 interface GameState {
   snake: SnakeSegment[];
@@ -48,9 +53,11 @@ interface FoodBlock {
 ```
 
 ### 2. Rendering Engine (`lib/rendering/`)
+
 **Purpose**: Graphics rendering and animations
 **Technologies**: Canvas API, RequestAnimationFrame
 **Responsibilities**:
+
 - Canvas setup and management
 - Snake and food block rendering
 - Animation frame coordination
@@ -58,15 +65,18 @@ interface FoodBlock {
 - Performance optimization
 
 **Key Features**:
+
 - 60 FPS rendering target
 - Smooth movement animations
 - Combo visual indicators
 - Responsive canvas sizing
 
 ### 3. Audio Manager (`lib/audio/`)
+
 **Purpose**: Sound effects and background music
 **Technologies**: Web Audio API, HTML5 Audio
 **Responsibilities**:
+
 - Audio asset loading and management
 - Background music playback
 - Sound effect triggering
@@ -74,30 +84,36 @@ interface FoodBlock {
 - Browser compatibility handling
 
 **Implementation Strategy**:
+
 - Web Audio API for sound effects
 - HTML5 Audio for background music
 - Graceful degradation for unsupported browsers
 - User-initiated audio to comply with autoplay policies
 
 ### 4. State Manager (`lib/state/`)
+
 **Purpose**: Application state management
 **Technologies**: React Context, LocalStorage
 **Responsibilities**:
+
 - Game state persistence
 - Settings management
 - Score tracking
 - User preferences
 
 ### 5. API Layer (`pages/api/`)
+
 **Purpose**: Backend services and data persistence
 **Technologies**: Next.js API Routes, Mongoose
 **Responsibilities**:
+
 - RESTful score management endpoints
 - Data validation and sanitization
 - MongoDB operations
 - Error handling and logging
 
 **API Endpoints**:
+
 ```typescript
 // GET /api/scores - Fetch high scores
 // POST /api/scores - Save new score
@@ -106,15 +122,18 @@ interface FoodBlock {
 ```
 
 ### 6. Database Layer (`models/`)
+
 **Purpose**: Data persistence and modeling
 **Technologies**: MongoDB, Mongoose ODM
 **Responsibilities**:
+
 - Data schema definition
 - Database connection management
 - Query optimization
 - Data validation
 
 **Schema Design**:
+
 ```typescript
 interface IScore extends Document {
   playerName: string;
@@ -130,9 +149,11 @@ interface IScore extends Document {
 ```
 
 ### 7. UI Components (`components/`)
+
 **Purpose**: User interface and page structure
 **Technologies**: React, Next.js, TypeScript
 **Responsibilities**:
+
 - Page components and navigation
 - Game UI overlays
 - Settings interface
@@ -141,6 +162,7 @@ interface IScore extends Document {
 ## Data Architecture
 
 ### Data Flow
+
 ```
 User Input → Game Engine → State Manager → Rendering Engine
      ↓             ↓             ↓             ↓
@@ -152,17 +174,21 @@ Score Events → API Layer → MongoDB → Persistence
 ```
 
 ### Storage Strategy
+
 - **Game State**: In-memory during gameplay
 - **High Scores**: MongoDB (primary) + LocalStorage (cache)
 - **Settings**: LocalStorage with database backup
 - **Assets**: Static files served by Vercel CDN
 
 ### Database Design
+
 **MongoDB Collections**:
+
 - `scores`: High score records with player data
 - `sessions`: Optional game session tracking
 
 **Indexing Strategy**:
+
 - Primary index on `score` (descending) for leaderboards
 - Secondary index on `timestamp` for recent scores
 - Compound index on `playerName` + `score` for user tracking
@@ -170,12 +196,14 @@ Score Events → API Layer → MongoDB → Persistence
 ## Security Architecture
 
 ### Data Protection
+
 - **Input Validation**: All user inputs sanitized
 - **Score Validation**: Server-side score verification
 - **Content Security**: Same-origin policy for assets
 - **Privacy**: Minimal data collection, optional player names
 
 ### Authentication & Authorization
+
 - **No Authentication Required**: Public game access
 - **Data Access**: Read-only high scores for all users
 - **Score Submission**: Rate limiting and validation
@@ -183,18 +211,21 @@ Score Events → API Layer → MongoDB → Persistence
 ## Performance Architecture
 
 ### Frontend Performance
+
 - **Target**: 60 FPS game loop
 - **Optimization**: Efficient Canvas rendering
 - **Memory Management**: Object pooling for game entities
 - **Asset Loading**: Preload critical game assets
 
 ### Backend Performance
+
 - **Connection Pooling**: MongoDB connection optimization
 - **Caching Strategy**: LocalStorage for frequent data
 - **API Performance**: < 500ms response time target
 - **CDN**: Vercel edge caching for static assets
 
 ### Monitoring & Optimization
+
 - **Metrics**: Frame rate, memory usage, API response times
 - **Tools**: Browser DevTools, Vercel Analytics
 - **Alerts**: Performance degradation detection
@@ -202,18 +233,21 @@ Score Events → API Layer → MongoDB → Persistence
 ## Integration Architecture
 
 ### External Services
+
 - **Vercel**: Hosting and CDN
 - **MongoDB Atlas**: Production database
 - **GitHub**: Source control and CI/CD
 - **Docker**: Local development database
 
 ### Browser APIs
+
 - **Canvas API**: Required for game rendering
 - **Web Audio API**: Optional for enhanced audio
 - **LocalStorage**: Fallback data persistence
 - **RequestAnimationFrame**: Smooth animations
 
 ### Error Handling Strategy
+
 - **Graceful Degradation**: Core gameplay always functional
 - **Fallback Systems**: Alternative implementations for unsupported features
 - **Error Boundaries**: React error boundaries for UI stability
@@ -222,6 +256,7 @@ Score Events → API Layer → MongoDB → Persistence
 ## Development Architecture
 
 ### Project Structure
+
 ```
 snake-play/
 ├── pages/
@@ -255,6 +290,7 @@ snake-play/
 ```
 
 ### Type Safety Strategy
+
 - **Strict TypeScript**: No `any` types in production
 - **Interface Design**: Clear contracts between components
 - **Runtime Validation**: Type guards for external data
@@ -263,11 +299,13 @@ snake-play/
 ## Scalability Considerations
 
 ### Current Scale (Personal Project)
+
 - **Users**: 1-100 concurrent players
 - **Data**: < 10MB database size
 - **Performance**: Single region deployment
 
 ### Future Scaling Options
+
 - **Database**: MongoDB Atlas clustering
 - **CDN**: Global edge distribution
 - **Caching**: Redis for session data
@@ -276,7 +314,9 @@ snake-play/
 ## Technology Decisions
 
 ### Framework Choice: Next.js
+
 **Rationale**:
+
 - Optimal Vercel integration
 - Built-in API routes eliminate separate backend
 - TypeScript support out of box
@@ -284,7 +324,9 @@ snake-play/
 - Strong React ecosystem
 
 ### Database Choice: MongoDB
+
 **Rationale**:
+
 - Flexible schema for gaming data
 - Excellent TypeScript integration via Mongoose
 - Easy local development with Docker
@@ -292,7 +334,9 @@ snake-play/
 - JSON-native for web applications
 
 ### Graphics Choice: Canvas API
+
 **Rationale**:
+
 - Universal browser support
 - High performance for 2D graphics
 - Direct pixel manipulation capability

@@ -1,6 +1,7 @@
 # Task: Canvas Rendering System
 
 ## Task Header
+
 - **ID**: T-1.7.1
 - **Title**: Implement HTML5 Canvas game rendering system
 - **Story ID**: US-1.7
@@ -12,12 +13,15 @@
 ## Task Content
 
 ### Objective
+
 Create a high-performance HTML5 Canvas rendering system that displays the Snake game at 60 FPS with smooth animations, responsive design adaptation, and optimized drawing operations.
 
 ### Description
+
 Build a comprehensive canvas-based rendering engine that handles game element drawing (snake, food, grid), manages the render loop, implements performance optimizations, and adapts to different screen sizes while maintaining visual quality and smooth gameplay.
 
 ### Acceptance Criteria Covered
+
 - GIVEN game canvas WHEN rendering THEN maintains 60 FPS performance
 - GIVEN canvas size WHEN screen resizes THEN adapts proportionally without distortion
 - GIVEN mobile screen WHEN playing THEN game area remains fully visible and playable
@@ -26,6 +30,7 @@ Build a comprehensive canvas-based rendering engine that handles game element dr
 - GIVEN pixel density WHEN high DPI THEN renders crisp graphics without blur
 
 ### Implementation Notes
+
 1. Create high-performance canvas rendering system with requestAnimationFrame
 2. Implement responsive canvas sizing with device pixel ratio handling
 3. Optimize drawing operations and minimize canvas state changes
@@ -35,7 +40,9 @@ Build a comprehensive canvas-based rendering engine that handles game element dr
 ## Technical Specs
 
 ### File Targets
+
 **New Files:**
+
 - `src/components/game/GameCanvas.tsx` - Main canvas component
 - `src/lib/rendering/CanvasRenderer.ts` - Core rendering engine
 - `src/lib/rendering/RenderLoop.ts` - Game render loop management
@@ -47,16 +54,19 @@ Build a comprehensive canvas-based rendering engine that handles game element dr
 - `src/styles/canvas.css` - Canvas-specific styling
 
 **Modified Files:**
+
 - `src/app/game/page.tsx` - Integrate game canvas
 - `src/components/game/GameBoard.tsx` - Canvas integration
 - `src/lib/game/GameEngine.ts` - Connect with renderer
 
 **Test Files:**
+
 - `src/lib/rendering/__tests__/CanvasRenderer.test.ts` - Renderer tests
 - `src/lib/rendering/__tests__/RenderLoop.test.ts` - Render loop tests
 - `src/components/__tests__/GameCanvas.test.tsx` - Canvas component tests
 
 ### Canvas Renderer Core
+
 ```typescript
 // Core canvas rendering engine
 interface RenderContext {
@@ -87,19 +97,25 @@ export class CanvasRenderer {
     this.setupCanvasOptimizations();
   }
 
-  private initializeRenderContext(canvas: HTMLCanvasElement, config: GameConfig): RenderContext {
+  private initializeRenderContext(
+    canvas: HTMLCanvasElement,
+    config: GameConfig
+  ): RenderContext {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       throw new Error('Failed to get 2D rendering context');
     }
 
     const pixelRatio = window.devicePixelRatio || 1;
-    const { width, height, cellSize } = this.calculateCanvasDimensions(config, pixelRatio);
+    const { width, height, cellSize } = this.calculateCanvasDimensions(
+      config,
+      pixelRatio
+    );
 
     // Set actual canvas size for crisp rendering
     canvas.width = width * pixelRatio;
     canvas.height = height * pixelRatio;
-    
+
     // Set display size
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
@@ -114,13 +130,13 @@ export class CanvasRenderer {
       height,
       pixelRatio,
       gridSize: config.gridSize,
-      cellSize
+      cellSize,
     };
   }
 
   private setupCanvasOptimizations(): void {
     const { ctx } = this.renderContext;
-    
+
     // Enable optimizations
     ctx.imageSmoothingEnabled = false; // Crisp pixel art
     ctx.textBaseline = 'top';
@@ -129,14 +145,14 @@ export class CanvasRenderer {
 
   public render(gameElements: GameElements): void {
     this.performanceMonitor.startFrame();
-    
+
     try {
       this.clearCanvas();
       this.drawGrid();
       this.drawFood(gameElements.food);
       this.drawSnake(gameElements.snake);
       this.drawUI(gameElements.score, gameElements.gameState);
-      
+
       this.performanceMonitor.endFrame();
     } catch (error) {
       console.error('Rendering error:', error);
@@ -152,7 +168,7 @@ export class CanvasRenderer {
 
   private drawGrid(): void {
     const { ctx, width, height, cellSize } = this.renderContext;
-    
+
     ctx.strokeStyle = '#333333';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -174,24 +190,34 @@ export class CanvasRenderer {
 
   private drawSnake(snake: Position[]): void {
     const { ctx, cellSize } = this.renderContext;
-    
+
     snake.forEach((segment, index) => {
       const x = segment.x * cellSize;
       const y = segment.y * cellSize;
-      
+
       if (index === 0) {
         // Snake head - distinct styling
         ctx.fillStyle = '#4ade80'; // Bright green
         ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
-        
+
         // Add eyes
         ctx.fillStyle = '#000000';
         const eyeSize = Math.max(2, cellSize / 8);
-        ctx.fillRect(x + cellSize * 0.25, y + cellSize * 0.25, eyeSize, eyeSize);
-        ctx.fillRect(x + cellSize * 0.75 - eyeSize, y + cellSize * 0.25, eyeSize, eyeSize);
+        ctx.fillRect(
+          x + cellSize * 0.25,
+          y + cellSize * 0.25,
+          eyeSize,
+          eyeSize
+        );
+        ctx.fillRect(
+          x + cellSize * 0.75 - eyeSize,
+          y + cellSize * 0.25,
+          eyeSize,
+          eyeSize
+        );
       } else {
         // Snake body - gradient effect
-        const alpha = Math.max(0.6, 1 - (index * 0.05));
+        const alpha = Math.max(0.6, 1 - index * 0.05);
         ctx.fillStyle = `rgba(34, 197, 94, ${alpha})`; // Fading green
         ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
       }
@@ -215,8 +241,12 @@ export class CanvasRenderer {
 
     // Create radial gradient
     const gradient = ctx.createRadialGradient(
-      centerX, centerY, 0,
-      centerX, centerY, actualRadius
+      centerX,
+      centerY,
+      0,
+      centerX,
+      centerY,
+      actualRadius
     );
     gradient.addColorStop(0, '#ef4444'); // Bright red center
     gradient.addColorStop(1, '#dc2626'); // Darker red edge
@@ -229,13 +259,19 @@ export class CanvasRenderer {
     // Add highlight
     ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
     ctx.beginPath();
-    ctx.arc(centerX - actualRadius * 0.3, centerY - actualRadius * 0.3, actualRadius * 0.3, 0, Math.PI * 2);
+    ctx.arc(
+      centerX - actualRadius * 0.3,
+      centerY - actualRadius * 0.3,
+      actualRadius * 0.3,
+      0,
+      Math.PI * 2
+    );
     ctx.fill();
   }
 
   private drawUI(score: number, gameState: GameState): void {
     const { ctx, width } = this.renderContext;
-    
+
     // Score display
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 20px monospace';
@@ -259,7 +295,7 @@ export class CanvasRenderer {
 
   private drawOverlay(title: string, subtitle: string): void {
     const { ctx, width, height } = this.renderContext;
-    
+
     // Semi-transparent background
     ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
     ctx.fillRect(0, 0, width, height);
@@ -273,13 +309,16 @@ export class CanvasRenderer {
     // Subtitle text
     ctx.font = '18px monospace';
     ctx.fillText(subtitle, width / 2, height / 2 + 20);
-    
+
     // Reset text alignment
     ctx.textAlign = 'left';
   }
 
   public resize(newConfig: GameConfig): void {
-    this.renderContext = this.initializeRenderContext(this.renderContext.canvas, newConfig);
+    this.renderContext = this.initializeRenderContext(
+      this.renderContext.canvas,
+      newConfig
+    );
     this.setupCanvasOptimizations();
   }
 
@@ -289,7 +328,7 @@ export class CanvasRenderer {
       window.innerHeight * 0.8,
       600 // Maximum size
     );
-    
+
     const cellSize = Math.floor(baseSize / config.gridSize);
     const width = cellSize * config.gridSize;
     const height = cellSize * config.gridSize;
@@ -311,6 +350,7 @@ export class CanvasRenderer {
 ```
 
 ### Render Loop Management
+
 ```typescript
 // Game render loop management
 export class RenderLoop {
@@ -330,7 +370,7 @@ export class RenderLoop {
 
   public start(): void {
     if (this.isRunning) return;
-    
+
     this.isRunning = true;
     this.lastFrameTime = performance.now();
     this.loop();
@@ -353,14 +393,14 @@ export class RenderLoop {
     if (deltaTime >= this.frameInterval) {
       // Update game state
       this.gameEngine.update(deltaTime);
-      
+
       // Render frame
       const gameState = this.gameEngine.getGameState();
       this.renderer.render({
         snake: gameState.snake,
         food: gameState.food,
         score: gameState.score,
-        gameState: gameState.state
+        gameState: gameState.state,
       });
 
       this.lastFrameTime = currentTime - (deltaTime % this.frameInterval);
@@ -385,6 +425,7 @@ export class RenderLoop {
 ```
 
 ### Performance Monitor
+
 ```typescript
 // Performance monitoring system
 export class PerformanceMonitor {
@@ -407,13 +448,15 @@ export class PerformanceMonitor {
 
   public endFrame(): void {
     if (!this.enabled) return;
-    
+
     const now = performance.now();
     this.frameTimes.push(now);
 
     // Calculate FPS every second
     if (now - this.lastFpsUpdate >= 1000) {
-      this.currentFPS = Math.round(this.frameCount * 1000 / (now - this.lastFpsUpdate));
+      this.currentFPS = Math.round(
+        (this.frameCount * 1000) / (now - this.lastFpsUpdate)
+      );
       this.frameCount = 0;
       this.lastFpsUpdate = now;
     }
@@ -434,12 +477,12 @@ export class PerformanceMonitor {
 
   public getAverageFrameTime(): number {
     if (this.frameTimes.length < 2) return 0;
-    
+
     const deltas = [];
     for (let i = 1; i < this.frameTimes.length; i++) {
       deltas.push(this.frameTimes[i] - this.frameTimes[i - 1]);
     }
-    
+
     return deltas.reduce((sum, delta) => sum + delta, 0) / deltas.length;
   }
 
@@ -448,7 +491,7 @@ export class PerformanceMonitor {
       fps: this.currentFPS,
       averageFrameTime: this.getAverageFrameTime(),
       errorCount: this.errorCount,
-      enabled: this.enabled
+      enabled: this.enabled,
     };
   }
 
@@ -473,6 +516,7 @@ export class PerformanceMonitor {
 ```
 
 ### Responsive Canvas Component
+
 ```typescript
 // Responsive canvas React component
 interface GameCanvasProps {
@@ -589,10 +633,15 @@ function debounce<T extends (...args: any[]) => any>(
 ```
 
 ### Canvas Utilities
+
 ```typescript
 // Canvas utility functions
 export class CanvasUtils {
-  static getHighDPICanvas(canvas: HTMLCanvasElement, width: number, height: number): CanvasRenderingContext2D {
+  static getHighDPICanvas(
+    canvas: HTMLCanvasElement,
+    width: number,
+    height: number
+  ): CanvasRenderingContext2D {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       throw new Error('Failed to get 2D context');
@@ -609,7 +658,11 @@ export class CanvasUtils {
     return ctx;
   }
 
-  static clearCanvas(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+  static clearCanvas(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number
+  ): void {
     ctx.clearRect(0, 0, width, height);
   }
 
@@ -647,7 +700,7 @@ export class CanvasUtils {
     return {
       width: actualSize,
       height: actualSize,
-      cellSize
+      cellSize,
     };
   }
 
@@ -670,22 +723,26 @@ export class CanvasUtils {
 ## Testing Requirements
 
 ### Unit Tests
+
 - Canvas renderer initialization and drawing functions
 - Render loop frame rate management and performance
 - Performance monitor accuracy and metrics
 - Responsive canvas sizing calculations
 
 ### Integration Tests
+
 - Canvas integration with game engine
 - Render loop coordination with game state
 - Performance monitoring during gameplay
 
 ### Performance Tests
+
 - 60 FPS maintenance under load
 - Memory usage during extended gameplay
 - Canvas resize performance
 
 ### E2E Scenarios
+
 - Smooth gameplay across different devices
 - Performance on various screen sizes
 - High-DPI display rendering quality
@@ -693,14 +750,17 @@ export class CanvasUtils {
 ## Dependencies
 
 ### Prerequisite Tasks
+
 - T-1.1.1 (Project Setup)
 - T-1.3.1 (Snake Movement Logic)
 - T-1.4.1 (Food Generation System)
 
 ### Blocking Tasks
+
 - None
 
 ### External Dependencies
+
 - HTML5 Canvas API
 - RequestAnimationFrame API
 - DevicePixelRatio support
@@ -708,16 +768,19 @@ export class CanvasUtils {
 ## Risks and Considerations
 
 ### Technical Risks
+
 - Performance degradation on older devices
 - Canvas rendering inconsistencies across browsers
 - High-DPI display support complexity
 
 ### Implementation Challenges
+
 - Maintaining 60 FPS on all target devices
 - Responsive design without visual distortion
 - Memory management for long gaming sessions
 
 ### Mitigation Strategies
+
 - Implement performance monitoring and adaptive quality
 - Test across multiple devices and browsers
 - Add fallback options for low-performance scenarios
