@@ -83,6 +83,10 @@ Increases player satisfaction and accessibility by allowing personalized experie
 - US-4.2 (Game Sound Effects)
 - US-5.1 (Mobile Touch Controls)
 
+### Implementation Tasks
+- 5.2.1 (Settings Page UI and Components)
+- 5.2.2 (Settings Integration and Persistence)
+
 ---
 
 *Story provides personalization options that improve accessibility and user satisfaction.*

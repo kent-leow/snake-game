@@ -84,6 +84,11 @@ Expands the game's accessibility to mobile users, significantly increasing the p
 - US-1.7 (Canvas-Based Game Rendering)
 - US-1.6 (Game Controls and State Management)
 
+### Implementation Tasks
+- 5.1.1 (Touch Event System and Gesture Detection)
+- 5.1.2 (Mobile-Responsive UI Layout)
+- 5.1.3 (Touch Controls Integration and Optimization)
+
 ---
 
 *Story enables natural mobile gameplay that expands accessibility to mobile device users.*
