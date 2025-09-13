@@ -82,6 +82,10 @@ Creates the core reward mechanism that motivates continued play and provides the
 ### Dependencies
 - US-1.3 (Basic Snake Movement)
 
+### Implementation Tasks
+- **T-1.4.1**: Food Generation and Placement System
+- **T-1.4.2**: Scoring System and UI Display
+
 ---
 
 *Story establishes the core reward and progression mechanism that makes the snake game engaging and provides measurable progress.*

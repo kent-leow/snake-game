@@ -83,6 +83,10 @@ Provides the essential gameplay mechanic that makes the application a functional
 - US-1.1 (Project Foundation Setup)
 - US-1.2 (Navigation Between Pages)
 
+### Implementation Tasks
+- **T-1.3.1**: Snake Movement Logic and Direction Control
+- **T-1.3.2**: Collision Detection System
+
 ---
 
 *Story provides the core interactive gameplay mechanic that defines the snake game experience.*

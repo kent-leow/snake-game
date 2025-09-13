@@ -84,6 +84,10 @@ Gives players control over their gaming experience, enabling convenient session 
 - US-1.4 (Food Consumption and Snake Growth)
 - US-1.5 (Collision Detection and Game Over)
 
+### Implementation Tasks
+- **T-1.6.1**: Game State Management System
+- **T-1.6.2**: Game Control Interface and User Interaction
+
 ---
 
 *Story provides essential user control over game sessions, enabling convenient gameplay management and improved user experience.*

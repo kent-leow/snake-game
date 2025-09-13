@@ -83,6 +83,9 @@ Establishes the challenge and replay value that keeps players engaged by providi
 - US-1.3 (Basic Snake Movement)
 - US-1.4 (Food Consumption and Snake Growth)
 
+### Implementation Tasks
+- **T-1.5.1**: Game Over Detection and Handling
+
 ---
 
 *Story provides the essential challenge mechanism that creates defined gameplay sessions and motivates player improvement.*
