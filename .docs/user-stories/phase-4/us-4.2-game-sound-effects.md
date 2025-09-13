@@ -83,6 +83,11 @@ Increases player engagement through multi-sensory feedback and makes the game mo
 - US-2.2 (Order-Based Combo System)
 - US-1.5 (Collision Detection and Game Over)
 
+### Implementation Tasks
+- [4.2.1 - Sound Effect System Implementation](../../tasks/phase-4/us-4.2-game-sound-effects/task-4.2.1-sound-effect-system.md)
+- [4.2.2 - Game Event Audio Integration](../../tasks/phase-4/us-4.2-game-sound-effects/task-4.2.2-game-event-integration.md)
+- [4.2.3 - Audio Performance Optimization](../../tasks/phase-4/us-4.2-game-sound-effects/task-4.2.3-audio-performance-optimization.md)
+
 ---
 
 *Story adds responsive audio feedback that makes the game more engaging and satisfying to play.*

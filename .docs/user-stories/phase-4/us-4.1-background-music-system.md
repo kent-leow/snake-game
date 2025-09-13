@@ -82,6 +82,11 @@ Enhances user engagement and creates a more immersive gaming experience that enc
 - US-1.7 (Canvas-Based Game Rendering)
 - US-1.6 (Game Controls and State Management)
 
+### Implementation Tasks
+- [4.1.1 - Audio Manager Core Implementation](../../tasks/phase-4/us-4.1-background-music-system/task-4.1.1-audio-manager-core.md)
+- [4.1.2 - Background Music Integration and Controls](../../tasks/phase-4/us-4.1-background-music-system/task-4.1.2-background-music-controls.md)
+- [4.1.3 - Browser Compatibility and Fallback Handling](../../tasks/phase-4/us-4.1-background-music-system/task-4.1.3-browser-compatibility.md)
+
 ---
 
 *Story adds immersive audio that enhances the gaming experience while handling browser limitations gracefully.*
