@@ -25,16 +25,20 @@ This project involves developing a modern web-based Snake game with enhanced gam
 - Responsive web design for browser deployment
 
 ## Technical Context
-- **Framework**: Web-based (TBD - likely React/Next.js for Vercel compatibility)
-- **Deployment**: Vercel with GitHub integration
+- **Framework**: Next.js with TypeScript (React-based framework for optimal Vercel deployment)
+- **Language**: TypeScript for type safety and better development experience
+- **Database**: MongoDB with Docker for local development
+- **Deployment**: Vercel with GitHub integration (production MongoDB Atlas)
 - **Audio**: HTML5 Audio API or Web Audio API
 - **Graphics**: Canvas API or WebGL for smooth animations
-- **State Management**: Game state, settings, high scores
+- **State Management**: Game state, settings, high scores (persistent in MongoDB)
+- **Local Development**: Docker Compose for MongoDB container
+- **Testing**: No formal testing (personal project)
 
 ## Project Scope
 **Timeline**: Personal project (flexible)  
 **Team Size**: Individual developer  
-**Quality Process**: Direct deployment (no QA/staging environments)  
+**Quality Process**: Direct deployment (no formal testing or QA environments)  
 **Maintenance**: Personal maintenance and feature additions
 
 ## Success Criteria

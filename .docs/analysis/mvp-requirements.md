@@ -61,26 +61,45 @@
 ## MVP Technical Stack Recommendations
 
 ### Recommended Approach
-- **Framework**: Vanilla JavaScript or lightweight framework (for quick development)
-- **Graphics**: HTML5 Canvas API
-- **Storage**: localStorage for high scores
-- **Deployment**: Static files to Vercel
-- **Development**: Single-page application
+- **Framework**: Next.js with TypeScript (React-based framework optimized for Vercel)
+- **Language**: TypeScript for type safety and better development experience
+- **Database**: MongoDB with Mongoose ODM and TypeScript interfaces
+- **Local Development**: Docker Compose for MongoDB container
+- **Graphics**: HTML5 Canvas API (within React components with TypeScript)
+- **Storage**: MongoDB for persistent data + localStorage for caching
+- **Deployment**: Next.js app to Vercel with MongoDB Atlas
+- **Development**: Modern React with full TypeScript support and strict type checking
 
 ### MVP Architecture
 ```
-index.html (Main Menu)
-├── game.html (Snake Game)
-├── highscore.html (High Scores)
-├── js/
-│   ├── game-engine.js
-│   ├── snake.js
-│   ├── food-manager.js
-│   ├── score-manager.js
-│   └── utils.js
-├── css/
-│   └── styles.css
-└── assets/ (minimal)
+Next.js TypeScript Application Structure:
+├── pages/
+│   ├── index.tsx (Main Menu)
+│   ├── game.tsx (Snake Game)
+│   ├── highscore.tsx (High Scores)
+│   └── api/
+│       └── scores.ts (Score API endpoints)
+├── components/
+│   ├── GameCanvas.tsx
+│   ├── ScoreBoard.tsx
+│   └── Navigation.tsx
+├── lib/
+│   ├── mongodb.ts (Database connection)
+│   ├── game-engine.ts
+│   ├── snake.ts
+│   ├── food-manager.ts
+│   └── score-manager.ts
+├── models/
+│   └── Score.ts (Mongoose schema with TypeScript)
+├── types/
+│   ├── game.ts (Game-related interfaces)
+│   ├── score.ts (Score interfaces)
+│   └── index.ts (Common types)
+├── styles/
+│   └── globals.css
+├── docker-compose.yml (Local MongoDB)
+├── tsconfig.json (TypeScript configuration)
+└── .env.local (Environment variables)
 ```
 
 ## MVP User Stories
@@ -120,23 +139,29 @@ index.html (Main Menu)
 - [ ] All pages load within 3 seconds
 
 #### Data Persistence
-- [ ] High scores persist between browser sessions
-- [ ] Top 5 scores stored and displayed
+- [ ] High scores persist in MongoDB database
+- [ ] Local development uses Docker MongoDB container
+- [ ] Production uses MongoDB Atlas
+- [ ] Top 10 scores stored with player names and timestamps
 - [ ] Scores display correctly formatted numbers
+- [ ] API endpoints handle score CRUD operations
+- [ ] Database connection pooling for performance
 
 ## MVP Success Metrics
 
 ### Functional Metrics
 - Game runs without crashes for 10+ minute sessions
 - All combo mechanics work as specified
-- Scores save and load correctly
+- Scores save and load correctly from MongoDB
 - Page navigation functions properly
+- TypeScript compilation without errors
 
 ### Performance Metrics
 - Game maintains 30+ FPS on standard hardware
 - Page load times under 3 seconds
 - No memory leaks during extended play
 - Responsive controls (< 100ms input lag)
+- Database operations complete within 500ms
 
 ## Post-MVP Roadmap
 
@@ -160,15 +185,18 @@ index.html (Main Menu)
 
 ## Development Approach for MVP
 
-1. **Week 1**: Core game engine and basic snake mechanics
-2. **Week 2**: Combo system implementation and UI pages
-3. **Week 3**: Testing, polish, and deployment setup
+1. **Week 1**: Setup Next.js with TypeScript, Docker MongoDB, and basic snake mechanics
+2. **Week 2**: Combo system implementation, MongoDB integration with TypeScript interfaces, and API development
+3. **Week 3**: UI components, manual validation, and deployment to Vercel with MongoDB Atlas
 
 **Priority Order**:
-1. Basic snake movement and collision
-2. Food system with numbering
-3. Combo logic implementation
-4. Scoring and high score storage
-5. UI pages and navigation
-6. Testing and bug fixes
-7. Deployment to Vercel
+1. Next.js with TypeScript project setup and Docker MongoDB configuration
+2. TypeScript interfaces and type definitions for game objects
+3. Basic snake movement and collision (React Canvas component with types)
+4. Food system with numbering and proper TypeScript models
+5. Combo logic implementation with type safety
+6. MongoDB schema with TypeScript interfaces and API routes
+7. UI pages and navigation (Next.js routing with TypeScript)
+8. Database integration and high score persistence
+9. Manual validation and bug fixes
+10. Deployment to Vercel with MongoDB Atlas connection

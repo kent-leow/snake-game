@@ -75,9 +75,9 @@
 ### Code Quality
 | ID | Category | Requirement | Standard |
 |---|---|---|---|
-| NFR-029 | Code Documentation | Inline comments | 20% comment ratio |
-| NFR-030 | Code Structure | Modular architecture | Single responsibility |
-| NFR-031 | Testing Coverage | Unit test coverage | Not required (personal project) |
+| NFR-029 | Code Documentation | Inline comments and TypeScript types | 20% comment ratio |
+| NFR-030 | Code Structure | Modular TypeScript architecture | Single responsibility |
+| NFR-031 | Type Safety | TypeScript strict mode | No 'any' types in production code |
 
 ### Deployment
 | ID | Category | Requirement | Target |
@@ -92,8 +92,8 @@
 | ID | Standard | Compliance Level | Validation |
 |---|---|---|---|
 | NFR-035 | HTML5 | Valid markup | W3C validator |
-| NFR-036 | CSS3 | Cross-browser compatibility | Manual testing |
-| NFR-037 | JavaScript ES6+ | Modern browser support | Babel transpilation |
+| NFR-036 | CSS3 | Cross-browser compatibility | Manual validation |
+| NFR-037 | TypeScript | Strict type checking | TSC compilation |
 
 ### Accessibility
 | ID | Category | Requirement | Standard |

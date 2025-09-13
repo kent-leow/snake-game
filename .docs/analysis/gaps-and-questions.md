@@ -31,7 +31,7 @@
 ### Technical Implementation Gaps
 | Gap ID | Area | Missing Information | Impact |
 |---|---|---|---|
-| GAP-015 | Framework Choice | Specific web framework preference | High |
+| GAP-015 | Framework Choice | TypeScript integration with Next.js | Low |
 | GAP-016 | Browser Support | Minimum browser version requirements | Medium |
 | GAP-017 | Performance Targets | Specific FPS and latency requirements | Medium |
 | GAP-018 | Asset Optimization | Image and audio compression standards | Low |
@@ -88,9 +88,9 @@
 
 ### Development Process Questions
 10. **Framework and Technology**:
-    - Do you have a preference for JavaScript framework (React, Vue, vanilla JS)?
+    - Framework decided: Next.js with TypeScript for type safety
     - Should the game use a game engine (Phaser, PixiJS) or be built from scratch?
-    - Are there any specific libraries you want to avoid or prefer?
+    - Are there any specific TypeScript libraries you want to avoid or prefer?
 
 11. **Performance and Optimization**:
     - What devices should the game run smoothly on (minimum specs)?
@@ -106,8 +106,8 @@
 
 ### High Priority Gaps (Require immediate clarification)
 - Game board dimensions and boundaries
-- Framework choice for implementation
 - Collision detection specifications
+- TypeScript interface definitions for game objects
 
 ### Medium Priority Gaps (Should be clarified before development starts)
 - Combo system reset behavior
@@ -123,8 +123,8 @@
 
 ## Recommendations for Gap Resolution
 
-1. **Create technical spike** for framework evaluation
+1. **Setup Next.js with TypeScript** and establish type definitions
 2. **Design mockups** for visual clarification
 3. **Prototype core mechanics** to validate game feel
-4. **Test browser compatibility** early in development
+4. **Manual browser compatibility validation** early in development
 5. **Plan audio asset sourcing** strategy (royalty-free vs. custom)
