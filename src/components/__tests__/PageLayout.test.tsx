@@ -60,7 +60,7 @@ describe('PageLayout', () => {
     render(<PageLayout {...defaultProps} />);
     
     expect(screen.getByText('Home')).toBeDefined();
-    expect(screen.getByText('Game')).toBeDefined();
+    expect(screen.getByText('Play')).toBeDefined();
     expect(screen.getByText('Scores')).toBeDefined();
     expect(screen.getByText('Settings')).toBeDefined();
   });
@@ -69,7 +69,7 @@ describe('PageLayout', () => {
     render(<PageLayout {...defaultProps} />);
     
     const homeLink = screen.getByText('Home').closest('a');
-    const gameLink = screen.getByText('Game').closest('a');
+    const gameLink = screen.getByText('Play').closest('a');
     const scoresLink = screen.getByText('Scores').closest('a');
     const settingsLink = screen.getByText('Settings').closest('a');
     
