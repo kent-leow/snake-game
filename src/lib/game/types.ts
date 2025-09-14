@@ -16,15 +16,15 @@ export interface Position {
 export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
 // Snake and food types
-export interface SnakeSegment {
-  x: number;
-  y: number;
+export interface SnakeSegment extends Position {
+  id: string;
 }
 
 export interface Snake {
   segments: SnakeSegment[];
   direction: Direction;
-  nextDirection?: Direction;
+  nextDirection: Direction;
+  isGrowing: boolean;
 }
 
 export interface Food extends Position {
