@@ -86,6 +86,18 @@ export const KEY_CODES = {
 } as const;
 
 /**
+ * Collision detection configuration constants
+ */
+export const COLLISION_CONFIG = {
+  RESPONSE_TIME_TARGET: 50, // Maximum response time in milliseconds
+  BOUNDARY_TOLERANCE: 0, // Pixel tolerance for boundary detection
+  SELF_COLLISION_ENABLED: true,
+  BOUNDARY_COLLISION_ENABLED: true,
+  ENABLE_PERFORMANCE_MONITORING: false,
+  CACHE_COLLISION_RESULTS: true,
+} as const;
+
+/**
  * Performance-related configuration constants
  */
 export const PERFORMANCE_CONFIG = {

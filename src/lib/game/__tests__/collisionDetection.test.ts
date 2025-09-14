@@ -8,7 +8,7 @@ describe('CollisionDetector', () => {
   const canvasHeight = 600;
 
   beforeEach(() => {
-    collisionDetector = new CollisionDetector(gridSize, canvasWidth, canvasHeight);
+    collisionDetector = new CollisionDetector(canvasWidth, canvasHeight, gridSize);
   });
 
   describe('constructor', () => {
@@ -16,8 +16,177 @@ describe('CollisionDetector', () => {
       const config = collisionDetector.getConfig();
       
       expect(config.gridSize).toBe(gridSize);
-      expect(config.canvasWidth).toBe(canvasWidth);
-      expect(config.canvasHeight).toBe(canvasHeight);
+      expect(config.boundaries.left).toBe(0);
+      expect(config.boundaries.right).toBe(canvasWidth - gridSize);
+      expect(config.boundaries.top).toBe(0);
+      expect(config.boundaries.bottom).toBe(canvasHeight - gridSize);
+    });
+
+    it('should create proper boundary configuration', () => {
+      const boundaries = collisionDetector.getBoundaries();
+      
+      expect(boundaries.left).toBe(0);
+      expect(boundaries.right).toBe(canvasWidth - gridSize);
+      expect(boundaries.top).toBe(0);
+      expect(boundaries.bottom).toBe(canvasHeight - gridSize);
+    });
+  });
+
+  describe('checkAllCollisions', () => {
+    it('should detect boundary collision when snake hits left wall', () => {
+      const snake: Snake = {
+        segments: [
+          { x: -10, y: 100, id: 'head' }, // Outside left boundary
+          { x: 20, y: 100, id: 'body-1' },
+        ],
+        direction: 'LEFT',
+        nextDirection: 'LEFT',
+        isGrowing: false,
+      };
+
+      const result = collisionDetector.checkAllCollisions(snake);
+      
+      expect(result.hasCollision).toBe(true);
+      expect(result.type).toBe('boundary');
+      expect(result.details).toBe('Left boundary collision');
+    });
+
+    it('should detect boundary collision when snake hits right wall', () => {
+      const snake: Snake = {
+        segments: [
+          { x: 800, y: 100, id: 'head' }, // Outside right boundary
+          { x: 760, y: 100, id: 'body-1' },
+        ],
+        direction: 'RIGHT',
+        nextDirection: 'RIGHT',
+        isGrowing: false,
+      };
+
+      const result = collisionDetector.checkAllCollisions(snake);
+      
+      expect(result.hasCollision).toBe(true);
+      expect(result.type).toBe('boundary');
+      expect(result.details).toBe('Right boundary collision');
+    });
+
+    it('should detect boundary collision when snake hits top wall', () => {
+      const snake: Snake = {
+        segments: [
+          { x: 100, y: -10, id: 'head' }, // Outside top boundary
+          { x: 100, y: 20, id: 'body-1' },
+        ],
+        direction: 'UP',
+        nextDirection: 'UP',
+        isGrowing: false,
+      };
+
+      const result = collisionDetector.checkAllCollisions(snake);
+      
+      expect(result.hasCollision).toBe(true);
+      expect(result.type).toBe('boundary');
+      expect(result.details).toBe('Top boundary collision');
+    });
+
+    it('should detect boundary collision when snake hits bottom wall', () => {
+      const snake: Snake = {
+        segments: [
+          { x: 100, y: 600, id: 'head' }, // Outside bottom boundary
+          { x: 100, y: 560, id: 'body-1' },
+        ],
+        direction: 'DOWN',
+        nextDirection: 'DOWN',
+        isGrowing: false,
+      };
+
+      const result = collisionDetector.checkAllCollisions(snake);
+      
+      expect(result.hasCollision).toBe(true);
+      expect(result.type).toBe('boundary');
+      expect(result.details).toBe('Bottom boundary collision');
+    });
+
+    it('should detect self collision when snake head collides with body', () => {
+      const snake: Snake = {
+        segments: [
+          { x: 100, y: 100, id: 'head' },
+          { x: 80, y: 100, id: 'body-1' },
+          { x: 60, y: 100, id: 'body-2' },
+          { x: 100, y: 100, id: 'body-3' }, // Same position as head
+        ],
+        direction: 'RIGHT',
+        nextDirection: 'RIGHT',
+        isGrowing: false,
+      };
+
+      const result = collisionDetector.checkAllCollisions(snake);
+      
+      expect(result.hasCollision).toBe(true);
+      expect(result.type).toBe('self');
+      expect(result.details).toContain('Self-collision with segment body-3');
+    });
+
+    it('should return no collision for safe snake position', () => {
+      const snake: Snake = {
+        segments: [
+          { x: 100, y: 100, id: 'head' },
+          { x: 80, y: 100, id: 'body-1' },
+          { x: 60, y: 100, id: 'body-2' },
+        ],
+        direction: 'RIGHT',
+        nextDirection: 'RIGHT',
+        isGrowing: false,
+      };
+
+      const result = collisionDetector.checkAllCollisions(snake);
+      
+      expect(result.hasCollision).toBe(false);
+      expect(result.type).toBe('none');
+    });
+
+    it('should prioritize boundary collision over self collision', () => {
+      const snake: Snake = {
+        segments: [
+          { x: -10, y: 100, id: 'head' }, // Outside boundary
+          { x: 20, y: 100, id: 'body-1' },
+          { x: -10, y: 100, id: 'body-2' }, // Same as head (self collision)
+        ],
+        direction: 'LEFT',
+        nextDirection: 'LEFT',
+        isGrowing: false,
+      };
+
+      const result = collisionDetector.checkAllCollisions(snake);
+      
+      expect(result.hasCollision).toBe(true);
+      expect(result.type).toBe('boundary'); // Boundary should be checked first
+    });
+  });
+
+  describe('getBoundaries and updateBoundaries', () => {
+    it('should return current boundaries configuration', () => {
+      const boundaries = collisionDetector.getBoundaries();
+      
+      expect(boundaries).toEqual({
+        top: 0,
+        bottom: canvasHeight - gridSize,
+        left: 0,
+        right: canvasWidth - gridSize,
+      });
+    });
+
+    it('should update boundaries when canvas size changes', () => {
+      const newWidth = 400;
+      const newHeight = 300;
+      
+      collisionDetector.updateBoundaries(newWidth, newHeight);
+      const boundaries = collisionDetector.getBoundaries();
+      
+      expect(boundaries).toEqual({
+        top: 0,
+        bottom: newHeight - gridSize,
+        left: 0,
+        right: newWidth - gridSize,
+      });
     });
   });
 
@@ -55,7 +224,7 @@ describe('CollisionDetector', () => {
     });
 
     it('should return true for position outside right boundary', () => {
-      const position: Position = { x: 800, y: 100 };
+      const position: Position = { x: 800, y: 100 }; // Beyond right boundary (800-20=780)
 
       const result = collisionDetector.checkWallCollision(position);
       expect(result).toBe(true);
@@ -69,7 +238,7 @@ describe('CollisionDetector', () => {
     });
 
     it('should return true for position outside bottom boundary', () => {
-      const position: Position = { x: 100, y: 600 };
+      const position: Position = { x: 100, y: 600 }; // Beyond bottom boundary (600-20=580)
 
       const result = collisionDetector.checkWallCollision(position);
       expect(result).toBe(true);
@@ -82,12 +251,12 @@ describe('CollisionDetector', () => {
       expect(result).toBe(false);
     });
 
-    it('should return false for position at edge boundaries', () => {
+    it('should return false for position at valid edge boundaries', () => {
       const positions = [
         { x: 0, y: 0 },
-        { x: 0, y: 599 },
-        { x: 799, y: 0 },
-        { x: 799, y: 599 },
+        { x: 0, y: 580 }, // bottom boundary - gridSize
+        { x: 780, y: 0 }, // right boundary - gridSize
+        { x: 780, y: 580 },
       ];
 
       positions.forEach(position => {
@@ -110,7 +279,7 @@ describe('CollisionDetector', () => {
     });
   });
 
-  describe('checkSelfCollision', () => {
+  describe('checkSelfCollisionLegacy', () => {
     it('should return true when head position matches body segment', () => {
       const head: Position = { x: 100, y: 100 };
       const body: Position[] = [
@@ -119,7 +288,7 @@ describe('CollisionDetector', () => {
         { x: 100, y: 100 }, // Collision here
       ];
 
-      const result = collisionDetector.checkSelfCollision(head, body);
+      const result = collisionDetector.checkSelfCollisionLegacy(head, body);
       expect(result).toBe(true);
     });
 
@@ -131,7 +300,7 @@ describe('CollisionDetector', () => {
         { x: 40, y: 100 },
       ];
 
-      const result = collisionDetector.checkSelfCollision(head, body);
+      const result = collisionDetector.checkSelfCollisionLegacy(head, body);
       expect(result).toBe(false);
     });
 
@@ -139,7 +308,7 @@ describe('CollisionDetector', () => {
       const head: Position = { x: 100, y: 100 };
       const body: Position[] = [];
 
-      const result = collisionDetector.checkSelfCollision(head, body);
+      const result = collisionDetector.checkSelfCollisionLegacy(head, body);
       expect(result).toBe(false);
     });
   });
@@ -409,8 +578,8 @@ describe('CollisionDetector', () => {
       collisionDetector.updateDimensions(newWidth, newHeight, newGridSize);
 
       const config = collisionDetector.getConfig();
-      expect(config.canvasWidth).toBe(newWidth);
-      expect(config.canvasHeight).toBe(newHeight);
+      expect(config.boundaries.right).toBe(newWidth - newGridSize);
+      expect(config.boundaries.bottom).toBe(newHeight - newGridSize);
       expect(config.gridSize).toBe(newGridSize);
     });
   });
@@ -466,9 +635,29 @@ describe('CollisionDetector', () => {
     });
   });
 
-  describe('edge cases', () => {
+  describe('edge cases and task requirements', () => {
+    it('should handle collision detection within 50ms response time', () => {
+      const snake: Snake = {
+        segments: [
+          { x: -10, y: 100, id: 'head' }, // Boundary collision
+          { x: 20, y: 100, id: 'body-1' },
+        ],
+        direction: 'LEFT',
+        nextDirection: 'LEFT',
+        isGrowing: false,
+      };
+
+      const startTime = performance.now();
+      const result = collisionDetector.checkAllCollisions(snake);
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+
+      expect(result.hasCollision).toBe(true);
+      expect(duration).toBeLessThan(50); // Task requirement: response within 50ms
+    });
+
     it('should handle zero-sized canvas', () => {
-      const zeroDetector = new CollisionDetector(20, 0, 0);
+      const zeroDetector = new CollisionDetector(0, 0, 20);
       const position: Position = { x: 0, y: 0 };
 
       const result = zeroDetector.checkWallCollision(position);
@@ -476,11 +665,67 @@ describe('CollisionDetector', () => {
     });
 
     it('should handle very large grid size', () => {
-      const largeDetector = new CollisionDetector(1000, 800, 600);
+      const largeDetector = new CollisionDetector(800, 600, 1000);
       const position: Position = { x: 500, y: 300 };
 
       const result = largeDetector.checkWallCollision(position);
-      expect(result).toBe(false);
+      expect(result).toBe(true); // Position should be outside valid bounds
+    });
+
+    it('should handle collision tolerance edge cases', () => {
+      const tolerance = collisionDetector.getCollisionTolerance();
+      expect(tolerance).toBeGreaterThan(0);
+
+      const pos1: Position = { x: 100, y: 100 };
+      const pos2: Position = { x: 100 + tolerance, y: 100 };
+
+      const result = collisionDetector.checkCollisionWithTolerance(pos1, pos2, tolerance);
+      expect(result).toBe(true);
+    });
+
+    it('should provide immediate collision response for all boundary types', () => {
+      const testCases = [
+        { pos: { x: -1, y: 100 }, expected: 'Left boundary collision' },
+        { pos: { x: 1000, y: 100 }, expected: 'Right boundary collision' },
+        { pos: { x: 100, y: -1 }, expected: 'Top boundary collision' },
+        { pos: { x: 100, y: 1000 }, expected: 'Bottom boundary collision' },
+      ];
+
+      testCases.forEach(({ pos, expected }) => {
+        const snake: Snake = {
+          segments: [{ x: pos.x, y: pos.y, id: 'head' }],
+          direction: 'RIGHT',
+          nextDirection: 'RIGHT',
+          isGrowing: false,
+        };
+
+        const result = collisionDetector.checkAllCollisions(snake);
+        expect(result.hasCollision).toBe(true);
+        expect(result.type).toBe('boundary');
+        expect(result.details).toBe(expected);
+      });
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle zero-sized canvas', () => {
+      const zeroDetector = new CollisionDetector(0, 0, 20);
+      const position: Position = { x: 0, y: 0 };
+
+      // With 0-sized canvas and gridSize 20:
+      // right boundary = 0 - 20 = -20
+      // bottom boundary = 0 - 20 = -20
+      // So position (0,0) is outside the valid bounds
+      const result = zeroDetector.checkWallCollision(position);
+      expect(result).toBe(true); // 0,0 is outside bounds for 0-sized canvas
+    });
+
+    it('should handle very large grid size', () => {
+      const largeDetector = new CollisionDetector(800, 600, 1000);
+      const position: Position = { x: 500, y: 300 };
+
+      const result = largeDetector.checkWallCollision(position);
+      expect(result).toBe(true); // Position is outside valid bounds
     });
 
     it('should handle collision tolerance edge cases', () => {

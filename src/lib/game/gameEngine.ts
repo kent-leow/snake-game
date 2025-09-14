@@ -1,7 +1,7 @@
 import type { Position, EnhancedFood, Snake } from './types';
 import { SnakeGame } from './snake';
 import { FoodManager } from './food';
-import { CollisionDetector } from './collisionDetection';
+import { CollisionDetector, type CollisionResult } from './collisionDetection';
 import { ScoringSystem } from './scoring';
 
 /**
@@ -57,9 +57,9 @@ export class GameEngine {
     );
 
     this.collisionDetector = new CollisionDetector(
-      config.gridSize,
       config.canvasWidth,
-      config.canvasHeight
+      config.canvasHeight,
+      config.gridSize
     );
 
     this.scoringSystem = new ScoringSystem(config.initialScore || 0);
@@ -113,6 +113,16 @@ export class GameEngine {
    */
   public update(): boolean {
     if (!this.isRunning) return true;
+
+    // Check for collisions before moving
+    const collisionResult = this.collisionDetector.checkAllCollisions(this.snakeGame.getSnake());
+    
+    if (collisionResult.hasCollision) {
+      // Game over due to collision
+      console.log('Collision detected:', collisionResult);
+      this.handleGameOver();
+      return false;
+    }
 
     // Move snake
     const moveSuccess = this.snakeGame.move();
@@ -315,6 +325,7 @@ export class GameEngine {
     score: number;
     pendingGrowth: number;
     gameConfig: GameEngineConfig;
+    collisionBoundaries: ReturnType<CollisionDetector['getBoundaries']>;
   } {
     return {
       isRunning: this.isRunning,
@@ -323,6 +334,7 @@ export class GameEngine {
       score: this.scoringSystem.getCurrentScore(),
       pendingGrowth: this.snakeGame.getPendingGrowth(),
       gameConfig: this.config,
+      collisionBoundaries: this.collisionDetector.getBoundaries(),
     };
   }
 
@@ -331,6 +343,68 @@ export class GameEngine {
    */
   public updateCallbacks(callbacks: Partial<GameEngineCallbacks>): void {
     this.callbacks = { ...this.callbacks, ...callbacks };
+  }
+
+  /**
+   * Get collision detection status for debugging
+   */
+  public getCollisionStatus(): {
+    boundaries: ReturnType<CollisionDetector['getBoundaries']>;
+    config: ReturnType<CollisionDetector['getConfig']>;
+  } {
+    return {
+      boundaries: this.collisionDetector.getBoundaries(),
+      config: this.collisionDetector.getConfig(),
+    };
+  }
+
+  /**
+   * Check for specific collision type
+   */
+  public checkCollision(type: 'boundary' | 'self' | 'all' = 'all'): CollisionResult {
+    const snake = this.snakeGame.getSnake();
+    
+    if (type === 'all') {
+      return this.collisionDetector.checkAllCollisions(snake);
+    }
+    
+    const head = snake.segments[0];
+    
+    if (type === 'boundary') {
+      const boundaryResult = this.collisionDetector.checkWallCollision(head);
+      if (boundaryResult) {
+        return {
+          hasCollision: true,
+          type: 'boundary',
+          position: head,
+          details: 'Boundary collision detected',
+        };
+      } else {
+        return {
+          hasCollision: false,
+          type: 'none',
+        };
+      }
+    }
+    
+    if (type === 'self') {
+      const selfResult = this.collisionDetector.checkSnakeSelfCollision(snake);
+      if (selfResult) {
+        return {
+          hasCollision: true,
+          type: 'self',
+          position: head,
+          details: 'Self collision detected',
+        };
+      } else {
+        return {
+          hasCollision: false,
+          type: 'none',
+        };
+      }
+    }
+    
+    return { hasCollision: false, type: 'none' };
   }
 
   /**

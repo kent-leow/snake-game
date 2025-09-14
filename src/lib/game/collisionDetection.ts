@@ -1,14 +1,23 @@
-import type { Position, Snake, Food } from './types';
+import type { Position, Snake, Food, SnakeSegment } from './types';
+
+/**
+ * Boundary configuration interface for collision detection
+ */
+export interface BoundaryConfig {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
 
 /**
  * Collision result interface
  */
 export interface CollisionResult {
   hasCollision: boolean;
-  collisionType: 'wall' | 'self' | 'food' | 'none';
-  position: Position;
-  segmentIndex?: number;
-  food?: Food;
+  type: 'boundary' | 'self' | 'none';
+  position?: Position;
+  details?: string;
 }
 
 /**
@@ -26,14 +35,42 @@ export interface BoundingBox {
  * Provides pixel-perfect collision detection for snake, food, and wall interactions
  */
 export class CollisionDetector {
+  private boundaries: BoundaryConfig;
   private gridSize: number;
-  private canvasWidth: number;
-  private canvasHeight: number;
 
-  constructor(gridSize: number, canvasWidth: number, canvasHeight: number) {
+  constructor(canvasWidth: number, canvasHeight: number, gridSize: number) {
     this.gridSize = gridSize;
-    this.canvasWidth = canvasWidth;
-    this.canvasHeight = canvasHeight;
+    this.boundaries = {
+      top: 0,
+      bottom: canvasHeight - gridSize,
+      left: 0,
+      right: canvasWidth - gridSize,
+    };
+  }
+
+  /**
+   * Check all collision types for a snake
+   * Main collision detection entry point as specified in task requirements
+   */
+  public checkAllCollisions(snake: Snake): CollisionResult {
+    const head = snake.segments[0];
+
+    // Check boundary collisions first (most common)
+    const boundaryCollision = this.checkBoundaryCollision(head);
+    if (boundaryCollision.hasCollision) {
+      return boundaryCollision;
+    }
+
+    // Check self-collision
+    const selfCollision = this.checkSelfCollision(
+      head,
+      snake.segments.slice(1)
+    );
+    if (selfCollision.hasCollision) {
+      return selfCollision;
+    }
+
+    return { hasCollision: false, type: 'none' };
   }
 
   /**
@@ -46,6 +83,49 @@ export class CollisionDetector {
   }
 
   /**
+   * Check boundary collision as specified in task requirements
+   */
+  private checkBoundaryCollision(head: Position): CollisionResult {
+    if (head.x < this.boundaries.left) {
+      return {
+        hasCollision: true,
+        type: 'boundary',
+        position: head,
+        details: 'Left boundary collision',
+      };
+    }
+
+    if (head.x > this.boundaries.right) {
+      return {
+        hasCollision: true,
+        type: 'boundary',
+        position: head,
+        details: 'Right boundary collision',
+      };
+    }
+
+    if (head.y < this.boundaries.top) {
+      return {
+        hasCollision: true,
+        type: 'boundary',
+        position: head,
+        details: 'Top boundary collision',
+      };
+    }
+
+    if (head.y > this.boundaries.bottom) {
+      return {
+        hasCollision: true,
+        type: 'boundary',
+        position: head,
+        details: 'Bottom boundary collision',
+      };
+    }
+
+    return { hasCollision: false, type: 'none' };
+  }
+
+  /**
    * Check collision between snake head and walls
    */
   public checkWallCollision(
@@ -53,21 +133,46 @@ export class CollisionDetector {
     canvasWidth?: number,
     canvasHeight?: number
   ): boolean {
-    const width = canvasWidth || this.canvasWidth;
-    const height = canvasHeight || this.canvasHeight;
+    const boundaries = canvasWidth && canvasHeight ? {
+      top: 0,
+      bottom: canvasHeight - this.gridSize,
+      left: 0,
+      right: canvasWidth - this.gridSize,
+    } : this.boundaries;
 
     return (
-      position.x < 0 ||
-      position.x >= width ||
-      position.y < 0 ||
-      position.y >= height
+      position.x < boundaries.left ||
+      position.x > boundaries.right ||
+      position.y < boundaries.top ||
+      position.y > boundaries.bottom
     );
   }
 
   /**
-   * Check collision between snake head and its body
+   * Check self-collision as specified in task requirements
    */
-  public checkSelfCollision(head: Position, body: Position[]): boolean {
+  private checkSelfCollision(
+    head: Position,
+    body: SnakeSegment[]
+  ): CollisionResult {
+    for (const segment of body) {
+      if (head.x === segment.x && head.y === segment.y) {
+        return {
+          hasCollision: true,
+          type: 'self',
+          position: head,
+          details: `Self-collision with segment ${segment.id}`,
+        };
+      }
+    }
+
+    return { hasCollision: false, type: 'none' };
+  }
+
+  /**
+   * Legacy method for checking self collision (maintained for compatibility)
+   */
+  public checkSelfCollisionLegacy(head: Position, body: Position[]): boolean {
     // Skip the head itself if it's included in the body array
     return body.some(segment => segment.x === head.x && segment.y === head.y);
   }
@@ -79,21 +184,22 @@ export class CollisionDetector {
     const head = snake.segments[0];
     const body = snake.segments.slice(1); // Exclude head
     
-    return this.checkSelfCollision(head, body);
+    return this.checkSelfCollisionLegacy(head, body);
   }
 
   /**
-   * Comprehensive collision check for a position
+   * Comprehensive collision check for a position (legacy method)
    */
   public checkPositionCollisions(
     position: Position,
     snake: Snake,
     food: Food | null = null
-  ): CollisionResult {
+  ): CollisionResult & { collisionType: 'wall' | 'self' | 'food' | 'none'; segmentIndex?: number; food?: Food } {
     // Check wall collision
     if (this.checkWallCollision(position)) {
       return {
         hasCollision: true,
+        type: 'boundary',
         collisionType: 'wall',
         position,
       };
@@ -104,6 +210,7 @@ export class CollisionDetector {
     if (selfCollisionIndex !== -1) {
       return {
         hasCollision: true,
+        type: 'self',
         collisionType: 'self',
         position,
         segmentIndex: selfCollisionIndex,
@@ -114,6 +221,7 @@ export class CollisionDetector {
     if (food && this.checkFoodCollision(position, food)) {
       return {
         hasCollision: true,
+        type: 'none',
         collisionType: 'food',
         position,
         food,
@@ -122,6 +230,7 @@ export class CollisionDetector {
 
     return {
       hasCollision: false,
+      type: 'none',
       collisionType: 'none',
       position,
     };
@@ -268,14 +377,32 @@ export class CollisionDetector {
   }
 
   /**
-   * Update collision detector dimensions
+   * Update boundaries as specified in task requirements
+   */
+  public updateBoundaries(canvasWidth: number, canvasHeight: number): void {
+    this.boundaries = {
+      top: 0,
+      bottom: canvasHeight - this.gridSize,
+      left: 0,
+      right: canvasWidth - this.gridSize,
+    };
+  }
+
+  /**
+   * Get boundaries configuration as specified in task requirements
+   */
+  public getBoundaries(): BoundaryConfig {
+    return { ...this.boundaries };
+  }
+
+  /**
+   * Update collision detector dimensions (legacy method)
    */
   public updateDimensions(width: number, height: number, gridSize?: number): void {
-    this.canvasWidth = width;
-    this.canvasHeight = height;
     if (gridSize) {
       this.gridSize = gridSize;
     }
+    this.updateBoundaries(width, height);
   }
 
   /**
@@ -283,13 +410,11 @@ export class CollisionDetector {
    */
   public getConfig(): {
     gridSize: number;
-    canvasWidth: number;
-    canvasHeight: number;
+    boundaries: BoundaryConfig;
   } {
     return {
       gridSize: this.gridSize,
-      canvasWidth: this.canvasWidth,
-      canvasHeight: this.canvasHeight,
+      boundaries: { ...this.boundaries },
     };
   }
 
@@ -300,7 +425,7 @@ export class CollisionDetector {
     positions: Position[],
     snake: Snake,
     food: Food | null = null
-  ): CollisionResult[] {
+  ): (CollisionResult & { collisionType: 'wall' | 'self' | 'food' | 'none'; segmentIndex?: number; food?: Food })[] {
     return positions.map(position => 
       this.checkPositionCollisions(position, snake, food)
     );
@@ -315,9 +440,11 @@ export class CollisionDetector {
   ): Position[] {
     const safePositions: Position[] = [];
     const minDistancePixels = minDistance * this.gridSize;
+    const canvasWidth = this.boundaries.right + this.gridSize;
+    const canvasHeight = this.boundaries.bottom + this.gridSize;
 
-    for (let y = 0; y < this.canvasHeight; y += this.gridSize) {
-      for (let x = 0; x < this.canvasWidth; x += this.gridSize) {
+    for (let y = 0; y < canvasHeight; y += this.gridSize) {
+      for (let x = 0; x < canvasWidth; x += this.gridSize) {
         const position = { x, y };
 
         // Check if position is safe from snake
