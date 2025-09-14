@@ -53,7 +53,10 @@ export class SnakeMovement {
    */
   public moveSnake(snake: Snake, direction?: Direction): MovementResult {
     const moveDirection = direction || snake.direction;
+    console.log('SnakeMovement.moveSnake() - current snake segments:', snake.segments.length, 'direction:', moveDirection);
+    
     const newHeadPosition = this.calculateNextHeadPosition(snake, moveDirection);
+    console.log('Calculated new head position:', newHeadPosition);
 
     // Handle boundary wrapping if enabled
     const wrappedPosition = this.options.enableWrapAround
@@ -64,6 +67,7 @@ export class SnakeMovement {
     const collisionType = this.checkCollisions(snake, wrappedPosition);
 
     if (collisionType !== 'none') {
+      console.log('Collision detected:', collisionType);
       return {
         success: false,
         newPosition: wrappedPosition,
@@ -75,9 +79,10 @@ export class SnakeMovement {
     const newHead: SnakeSegment = {
       x: wrappedPosition.x,
       y: wrappedPosition.y,
-      id: `head-${Date.now()}`,
+      id: 'head',
     };
 
+    console.log('Adding new head segment:', newHead);
     // Add new head to snake
     snake.segments.unshift(newHead);
 
@@ -86,15 +91,20 @@ export class SnakeMovement {
     // Remove tail if not growing
     if (!snake.isGrowing) {
       removedTail = snake.segments.pop();
+      console.log('Removed tail segment:', removedTail);
     } else {
       snake.isGrowing = false;
+      console.log('Snake is growing, keeping tail');
     }
 
-    // Update direction
+    // Update direction and next direction
     snake.direction = moveDirection;
+    snake.nextDirection = moveDirection;
 
     // Update segment IDs
     this.updateSegmentIds(snake);
+
+    console.log('Movement complete - new snake segments:', snake.segments.length, 'head at:', snake.segments[0]);
 
     return {
       success: true,

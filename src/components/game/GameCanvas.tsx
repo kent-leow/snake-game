@@ -76,14 +76,17 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       // Control game speed with fixed timestep
       const currentTime = performance.now();
       if (currentTime - lastUpdateTimeRef.current >= GAME_CONFIG.GAME_SPEED) {
+        console.log('Game update - moving snake');
         const moveSuccess = gameInstance.move();
         
         if (!moveSuccess) {
           // Game over - stop the game
+          console.log('Game over - movement failed');
           setIsPlaying(false);
           return;
         }
 
+        console.log('Snake moved successfully, current position:', gameInstance.getHead());
         lastUpdateTimeRef.current = currentTime;
       }
     },
@@ -111,6 +114,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
       // Draw snake with potential interpolation
       const snake = gameInstance.getSnake();
+      console.log('Rendering snake with segments:', snake.segments.length, 'head at:', snake.segments[0]);
       snake.segments.forEach((segment, index) => {
         drawSnakeSegment(context, segment, GAME_CONFIG.GRID_SIZE, index === 0);
       });
@@ -133,10 +137,17 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     [onPerformanceUpdate]
   );
 
-  // Initialize game loop
+  // Initialize game loop - DISABLED FOR DEBUGGING
+  /*
   const gameLoop = useGameLoop(
-    useCallback((_deltaTime: number, _interpolation: number) => handleUpdate(), [handleUpdate]),
-    useCallback((_interpolation: number) => handleRender(), [handleRender]),
+    useCallback((deltaTime: number, interpolation: number) => {
+      console.log('Game loop update called with deltaTime:', deltaTime, 'interpolation:', interpolation);
+      handleUpdate();
+    }, [handleUpdate]),
+    useCallback((interpolation: number) => {
+      console.log('Game loop render called with interpolation:', interpolation);
+      handleRender();
+    }, [handleRender]),
     {
       enabled: isPlaying,
       targetFPS: PERFORMANCE_CONFIG.TARGET_FPS,
@@ -145,6 +156,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       onPerformanceUpdate: handlePerformanceUpdate,
     }
   );
+  */
 
   /**
    * Handle direction changes from keyboard input
@@ -173,9 +185,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       const game = new SnakeGame(width, height, GAME_CONFIG.GRID_SIZE);
       setGameInstance(game);
 
-      // Initial render
-      handleRender();
-
       // Make canvas focusable for keyboard events
       canvas.setAttribute('tabindex', '0');
       canvas.focus();
@@ -189,12 +198,60 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         onGameReady(game);
       }
 
+      // Initial render - needs to be done after game instance is created
+      setTimeout(() => {
+        if (game) {
+          // Clear canvas
+          clearCanvas(context, width, height);
+          // Draw grid (optional based on performance)
+          if (devicePerformance !== 'low') {
+            drawGrid(context, width, height);
+          }
+          // Draw border
+          drawBorder(context, width, height);
+          // Draw snake
+          const snake = game.getSnake();
+          console.log('Initial render - snake segments:', snake.segments);
+          snake.segments.forEach((segment, index) => {
+            drawSnakeSegment(context, segment, GAME_CONFIG.GRID_SIZE, index === 0);
+          });
+        }
+      }, 100);
+
       // Auto-start the game for demonstration
       setTimeout(() => {
+        console.log('Starting game...');
         setIsPlaying(true);
+        
+        // Add a simple test interval to move snake manually AND render
+        const testInterval = setInterval(() => {
+          console.log('Manual test move...');
+          if (game) {
+            const moveSuccess = game.move();
+            console.log('Manual move result:', moveSuccess, 'Head position:', game.getHead());
+            
+            // Force a render after move
+            const snake = game.getSnake();
+            clearCanvas(context, width, height);
+            if (devicePerformance !== 'low') {
+              drawGrid(context, width, height);
+            }
+            drawBorder(context, width, height);
+            snake.segments.forEach((segment, index) => {
+              drawSnakeSegment(context, segment, GAME_CONFIG.GRID_SIZE, index === 0);
+            });
+            
+            if (!moveSuccess) {
+              clearInterval(testInterval);
+            }
+          }
+        }, 1000); // Slower for debugging
+
+        // Clear test interval after 10 seconds
+        setTimeout(() => clearInterval(testInterval), 10000);
       }, 1000);
     },
-    [width, height, handleRender, onCanvasReady, onGameReady]
+    [width, height, devicePerformance, onCanvasReady, onGameReady]
   );
 
   // Update canvas ready handler when dependencies change
@@ -228,7 +285,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         }}
       />
       
-      {/* Performance stats display (development only) */}
+      {/* Performance stats display (development only) - DISABLED FOR DEBUGGING */}
+      {/*
       {process.env.NODE_ENV === 'development' && performanceStats && (
         <div className="performance-stats text-sm text-gray-500 mt-2">
           <div>FPS: {performanceStats.fps}</div>
@@ -237,6 +295,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           <div>Runtime: {gameLoop.getRuntime().toFixed(1)}s</div>
         </div>
       )}
+      */}
     </div>
   );
 };

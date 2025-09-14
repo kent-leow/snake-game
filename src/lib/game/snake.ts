@@ -81,21 +81,40 @@ export class SnakeGame {
    * Change snake direction with validation
    */
   public changeDirection(newDirection: Direction): boolean {
-    return this.inputHandler.processDirectionInput(newDirection);
+    const result = this.inputHandler.processDirectionInput(newDirection);
+    
+    // Update snake's next direction for immediate feedback
+    if (result) {
+      this.snake.nextDirection = newDirection;
+    }
+    
+    return result;
   }
 
   /**
    * Move snake one step forward
    */
   public move(): boolean {
+    console.log('SnakeGame.move() called - current head position:', this.snake.segments[0]);
+    
     // Process any queued input
     this.inputHandler.processQueuedInput();
     
     // Get current direction from input handler
     const currentDirection = this.inputHandler.getCurrentDirection();
+    console.log('Moving in direction:', currentDirection);
     
     // Use movement system to move snake
     const movementResult = this.movementSystem.moveSnake(this.snake, currentDirection);
+    console.log('Movement result:', movementResult);
+    
+    if (movementResult.success) {
+      // Update snake direction to current direction
+      this.snake.direction = currentDirection;
+      console.log('Snake moved successfully - new head position:', this.snake.segments[0]);
+    } else {
+      console.log('Snake movement failed:', movementResult.collisionType);
+    }
     
     return movementResult.success;
   }
