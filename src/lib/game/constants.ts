@@ -57,6 +57,20 @@ export const FOOD_POINTS = {
   SPECIAL: 50,
 } as const;
 
+/**
+ * Food system configuration constants
+ */
+export const FOOD_CONFIG = {
+  SPAWN_ATTEMPTS: 100,
+  MIN_DISTANCE_FROM_SNAKE: 1, // Grid units
+  SPECIAL_FOOD_PROBABILITY: 0.1, // 10% chance
+  FOOD_EXPIRY_TIME: 30000, // 30 seconds
+  ANIMATION_SPEED: 0.005,
+  GLOW_SPEED: 0.003,
+  PULSE_AMPLITUDE: 0.1,
+  SPARKLE_COUNT: 6,
+} as const;
+
 export const KEY_CODES = {
   ARROW_UP: 'ArrowUp',
   ARROW_DOWN: 'ArrowDown',

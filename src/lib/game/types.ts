@@ -32,6 +32,21 @@ export interface Food extends Position {
   points: number;
 }
 
+// Enhanced food interface with additional properties for the food system
+export interface EnhancedFood extends Food {
+  id: string;
+  timestamp: number;
+  value: number;
+}
+
+// Food spawn configuration
+export interface FoodSpawnOptions {
+  gridSize: number;
+  canvasWidth: number;
+  canvasHeight: number;
+  occupiedPositions: Position[];
+}
+
 // Game configuration types
 export interface GameConfig {
   gridSize: number;
@@ -105,6 +120,23 @@ export interface CollisionInfo {
   type: 'wall' | 'self' | 'food' | 'none';
   position: Position;
   segmentIndex?: number;
+}
+
+// Enhanced collision result with additional information
+export interface CollisionResult {
+  hasCollision: boolean;
+  collisionType: 'wall' | 'self' | 'food' | 'none';
+  position: Position;
+  segmentIndex?: number;
+  food?: Food;
+}
+
+// Bounding box for collision detection
+export interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 export type KeyboardKey = 
