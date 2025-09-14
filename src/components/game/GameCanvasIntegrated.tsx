@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useCanvas } from '@/hooks/useCanvas';
 import { useKeyboardInput } from '@/hooks/useKeyboardInput';
+import { useGameOver } from '@/hooks/useGameOver';
 import { usePerformanceMonitor, useScore } from '@/hooks';
-import { GameEngine } from '@/lib/game/gameEngine';
+import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '@/lib/game/gameEngine';
+import { GameOverModal } from './GameOverModal';
+import { CollisionFeedback } from './CollisionFeedback';
 import { CompactScoreDisplay } from './ScoreDisplay';
 import {
   clearCanvas,
@@ -13,33 +16,32 @@ import {
   drawBorder,
 } from '@/lib/utils/canvas';
 import { GAME_CONFIG, PERFORMANCE_CONFIG } from '@/lib/game/constants';
-import type { Direction, EnhancedFood } from '@/lib/game/types';
+import type { Direction, Position, EnhancedFood } from '@/lib/game/types';
+import type { GameOverState } from '@/lib/game/gameOverState';
 import type { PerformanceStats } from '@/lib/game/performance';
 
 /**
- * GameCanvas component properties
+ * Enhanced GameCanvas component properties
  */
-export interface GameCanvasProps {
+export interface GameCanvasIntegratedProps {
   width?: number;
   height?: number;
   className?: string;
-  onCanvasReady?: (
-    canvas: HTMLCanvasElement,
-    context: CanvasRenderingContext2D
-  ) => void;
-  onGameReady?: (game: GameEngine) => void;
+  onScoreChange?: (score: number) => void;
+  onGameReady?: () => void;
   onPerformanceUpdate?: (stats: PerformanceStats) => void;
   enablePerformanceMonitoring?: boolean;
 }
 
 /**
- * Main game canvas component for rendering the Snake game with integrated scoring and growth
+ * Enhanced GameCanvas component with integrated game over functionality
+ * Uses the GameEngine with full game over state management
  */
-export const GameCanvas: React.FC<GameCanvasProps> = ({
+export const GameCanvas: React.FC<GameCanvasIntegratedProps> = ({
   width = GAME_CONFIG.CANVAS_WIDTH,
   height = GAME_CONFIG.CANVAS_HEIGHT,
   className = '',
-  onCanvasReady,
+  onScoreChange,
   onGameReady,
   onPerformanceUpdate,
   enablePerformanceMonitoring = true,
@@ -47,12 +49,17 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   // Game state
   const [gameEngine, setGameEngine] = useState<GameEngine | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [collisionFeedback, setCollisionFeedback] = useState<{
+    position: Position;
+    type: 'boundary' | 'self';
+  } | null>(null);
+  
+  const gameLoopRef = useRef<number | null>(null);
 
   // Initialize canvas hook
   const { canvasRef, contextRef } = useCanvas({
     width,
     height,
-    ...(onCanvasReady && { onCanvasReady }),
   });
 
   // Scoring system integration
@@ -63,6 +70,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   } = useScore({
     onScoreChange: (newScore, event) => {
       console.log('Score changed:', newScore, 'Event:', event);
+      onScoreChange?.(newScore);
     },
   });
 
@@ -74,6 +82,30 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   } = usePerformanceMonitor(enablePerformanceMonitoring, {
     targetFPS: PERFORMANCE_CONFIG.TARGET_FPS,
     warningThreshold: PERFORMANCE_CONFIG.MIN_FPS_MOBILE,
+  });
+
+  // Game over hook
+  const {
+    gameOverState,
+    resetGameOver,
+    isGameOver,
+  } = useGameOver({
+    onGameOver: (state: GameOverState) => {
+      console.log('Game over state changed:', state);
+      setIsPlaying(false);
+      
+      // Show collision feedback if position is available
+      if (state.collisionPosition && state.cause) {
+        setCollisionFeedback({
+          position: state.collisionPosition,
+          type: state.cause,
+        });
+      }
+    },
+    onRestart: () => {
+      console.log('Game restarted via hook');
+      setCollisionFeedback(null);
+    },
   });
 
   /**
@@ -110,143 +142,182 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   }, []);
 
   /**
+   * Game update and render loop
+   */
+  const gameLoop = useCallback(() => {
+    if (!gameEngine || !contextRef.current || !isPlaying || isGameOver) return;
+
+    // Update game state
+    const updateSuccess = gameEngine.update();
+    
+    if (!updateSuccess) {
+      // Game over handled by engine
+      setIsPlaying(false);
+      return;
+    }
+
+    // Render game
+    const context = contextRef.current;
+    const gameState = gameEngine.getGameState();
+
+    // Clear canvas
+    clearCanvas(context, width, height);
+
+    // Draw grid and border
+    if (devicePerformance !== 'low') {
+      drawGrid(context, width, height);
+    }
+    drawBorder(context, width, height);
+
+    // Draw snake
+    gameState.snake.segments.forEach((segment, index) => {
+      drawSnakeSegment(context, segment, GAME_CONFIG.GRID_SIZE, index === 0);
+    });
+
+    // Draw food
+    if (gameState.food) {
+      drawFood(context, gameState.food);
+    }
+
+    // Continue game loop
+    gameLoopRef.current = requestAnimationFrame(gameLoop);
+  }, [gameEngine, contextRef, isPlaying, isGameOver, width, height, devicePerformance, drawFood]);
+
+  /**
+   * Start the game loop
+   */
+  const startGameLoop = useCallback(() => {
+    if (gameLoopRef.current) {
+      cancelAnimationFrame(gameLoopRef.current);
+    }
+    gameLoopRef.current = requestAnimationFrame(gameLoop);
+  }, [gameLoop]);
+
+  /**
+   * Stop the game loop
+   */
+  const stopGameLoop = useCallback(() => {
+    if (gameLoopRef.current) {
+      cancelAnimationFrame(gameLoopRef.current);
+      gameLoopRef.current = null;
+    }
+  }, []);
+
+  /**
    * Handle direction changes from keyboard input
    */
   const handleDirectionChange = useCallback(
     (direction: Direction) => {
-      if (gameEngine && isPlaying) {
+      if (gameEngine && isPlaying && !isGameOver) {
         gameEngine.changeDirection(direction);
       }
     },
-    [gameEngine, isPlaying]
+    [gameEngine, isPlaying, isGameOver]
   );
 
   // Set up keyboard input handling
   useKeyboardInput({
     onDirectionChange: handleDirectionChange,
-    enabled: isPlaying,
+    enabled: isPlaying && !isGameOver,
   });
 
   /**
-   * Initialize game when canvas is ready
+   * Initialize game engine and callbacks
    */
-  const handleCanvasReady = useCallback(
-    (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => {
-      // Create game engine instance
-      const engine = new GameEngine(
-        {
-          canvasWidth: width,
-          canvasHeight: height,
-          gridSize: GAME_CONFIG.GRID_SIZE,
-          initialScore: 0,
-          foodSpawnDelay: 100,
-        },
-        {
-          onScoreChange: (newScore, event) => {
-            // Integration with useScore hook would happen here
-            console.log('Game engine score change:', newScore, event);
-          },
-          onFoodEaten: (food, newLength) => {
-            console.log('Food eaten:', food, 'New length:', newLength);
-            // Add score through the hook
-            addFoodScore(food.value, { x: food.x, y: food.y });
-          },
-          onGameOver: (finalScore, snake) => {
-            console.log('Game over:', finalScore, snake);
-            setIsPlaying(false);
-          },
-        }
-      );
-
-      setGameEngine(engine);
-
-      // Make canvas focusable for keyboard events
-      canvas.setAttribute('tabindex', '0');
-      canvas.focus();
-
-      // Call external ready callbacks
-      if (onCanvasReady) {
-        onCanvasReady(canvas, context);
-      }
-
-      if (onGameReady) {
-        onGameReady(engine);
-      }
-
-      // Initial render
-      setTimeout(() => {
-        if (engine) {
-          const gameState = engine.getGameState();
-          
-          // Clear canvas
-          clearCanvas(context, width, height);
-          // Draw grid
-          if (devicePerformance !== 'low') {
-            drawGrid(context, width, height);
-          }
-          // Draw border
-          drawBorder(context, width, height);
-          // Draw snake
-          gameState.snake.segments.forEach((segment, index) => {
-            drawSnakeSegment(context, segment, GAME_CONFIG.GRID_SIZE, index === 0);
-          });
-          // Draw food
-          if (gameState.food) {
-            drawFood(context, gameState.food);
-          }
-        }
-      }, 100);
-
-      // Auto-start the game for demonstration
-      setTimeout(() => {
-        console.log('Starting game...');
-        engine.start();
-        setIsPlaying(true);
-        
-        // Add a simple test interval to update and render
-        const gameInterval = setInterval(() => {
-          if (engine && isPlaying) {
-            const updateSuccess = engine.update();
-            
-            if (updateSuccess) {
-              // Render after update
-              const gameState = engine.getGameState();
-              clearCanvas(context, width, height);
-              if (devicePerformance !== 'low') {
-                drawGrid(context, width, height);
-              }
-              drawBorder(context, width, height);
-              gameState.snake.segments.forEach((segment, index) => {
-                drawSnakeSegment(context, segment, GAME_CONFIG.GRID_SIZE, index === 0);
-              });
-              if (gameState.food) {
-                drawFood(context, gameState.food);
-              }
-            } else {
-              clearInterval(gameInterval);
-              setIsPlaying(false);
-            }
-          }
-        }, GAME_CONFIG.GAME_SPEED);
-
-        // Clear interval after 30 seconds
-        setTimeout(() => clearInterval(gameInterval), 30000);
-      }, 1000);
-    },
-    [width, height, devicePerformance, onCanvasReady, onGameReady, addFoodScore, drawFood, isPlaying]
-  );
-
-  // Update canvas ready handler when dependencies change
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const context = contextRef.current;
+    if (!canvasRef.current || !contextRef.current) return;
 
-    if (canvas && context) {
-      handleCanvasReady(canvas, context);
+    const config: GameEngineConfig = {
+      canvasWidth: width,
+      canvasHeight: height,
+      gridSize: GAME_CONFIG.GRID_SIZE,
+      initialScore: 0,
+      foodSpawnDelay: 100,
+    };
+
+    const callbacks: GameEngineCallbacks = {
+      onScoreChange: (score) => {
+        console.log('Game engine score change:', score);
+      },
+      onFoodEaten: (food, newLength) => {
+        console.log('Food eaten:', food, 'New length:', newLength);
+        // Add score through the hook
+        addFoodScore(food.value, { x: food.x, y: food.y });
+      },
+      onGameOver: (finalScore, _snake, cause, collisionPosition) => {
+        console.log('Game over callback:', { finalScore, cause, collisionPosition });
+        setIsPlaying(false);
+      },
+      onGameOverStateChange: (state) => {
+        console.log('Game over state change callback:', state);
+      },
+    };
+
+    const engine = new GameEngine(config, callbacks);
+    setGameEngine(engine);
+
+    // Make canvas focusable
+    canvasRef.current.setAttribute('tabindex', '0');
+    canvasRef.current.focus();
+
+    onGameReady?.();
+
+    return () => {
+      stopGameLoop();
+    };
+  }, [canvasRef, contextRef, width, height, addFoodScore, onGameReady, stopGameLoop]);
+
+  /**
+   * Start/restart game
+   */
+  const handleStartGame = useCallback(() => {
+    if (!gameEngine) return;
+
+    gameEngine.reset();
+    resetGameOver();
+    setIsPlaying(true);
+    gameEngine.start();
+    startGameLoop();
+  }, [gameEngine, resetGameOver, startGameLoop]);
+
+  /**
+   * Handle game restart from modal
+   */
+  const handleRestartGame = useCallback(() => {
+    handleStartGame();
+    setCollisionFeedback(null);
+  }, [handleStartGame]);
+
+  /**
+   * Handle return to main menu
+   */
+  const handleMainMenu = useCallback(() => {
+    setIsPlaying(false);
+    resetGameOver();
+    setCollisionFeedback(null);
+    stopGameLoop();
+    // Navigation to main menu would be handled by parent component
+  }, [resetGameOver, stopGameLoop]);
+
+  /**
+   * Handle collision feedback animation complete
+   */
+  const handleCollisionFeedbackComplete = useCallback(() => {
+    setCollisionFeedback(null);
+  }, []);
+
+  // Start game loop when playing
+  useEffect(() => {
+    if (isPlaying && !isGameOver) {
+      startGameLoop();
+    } else {
+      stopGameLoop();
     }
-  }, [handleCanvasReady, canvasRef, contextRef]);
 
-  // Display performance warnings in console
+    return () => stopGameLoop();
+  }, [isPlaying, isGameOver, startGameLoop, stopGameLoop]);
+
+  // Performance warnings
   useEffect(() => {
     if (warnings.length > 0) {
       warnings.forEach(warning => console.warn(`Game Performance: ${warning}`));
@@ -254,8 +325,24 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
   }, [warnings, clearWarnings]);
 
+  // Call performance update callback
+  useEffect(() => {
+    if (onPerformanceUpdate) {
+      // Mock performance stats for now
+      const stats: PerformanceStats = {
+        fps: 60,
+        averageFrameTime: 16.67,
+        maxFrameTime: 20,
+        minFrameTime: 10,
+        totalFrames: 0,
+        droppedFrames: 0,
+      };
+      onPerformanceUpdate(stats);
+    }
+  }, [onPerformanceUpdate]);
+
   return (
-    <div className={`game-canvas-container ${className}`}>
+    <div className={`game-canvas-container relative ${className}`}>
       {/* Score Display */}
       <div className="absolute top-4 left-4 z-10">
         <CompactScoreDisplay score={score} />
@@ -272,7 +359,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         height={height}
         className='game-canvas border-2 border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-green-500'
         style={{
-          imageRendering: 'pixelated', // Crisp pixel rendering
+          imageRendering: 'pixelated',
           backgroundColor: GAME_CONFIG.COLORS.BACKGROUND,
         }}
       />
@@ -284,6 +371,43 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           <div>Pending Growth: {gameEngine.getGameState().pendingGrowth}</div>
         </div>
       )}
+
+      {/* Game Over Modal */}
+      <GameOverModal
+        isVisible={isGameOver}
+        finalScore={gameOverState.finalScore}
+        cause={gameOverState.cause}
+        {...(gameOverState.gameStats && { gameStats: gameOverState.gameStats })}
+        onRestart={handleRestartGame}
+        onMainMenu={handleMainMenu}
+      />
+
+      {/* Collision Feedback */}
+      {collisionFeedback && (
+        <CollisionFeedback
+          position={collisionFeedback.position}
+          type={collisionFeedback.type}
+          onAnimationComplete={handleCollisionFeedbackComplete}
+        />
+      )}
+
+      {/* Game Controls */}
+      <div className="game-controls mt-4 text-center">
+        {!isPlaying && !isGameOver && (
+          <button
+            onClick={handleStartGame}
+            className="btn btn-primary"
+          >
+            Start Game
+          </button>
+        )}
+        
+        {isPlaying && (
+          <div className="text-sm text-gray-500">
+            Use arrow keys or WASD to control the snake
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -11,3 +11,4 @@ export {
   useCollisionChecker, 
   useAdvancedCollisionDetection 
 } from './useCollisionDetection';
+export { useGameOver } from './useGameOver';

@@ -7,6 +7,9 @@ export interface GameState {
   level: number;
 }
 
+// Game over related types (reexported from gameOverState)
+export type { GameOverState, GameStatistics } from './gameOverState';
+
 // Position and direction types
 export interface Position {
   x: number;

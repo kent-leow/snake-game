@@ -3,6 +3,7 @@ import { SnakeGame } from './snake';
 import { FoodManager } from './food';
 import { CollisionDetector, type CollisionResult } from './collisionDetection';
 import { ScoringSystem } from './scoring';
+import { GameOverManager, type GameOverState, type GameStatistics } from './gameOverState';
 
 /**
  * Game engine configuration interface
@@ -21,23 +22,28 @@ export interface GameEngineConfig {
 export interface GameEngineCallbacks {
   onScoreChange?: (score: number, event: Parameters<ScoringSystem['subscribeToScoreChanges']>[0] extends (score: number, event: infer E) => void ? E : never) => void;
   onFoodEaten?: (food: EnhancedFood, newLength: number) => void;
-  onGameOver?: (finalScore: number, snake: Snake) => void;
+  onGameOver?: (finalScore: number, snake: Snake, cause?: 'boundary' | 'self', collisionPosition?: Position) => void;
   onLevelUp?: (level: number, score: number) => void;
+  onGameOverStateChange?: (state: GameOverState) => void;
 }
 
 /**
  * Comprehensive game engine that orchestrates all game systems
- * Integrates snake movement, food management, collision detection, scoring, and growth
+ * Integrates snake movement, food management, collision detection, scoring, growth, and game over handling
  */
 export class GameEngine {
   private snakeGame: SnakeGame;
   private foodManager: FoodManager;
   private collisionDetector: CollisionDetector;
   private scoringSystem: ScoringSystem;
+  private gameOverManager: GameOverManager;
   private currentFood: EnhancedFood | null = null;
   private isRunning: boolean = false;
   private callbacks: GameEngineCallbacks;
   private config: GameEngineConfig;
+  private gameStartTime: number = 0;
+  private foodConsumed: number = 0;
+  private maxSnakeLength: number = 1;
 
   constructor(config: GameEngineConfig, callbacks: GameEngineCallbacks = {}) {
     this.config = config;
@@ -64,8 +70,13 @@ export class GameEngine {
 
     this.scoringSystem = new ScoringSystem(config.initialScore || 0);
 
+    this.gameOverManager = new GameOverManager();
+
     // Set up scoring system callbacks
     this.setupScoreCallbacks();
+
+    // Set up game over callbacks
+    this.setupGameOverCallbacks();
 
     // Spawn initial food
     this.spawnFood();
@@ -81,10 +92,22 @@ export class GameEngine {
   }
 
   /**
+   * Set up game over manager callbacks
+   */
+  private setupGameOverCallbacks(): void {
+    this.gameOverManager.subscribe((state) => {
+      this.callbacks.onGameOverStateChange?.(state);
+    });
+  }
+
+  /**
    * Start the game engine
    */
   public start(): void {
     this.isRunning = true;
+    this.gameStartTime = Date.now();
+    this.foodConsumed = 0;
+    this.maxSnakeLength = this.snakeGame.getLength();
   }
 
   /**
@@ -112,7 +135,7 @@ export class GameEngine {
    * Update game state (called each frame)
    */
   public update(): boolean {
-    if (!this.isRunning) return true;
+    if (!this.isRunning || this.gameOverManager.isGameOver()) return false;
 
     // Check for collisions before moving
     const collisionResult = this.collisionDetector.checkAllCollisions(this.snakeGame.getSnake());
@@ -120,7 +143,7 @@ export class GameEngine {
     if (collisionResult.hasCollision) {
       // Game over due to collision
       console.log('Collision detected:', collisionResult);
-      this.handleGameOver();
+      this.handleGameOver(collisionResult);
       return false;
     }
 
@@ -131,6 +154,12 @@ export class GameEngine {
       // Game over
       this.handleGameOver();
       return false;
+    }
+
+    // Update max snake length tracking
+    const currentLength = this.snakeGame.getLength();
+    if (currentLength > this.maxSnakeLength) {
+      this.maxSnakeLength = currentLength;
     }
 
     // Check for food collision
@@ -166,6 +195,9 @@ export class GameEngine {
     // Make snake grow
     this.snakeGame.addGrowth(1, 'food');
 
+    // Track food consumption
+    this.foodConsumed++;
+
     // Clear current food
     this.currentFood = null;
     this.foodManager.clearFood();
@@ -188,14 +220,46 @@ export class GameEngine {
   }
 
   /**
-   * Handle game over
+   * Handle game over with enhanced collision information
    */
-  private handleGameOver(): void {
+  private handleGameOver(collisionResult?: CollisionResult): void {
     this.isRunning = false;
     const finalScore = this.scoringSystem.getCurrentScore();
     const snake = this.snakeGame.getSnake();
     
-    this.callbacks.onGameOver?.(finalScore, snake);
+    // Determine collision cause and position
+    let cause: 'boundary' | 'self' | undefined;
+    let collisionPosition: Position | undefined;
+    
+    if (collisionResult?.hasCollision) {
+      cause = collisionResult.type === 'boundary' ? 'boundary' : 'self';
+      collisionPosition = collisionResult.position;
+    }
+    
+    // Calculate game statistics
+    const gameStats: GameStatistics = {
+      duration: Math.floor((Date.now() - this.gameStartTime) / 1000),
+      foodConsumed: this.foodConsumed,
+      maxSnakeLength: this.maxSnakeLength,
+      averageSpeed: this.calculateAverageSpeed(),
+    };
+    
+    // Trigger game over in manager
+    if (cause) {
+      this.gameOverManager.triggerGameOver(cause, finalScore, collisionPosition, gameStats);
+    }
+    
+    // Call legacy callback for backwards compatibility
+    this.callbacks.onGameOver?.(finalScore, snake, cause, collisionPosition);
+  }
+
+  /**
+   * Calculate average speed based on game duration and snake length
+   */
+  private calculateAverageSpeed(): number {
+    const duration = (Date.now() - this.gameStartTime) / 1000;
+    if (duration === 0) return 0;
+    return this.maxSnakeLength / duration;
   }
 
   /**
@@ -215,6 +279,7 @@ export class GameEngine {
     isRunning: boolean;
     snakeLength: number;
     pendingGrowth: number;
+    gameOverState: GameOverState;
   } {
     return {
       snake: this.snakeGame.getSnake(),
@@ -223,6 +288,7 @@ export class GameEngine {
       isRunning: this.isRunning,
       snakeLength: this.snakeGame.getLength(),
       pendingGrowth: this.snakeGame.getPendingGrowth(),
+      gameOverState: this.gameOverManager.getGameOverState(),
     };
   }
 
@@ -252,6 +318,13 @@ export class GameEngine {
    */
   public getCollisionDetector(): CollisionDetector {
     return this.collisionDetector;
+  }
+
+  /**
+   * Get game over manager
+   */
+  public getGameOverManager(): GameOverManager {
+    return this.gameOverManager;
   }
 
   /**
@@ -289,8 +362,12 @@ export class GameEngine {
     this.snakeGame.reset();
     this.scoringSystem.resetScore();
     this.foodManager.reset();
+    this.gameOverManager.resetGameOver();
     this.currentFood = null;
     this.isRunning = false;
+    this.gameStartTime = 0;
+    this.foodConsumed = 0;
+    this.maxSnakeLength = 1;
     
     // Spawn initial food
     this.spawnFood();

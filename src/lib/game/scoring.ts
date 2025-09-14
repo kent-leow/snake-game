@@ -71,15 +71,7 @@ export class ScoringSystem {
     return this.currentScore;
   }
 
-  /**
-   * Check if current score event is eligible for combo
-   */
-  private isComboEligible(event: ScoreEvent): boolean {
-    if (this.scoreHistory.length === 0) return true;
-    
-    const timeSinceLastScore = event.timestamp - this.lastScoreTime;
-    return timeSinceLastScore <= this.comboTimeWindow && event.type === 'food';
-  }
+
 
   /**
    * Get current score
@@ -160,39 +152,7 @@ export class ScoringSystem {
    * Get current combo count
    */
 
-  /**
-   * Get highest single score event
-   */
-  private getHighestSingleScore(): number {
-    return this.scoreHistory.reduce((max, event) => 
-      Math.max(max, event.points), 0
-    );
-  }
 
-  /**
-   * Calculate longest combo streak
-   */
-  private getLongestCombo(): number {
-    let maxCombo = 0;
-    let currentCombo = 0;
-    let lastTime = 0;
-
-    for (const event of this.scoreHistory) {
-      if (event.type === 'food' || event.type === 'combo') {
-        if (lastTime === 0 || (event.timestamp - lastTime) <= this.comboTimeWindow) {
-          currentCombo++;
-          maxCombo = Math.max(maxCombo, currentCombo);
-        } else {
-          currentCombo = 1;
-        }
-        lastTime = event.timestamp;
-      } else {
-        currentCombo = 0;
-      }
-    }
-
-    return maxCombo;
-  }
 
   /**
    * Add score for food consumption  

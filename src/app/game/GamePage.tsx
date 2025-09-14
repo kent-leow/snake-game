@@ -2,25 +2,19 @@
 
 import { useState, useCallback } from 'react';
 import { PageLayout } from '@/components';
-import { GameCanvas } from '@/components/game/GameCanvas';
-import { SnakeGame } from '@/lib/game/snake';
+import { GameCanvas } from '@/components/game/GameCanvasIntegrated';
 
 export function GamePage(): React.JSX.Element {
-  const [gameInstance, setGameInstance] = useState<SnakeGame | null>(null);
-  const [score] = useState(0);
+  const [score, setScore] = useState(0);
   const [isGameReady, setIsGameReady] = useState(false);
 
-  const handleGameReady = useCallback((game: SnakeGame) => {
-    setGameInstance(game);
+  const handleGameReady = useCallback(() => {
     setIsGameReady(true);
   }, []);
 
-  const handleStartGame = useCallback(() => {
-    if (gameInstance) {
-      // Game start logic will be implemented in future tasks
-      console.log('Game starting...', gameInstance);
-    }
-  }, [gameInstance]);
+  const handleScoreChange = useCallback((newScore: number) => {
+    setScore(newScore);
+  }, []);
 
   return (
     <PageLayout title='Snake Game' showBackButton={true}>
@@ -30,6 +24,7 @@ export function GamePage(): React.JSX.Element {
             width={800}
             height={600}
             onGameReady={handleGameReady}
+            onScoreChange={handleScoreChange}
             className='mb-4'
           />
           <div className='mt-4 flex justify-between items-center'>
@@ -37,13 +32,9 @@ export function GamePage(): React.JSX.Element {
               <span className='text-gray-400'>Score: </span>
               <span className='font-bold'>{score}</span>
             </div>
-            <button
-              className='bg-green-600 hover:bg-green-700 px-4 py-2 rounded disabled:opacity-50'
-              onClick={handleStartGame}
-              disabled={!isGameReady}
-            >
-              {isGameReady ? 'Start Game' : 'Loading...'}
-            </button>
+            <div className='text-sm text-gray-400'>
+              {isGameReady ? 'Game Ready - Click Start Game to begin' : 'Loading game...'}
+            </div>
           </div>
         </div>
       </div>
