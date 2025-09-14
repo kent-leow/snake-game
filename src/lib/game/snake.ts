@@ -2,6 +2,7 @@ import type { Snake, SnakeSegment, Direction, Position } from './types';
 import { GAME_CONFIG } from './constants';
 import { SnakeMovement } from './movement';
 import { InputHandler } from './inputHandler';
+import { SnakeGrowthManager } from './snakeGrowth';
 
 /**
  * Snake game class for managing snake state and behavior
@@ -12,6 +13,7 @@ export class SnakeGame {
   private canvasSize: { width: number; height: number };
   private movementSystem: SnakeMovement;
   private inputHandler: InputHandler;
+  private growthManager!: SnakeGrowthManager;
 
   constructor(
     canvasWidth: number = GAME_CONFIG.CANVAS_WIDTH,
@@ -51,6 +53,9 @@ export class SnakeGame {
       nextDirection: 'RIGHT',
       isGrowing: false,
     };
+    
+    // Initialize growth manager
+    this.growthManager = new SnakeGrowthManager(this.snake);
     
     // Initialize input handler with initial direction
     this.inputHandler.setDirection('RIGHT');
@@ -97,6 +102,9 @@ export class SnakeGame {
   public move(): boolean {
     console.log('SnakeGame.move() called - current head position:', this.snake.segments[0]);
     
+    // Process any pending growth before movement
+    this.growthManager.processGrowth();
+    
     // Process any queued input
     this.inputHandler.processQueuedInput();
     
@@ -123,7 +131,28 @@ export class SnakeGame {
    * Make snake grow on next move
    */
   public grow(): void {
-    this.movementSystem.setGrowth(this.snake, true);
+    this.growthManager.addGrowth(1, 'food');
+  }
+
+  /**
+   * Add multiple growth segments
+   */
+  public addGrowth(segments: number, reason: 'food' | 'bonus' | 'manual' = 'food'): void {
+    this.growthManager.addGrowth(segments, reason);
+  }
+
+  /**
+   * Get pending growth count
+   */
+  public getPendingGrowth(): number {
+    return this.growthManager.getPendingGrowth();
+  }
+
+  /**
+   * Get growth statistics
+   */
+  public getGrowthStatistics(): ReturnType<SnakeGrowthManager['getStatistics']> {
+    return this.growthManager.getStatistics();
   }
 
   /**
@@ -162,6 +191,7 @@ export class SnakeGame {
   public reset(): void {
     this.initializeSnake();
     this.inputHandler.reset('RIGHT');
+    this.growthManager.reset();
   }
 
   /**

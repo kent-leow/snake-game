@@ -102,6 +102,11 @@ describe('FoodManager', () => {
         }
         foodManager.clearFood();
       }
+      
+      // Use the counts to verify distribution
+      expect(normalCount + specialCount).toBe(iterations);
+      expect(normalCount).toBeGreaterThan(0);
+      expect(specialCount).toBeGreaterThanOrEqual(0);
 
       // With random = 0.5, all should be normal food
       const lastFood = foodManager.spawnFood([]);

@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useCanvas } from '@/hooks/useCanvas';
 import { useKeyboardInput } from '@/hooks/useKeyboardInput';
-import { useGameLoop, usePerformanceMonitor } from '@/hooks';
+import { usePerformanceMonitor } from '@/hooks';
 import { SnakeGame } from '@/lib/game/snake';
 import {
   clearCanvas,

@@ -47,6 +47,38 @@ export interface FoodSpawnOptions {
   occupiedPositions: Position[];
 }
 
+// Scoring system types
+export interface ScoreEvent {
+  type: 'food' | 'combo' | 'bonus';
+  points: number;
+  timestamp: number;
+  position?: Position;
+}
+
+export interface ScoreStatistics {
+  totalScore: number;
+  totalEvents: number;
+  averageScore: number;
+  scoreBreakdown: Record<string, number>;
+  highestSingleScore: number;
+  longestCombo: number;
+}
+
+// Snake growth types
+export interface GrowthEvent {
+  segments: number;
+  timestamp: number;
+  reason: 'food' | 'bonus' | 'manual';
+}
+
+export interface GrowthStatistics {
+  totalGrowth: number;
+  currentLength: number;
+  growthEvents: number;
+  averageGrowthRate: number;
+  largestGrowthEvent: number;
+}
+
 // Game configuration types
 export interface GameConfig {
   gridSize: number;
