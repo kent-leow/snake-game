@@ -1,4 +1,4 @@
-// Game state types
+// Legacy game state types (kept for backward compatibility)
 export interface GameState {
   isPlaying: boolean;
   isPaused: boolean;
@@ -6,6 +6,19 @@ export interface GameState {
   gameOver: boolean;
   level: number;
 }
+
+// Import and re-export new state management types
+export { 
+  GameStateEnum as GameStateType, 
+  type GameStateData,
+  GameStateManager 
+} from './gameState';
+export { 
+  StateTransitionAction, 
+  type StateTransitionResult,
+  StateTransitionManager 
+} from './stateTransitions';
+export { GameStateMachine } from './gameStateMachine';
 
 // Game over related types (reexported from gameOverState)
 export type { GameOverState, GameStatistics } from './gameOverState';

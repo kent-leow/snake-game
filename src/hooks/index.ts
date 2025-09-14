@@ -1,5 +1,6 @@
 export { useCanvas } from './useCanvas';
-export { useGameState } from './useGameState';
+export { useGameState, useGameStateLegacy } from './useGameState';
+export { useGamePersistence, usePauseStatePersistence, useCheckpointPersistence } from './useGamePersistence';
 export { useKeyboardNavigation } from './useKeyboardNavigation';
 export { useMediaQuery } from './useMediaQuery';
 export { useKeyboardInput } from './useKeyboardInput';

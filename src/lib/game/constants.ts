@@ -47,6 +47,38 @@ export const GAME_STATES = {
   GAME_OVER: 'game_over',
 } as const;
 
+/**
+ * Enhanced game state management constants
+ */
+export const ENHANCED_GAME_STATES = {
+  MENU: 'menu',
+  LOADING: 'loading',
+  PLAYING: 'playing',
+  PAUSED: 'paused',
+  GAME_OVER: 'game_over',
+} as const;
+
+export const STATE_TRANSITION_ACTIONS = {
+  START_GAME: 'START_GAME',
+  PAUSE_GAME: 'PAUSE_GAME',
+  RESUME_GAME: 'RESUME_GAME',
+  END_GAME: 'END_GAME',
+  RESTART_GAME: 'RESTART_GAME',
+  GO_TO_MENU: 'GO_TO_MENU',
+  LOAD_GAME: 'LOAD_GAME',
+} as const;
+
+/**
+ * State management configuration constants
+ */
+export const STATE_MANAGEMENT_CONFIG = {
+  PERSISTENCE_VERSION: '1.0.0',
+  MAX_STATE_HISTORY: 100,
+  PERSISTENCE_MAX_AGE: 60 * 60 * 1000, // 1 hour
+  AUTO_SAVE_ENABLED: true,
+  TRANSITION_VALIDATION_ENABLED: true,
+} as const;
+
 export const FOOD_TYPES = {
   NORMAL: 'normal',
   SPECIAL: 'special',
