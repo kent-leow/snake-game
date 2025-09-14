@@ -390,24 +390,6 @@ export const GameCanvas: React.FC<GameCanvasIntegratedProps> = ({
           onAnimationComplete={handleCollisionFeedbackComplete}
         />
       )}
-
-      {/* Game Controls */}
-      <div className="game-controls mt-4 text-center">
-        {!isPlaying && !isGameOver && (
-          <button
-            onClick={handleStartGame}
-            className="btn btn-primary"
-          >
-            Start Game
-          </button>
-        )}
-        
-        {isPlaying && (
-          <div className="text-sm text-gray-500">
-            Use arrow keys or WASD to control the snake
-          </div>
-        )}
-      </div>
     </div>
   );
 };

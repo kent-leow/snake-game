@@ -13,3 +13,4 @@ export {
   useAdvancedCollisionDetection 
 } from './useCollisionDetection';
 export { useGameOver } from './useGameOver';
+export { useKeyboardShortcuts } from './useKeyboardShortcuts';

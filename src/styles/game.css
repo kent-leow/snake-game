@@ -1,5 +1,8 @@
 /* Game-specific styles */
 
+/* Import game controls styling */
+@import './gameControls.css';
+
 /* Game board and canvas */
 .game-board {
   background-color: #000000;
