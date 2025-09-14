@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useCanvas } from '@/hooks/useCanvas';
 import { useKeyboardInput } from '@/hooks/useKeyboardInput';
+import { useGameLoop, usePerformanceMonitor } from '@/hooks';
 import { SnakeGame } from '@/lib/game/snake';
 import {
   clearCanvas,
@@ -10,8 +11,9 @@ import {
   drawSnakeSegment,
   drawBorder,
 } from '@/lib/utils/canvas';
-import { GAME_CONFIG } from '@/lib/game/constants';
+import { GAME_CONFIG, PERFORMANCE_CONFIG } from '@/lib/game/constants';
 import type { Direction } from '@/lib/game/types';
+import type { PerformanceStats } from '@/lib/game/performance';
 
 /**
  * GameCanvas component properties
@@ -25,10 +27,12 @@ export interface GameCanvasProps {
     context: CanvasRenderingContext2D
   ) => void;
   onGameReady?: (game: SnakeGame) => void;
+  onPerformanceUpdate?: (stats: PerformanceStats) => void;
+  enablePerformanceMonitoring?: boolean;
 }
 
 /**
- * Main game canvas component for rendering the Snake game
+ * Main game canvas component for rendering the Snake game with optimized performance
  */
 export const GameCanvas: React.FC<GameCanvasProps> = ({
   width = GAME_CONFIG.CANVAS_WIDTH,
@@ -36,11 +40,12 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   className = '',
   onCanvasReady,
   onGameReady,
+  onPerformanceUpdate,
+  enablePerformanceMonitoring = true,
 }) => {
   // Game state
   const [gameInstance, setGameInstance] = useState<SnakeGame | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const gameLoopRef = useRef<number | undefined>(undefined);
   const lastUpdateTimeRef = useRef<number>(0);
 
   // Initialize canvas hook
@@ -49,6 +54,97 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     height,
     ...(onCanvasReady && { onCanvasReady }),
   });
+
+  // Performance monitoring
+  const {
+    stats: performanceStats,
+    devicePerformance,
+    warnings,
+    clearWarnings,
+  } = usePerformanceMonitor(enablePerformanceMonitoring, {
+    targetFPS: PERFORMANCE_CONFIG.TARGET_FPS,
+    warningThreshold: PERFORMANCE_CONFIG.MIN_FPS_MOBILE,
+  });
+
+  /**
+   * Game update logic with fixed timestep
+   */
+  const handleUpdate = useCallback(
+    (): void => {
+      if (!gameInstance || !isPlaying) return;
+
+      // Control game speed with fixed timestep
+      const currentTime = performance.now();
+      if (currentTime - lastUpdateTimeRef.current >= GAME_CONFIG.GAME_SPEED) {
+        const moveSuccess = gameInstance.move();
+        
+        if (!moveSuccess) {
+          // Game over - stop the game
+          setIsPlaying(false);
+          return;
+        }
+
+        lastUpdateTimeRef.current = currentTime;
+      }
+    },
+    [gameInstance, isPlaying]
+  );
+
+  /**
+   * Render the game state with interpolation for smooth rendering
+   */
+  const handleRender = useCallback(
+    (): void => {
+      const context = contextRef.current;
+      if (!context || !gameInstance) return;
+
+      // Clear canvas
+      clearCanvas(context, width, height);
+
+      // Draw grid (optional based on performance)
+      if (devicePerformance !== 'low') {
+        drawGrid(context, width, height);
+      }
+
+      // Draw border
+      drawBorder(context, width, height);
+
+      // Draw snake with potential interpolation
+      const snake = gameInstance.getSnake();
+      snake.segments.forEach((segment, index) => {
+        drawSnakeSegment(context, segment, GAME_CONFIG.GRID_SIZE, index === 0);
+      });
+    },
+    [contextRef, gameInstance, width, height, devicePerformance]
+  );
+
+  /**
+   * Handle performance statistics updates
+   */
+  const handlePerformanceUpdate = useCallback(
+    (stats: PerformanceStats) => {
+      onPerformanceUpdate?.(stats);
+
+      // Auto-adjust game speed based on performance
+      if (stats.fps < PERFORMANCE_CONFIG.MIN_FPS_MOBILE) {
+        console.warn('Low FPS detected, consider reducing game complexity');
+      }
+    },
+    [onPerformanceUpdate]
+  );
+
+  // Initialize game loop
+  const gameLoop = useGameLoop(
+    useCallback((_deltaTime: number, _interpolation: number) => handleUpdate(), [handleUpdate]),
+    useCallback((_interpolation: number) => handleRender(), [handleRender]),
+    {
+      enabled: isPlaying,
+      targetFPS: PERFORMANCE_CONFIG.TARGET_FPS,
+      maxDeltaTime: PERFORMANCE_CONFIG.MAX_DELTA_TIME,
+      enablePerformanceMonitoring,
+      onPerformanceUpdate: handlePerformanceUpdate,
+    }
+  );
 
   /**
    * Handle direction changes from keyboard input
@@ -69,83 +165,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   });
 
   /**
-   * Render the game state on canvas
-   */
-  const renderGame = useCallback(
-    (context: CanvasRenderingContext2D, game: SnakeGame) => {
-      // Clear canvas
-      clearCanvas(context, width, height);
-
-      // Draw grid (optional - can be toggled)
-      drawGrid(context, width, height);
-
-      // Draw border
-      drawBorder(context, width, height);
-
-      // Draw snake
-      const snake = game.getSnake();
-      snake.segments.forEach((segment, index) => {
-        drawSnakeSegment(context, segment, GAME_CONFIG.GRID_SIZE, index === 0);
-      });
-    },
-    [width, height]
-  );
-
-  /**
-   * Game loop for continuous movement
-   */
-  const gameLoop = useCallback(
-    (currentTime: number) => {
-      if (!gameInstance || !isPlaying) return;
-
-      // Control game speed
-      if (currentTime - lastUpdateTimeRef.current >= GAME_CONFIG.GAME_SPEED) {
-        const moveSuccess = gameInstance.move();
-        
-        if (!moveSuccess) {
-          // Game over - stop the game loop
-          setIsPlaying(false);
-          return;
-        }
-
-        // Re-render the game
-        const context = contextRef.current;
-        if (context) {
-          renderGame(context, gameInstance);
-        }
-
-        lastUpdateTimeRef.current = currentTime;
-      }
-
-      // Continue the game loop
-      gameLoopRef.current = requestAnimationFrame(gameLoop);
-    },
-    [gameInstance, isPlaying, contextRef, renderGame]
-  );
-
-  /**
-   * Start the game loop
-   */
-  const startGame = useCallback(() => {
-    if (gameInstance) {
-      setIsPlaying(true);
-      lastUpdateTimeRef.current = performance.now();
-      gameLoopRef.current = requestAnimationFrame(gameLoop);
-    }
-  }, [gameInstance, gameLoop]);
-
-  /**
-   * Stop the game loop
-   */
-  const stopGame = useCallback(() => {
-    setIsPlaying(false);
-    if (gameLoopRef.current) {
-      cancelAnimationFrame(gameLoopRef.current);
-      gameLoopRef.current = undefined;
-    }
-  }, []);
-
-  /**
    * Initialize game when canvas is ready
    */
   const handleCanvasReady = useCallback(
@@ -155,7 +174,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       setGameInstance(game);
 
       // Initial render
-      renderGame(context, game);
+      handleRender();
 
       // Make canvas focusable for keyboard events
       canvas.setAttribute('tabindex', '0');
@@ -171,12 +190,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       }
 
       // Auto-start the game for demonstration
-      // In a real game, this would be triggered by user action
       setTimeout(() => {
         setIsPlaying(true);
       }, 1000);
     },
-    [width, height, renderGame, onCanvasReady, onGameReady]
+    [width, height, handleRender, onCanvasReady, onGameReady]
   );
 
   // Update canvas ready handler when dependencies change
@@ -189,19 +207,13 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
   }, [handleCanvasReady, canvasRef, contextRef]);
 
-  // Start/stop game loop based on playing state
+  // Display performance warnings in console
   useEffect(() => {
-    if (isPlaying && gameInstance) {
-      startGame();
-    } else {
-      stopGame();
+    if (warnings.length > 0) {
+      warnings.forEach(warning => console.warn(`Game Performance: ${warning}`));
+      clearWarnings();
     }
-
-    // Cleanup on unmount
-    return () => {
-      stopGame();
-    };
-  }, [isPlaying, gameInstance, startGame, stopGame]);
+  }, [warnings, clearWarnings]);
 
   return (
     <div className={`game-canvas-container ${className}`}>
@@ -215,6 +227,16 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           backgroundColor: GAME_CONFIG.COLORS.BACKGROUND,
         }}
       />
+      
+      {/* Performance stats display (development only) */}
+      {process.env.NODE_ENV === 'development' && performanceStats && (
+        <div className="performance-stats text-sm text-gray-500 mt-2">
+          <div>FPS: {performanceStats.fps}</div>
+          <div>Frame Time: {performanceStats.averageFrameTime.toFixed(2)}ms</div>
+          <div>Device: {devicePerformance}</div>
+          <div>Runtime: {gameLoop.getRuntime().toFixed(1)}s</div>
+        </div>
+      )}
     </div>
   );
 };

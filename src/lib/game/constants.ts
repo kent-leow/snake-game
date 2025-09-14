@@ -70,3 +70,68 @@ export const KEY_CODES = {
   ENTER: 'Enter',
   ESCAPE: 'Escape',
 } as const;
+
+/**
+ * Performance-related configuration constants
+ */
+export const PERFORMANCE_CONFIG = {
+  TARGET_FPS: 60,
+  MIN_FPS_MOBILE: 30,
+  MAX_DELTA_TIME: 100, // Cap delta time to prevent spiral of death
+  PERFORMANCE_SAMPLE_SIZE: 60,
+  FPS_UPDATE_INTERVAL: 1000,
+  FRAME_TIME_WARNING_THRESHOLD: 16.67, // 60 FPS = 16.67ms per frame
+  
+  // Adaptive quality thresholds
+  HIGH_PERFORMANCE_THRESHOLD: 55, // FPS above this = high performance
+  MEDIUM_PERFORMANCE_THRESHOLD: 35, // FPS above this = medium performance
+  LOW_PERFORMANCE_THRESHOLD: 20, // FPS below this = low performance
+  
+  // Frame drop tolerances
+  MAX_FRAME_DROP_RATIO: 0.1, // 10% frame drops acceptable
+  SEVERE_FRAME_DROP_RATIO: 0.25, // 25% frame drops = severe issues
+  
+  // Performance monitoring intervals
+  PERFORMANCE_CHECK_INTERVAL: 60, // frames between performance checks
+  QUALITY_ADJUSTMENT_COOLDOWN: 5000, // ms between quality adjustments
+} as const;
+
+/**
+ * Device performance tiers and their recommended settings
+ */
+export const DEVICE_PERFORMANCE_TIERS = {
+  HIGH: {
+    targetFPS: 60,
+    enableGrid: true,
+    enableParticles: true,
+    enableSmoothAnimation: true,
+    maxSnakeLength: 100,
+    enableShadows: true,
+  },
+  MEDIUM: {
+    targetFPS: 60,
+    enableGrid: true,
+    enableParticles: false,
+    enableSmoothAnimation: true,
+    maxSnakeLength: 75,
+    enableShadows: false,
+  },
+  LOW: {
+    targetFPS: 30,
+    enableGrid: false,
+    enableParticles: false,
+    enableSmoothAnimation: false,
+    maxSnakeLength: 50,
+    enableShadows: false,
+  },
+} as const;
+
+/**
+ * Game loop timing constants
+ */
+export const GAME_LOOP_CONFIG = {
+  FIXED_TIMESTEP: 16.67, // 60 FPS in milliseconds
+  MAX_UPDATES_PER_FRAME: 5, // Prevent spiral of death
+  INTERPOLATION_ENABLED: true,
+  VSYNC_ENABLED: true,
+} as const;
