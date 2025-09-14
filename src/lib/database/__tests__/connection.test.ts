@@ -1,4 +1,9 @@
-import { connectToDatabase, disconnectFromDatabase, isConnected, getConnectionState } from '../connection';
+import {
+  connectToDatabase,
+  disconnectFromDatabase,
+  isConnected,
+  getConnectionState,
+} from '../connection';
 import mongoose from 'mongoose';
 
 // Mock environment variables
@@ -7,7 +12,7 @@ const originalEnv = process.env;
 beforeAll(() => {
   process.env = {
     ...originalEnv,
-    MONGO_URL: 'mongodb://test_user:test_password@localhost:27017/test_db'
+    MONGO_URL: 'mongodb://test_user:test_password@localhost:27017/test_db',
   };
 });
 
@@ -20,8 +25,8 @@ jest.mock('mongoose', () => ({
   connect: jest.fn(),
   disconnect: jest.fn(),
   connection: {
-    readyState: 0
-  }
+    readyState: 0,
+  },
 }));
 
 const mockedMongoose = mongoose as jest.Mocked<typeof mongoose>;
@@ -42,7 +47,7 @@ describe('Database Connection', () => {
   describe('connectToDatabase', () => {
     it('should throw error when MONGO_URL is not provided', async () => {
       delete process.env.MONGO_URL;
-      
+
       await expect(connectToDatabase()).rejects.toThrow(
         'MONGO_URL environment variable is required'
       );
@@ -51,10 +56,11 @@ describe('Database Connection', () => {
     it('should connect to database with default options', async () => {
       const mockConnection = { readyState: 1 };
       mockedMongoose.connect.mockResolvedValue({
-        connection: mockConnection
+        connection: mockConnection,
       } as any);
 
-      process.env.MONGO_URL = 'mongodb://test_user:test_password@localhost:27017/test_db';
+      process.env.MONGO_URL =
+        'mongodb://test_user:test_password@localhost:27017/test_db';
 
       const connection = await connectToDatabase();
 
@@ -64,7 +70,7 @@ describe('Database Connection', () => {
           bufferCommands: false,
           maxPoolSize: 10,
           serverSelectionTimeoutMS: 10000,
-          socketTimeoutMS: 45000
+          socketTimeoutMS: 45000,
         }
       );
       expect(connection).toBe(mockConnection);
@@ -73,16 +79,17 @@ describe('Database Connection', () => {
     it('should connect to database with custom options', async () => {
       const mockConnection = { readyState: 1 };
       mockedMongoose.connect.mockResolvedValue({
-        connection: mockConnection
+        connection: mockConnection,
       } as any);
 
-      process.env.MONGO_URL = 'mongodb://test_user:test_password@localhost:27017/test_db';
+      process.env.MONGO_URL =
+        'mongodb://test_user:test_password@localhost:27017/test_db';
 
       const customOptions = {
         bufferCommands: true,
         maxPoolSize: 20,
         serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 30000
+        socketTimeoutMS: 30000,
       };
 
       const connection = await connectToDatabase(customOptions);
@@ -108,7 +115,8 @@ describe('Database Connection', () => {
       const connectionError = new Error('Connection failed');
       mockedMongoose.connect.mockRejectedValue(connectionError);
 
-      process.env.MONGO_URL = 'mongodb://test_user:test_password@localhost:27017/test_db';
+      process.env.MONGO_URL =
+        'mongodb://test_user:test_password@localhost:27017/test_db';
 
       await expect(connectToDatabase()).rejects.toThrow('Connection failed');
       expect(global.mongoose.promise).toBeNull();
@@ -144,7 +152,7 @@ describe('Database Connection', () => {
     it('should return true when connected', () => {
       Object.defineProperty(mockedMongoose.connection, 'readyState', {
         value: 1,
-        writable: true
+        writable: true,
       });
       expect(isConnected()).toBe(true);
     });
@@ -152,7 +160,7 @@ describe('Database Connection', () => {
     it('should return false when not connected', () => {
       Object.defineProperty(mockedMongoose.connection, 'readyState', {
         value: 0,
-        writable: true
+        writable: true,
       });
       expect(isConnected()).toBe(false);
     });
@@ -162,7 +170,7 @@ describe('Database Connection', () => {
     it('should return correct state for disconnected', () => {
       Object.defineProperty(mockedMongoose.connection, 'readyState', {
         value: 0,
-        writable: true
+        writable: true,
       });
       expect(getConnectionState()).toBe('disconnected');
     });
@@ -170,7 +178,7 @@ describe('Database Connection', () => {
     it('should return correct state for connected', () => {
       Object.defineProperty(mockedMongoose.connection, 'readyState', {
         value: 1,
-        writable: true
+        writable: true,
       });
       expect(getConnectionState()).toBe('connected');
     });
@@ -178,7 +186,7 @@ describe('Database Connection', () => {
     it('should return correct state for connecting', () => {
       Object.defineProperty(mockedMongoose.connection, 'readyState', {
         value: 2,
-        writable: true
+        writable: true,
       });
       expect(getConnectionState()).toBe('connecting');
     });
@@ -186,7 +194,7 @@ describe('Database Connection', () => {
     it('should return correct state for disconnecting', () => {
       Object.defineProperty(mockedMongoose.connection, 'readyState', {
         value: 3,
-        writable: true
+        writable: true,
       });
       expect(getConnectionState()).toBe('disconnecting');
     });
@@ -194,7 +202,7 @@ describe('Database Connection', () => {
     it('should return unknown for invalid state', () => {
       Object.defineProperty(mockedMongoose.connection, 'readyState', {
         value: 99,
-        writable: true
+        writable: true,
       });
       expect(getConnectionState()).toBe('unknown');
     });

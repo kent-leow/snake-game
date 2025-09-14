@@ -11,33 +11,36 @@ This document describes the MongoDB database setup using Docker for local develo
 ## Quick Start
 
 1. **Start MongoDB container:**
+
    ```bash
    npm run db:up
    ```
 
 2. **Verify setup:**
+
    ```bash
    npm run db:validate
    npm run db:logs
    ```
 
 3. **Test connection in your application:**
+
    ```typescript
    import { connectToDatabase } from '@/lib/database/connection';
-   
+
    const connection = await connectToDatabase();
    console.log('Connected to MongoDB:', connection.readyState === 1);
    ```
 
 ## Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run db:up` | Start MongoDB container in detached mode |
-| `npm run db:down` | Stop and remove MongoDB container |
-| `npm run db:logs` | View MongoDB container logs |
-| `npm run db:shell` | Connect to MongoDB shell |
-| `npm run db:reset` | Reset database (destroys all data) |
+| Script                | Description                                       |
+| --------------------- | ------------------------------------------------- |
+| `npm run db:up`       | Start MongoDB container in detached mode          |
+| `npm run db:down`     | Stop and remove MongoDB container                 |
+| `npm run db:logs`     | View MongoDB container logs                       |
+| `npm run db:shell`    | Connect to MongoDB shell                          |
+| `npm run db:reset`    | Reset database (destroys all data)                |
 | `npm run db:validate` | Validate Docker setup without starting containers |
 
 ## Configuration
@@ -51,6 +54,7 @@ cp .env.example .env.local
 ```
 
 Default configuration:
+
 - **Database:** `snake_game`
 - **Username:** `snake_user`
 - **Password:** `snake_password`
@@ -84,6 +88,7 @@ The initialization script (`scripts/init-db.js`) creates:
 ### Indexes
 
 Performance optimized indexes:
+
 - `game_scores`: score (desc), timestamp (desc), playerName + score (desc)
 - `game_sessions`: sessionId (unique), startTime (desc)
 
@@ -92,7 +97,12 @@ Performance optimized indexes:
 ### Basic Usage
 
 ```typescript
-import { connectToDatabase, disconnectFromDatabase, isConnected, getConnectionState } from '@/lib/database/connection';
+import {
+  connectToDatabase,
+  disconnectFromDatabase,
+  isConnected,
+  getConnectionState,
+} from '@/lib/database/connection';
 
 // Connect to database
 const connection = await connectToDatabase();
@@ -112,7 +122,7 @@ const connection = await connectToDatabase({
   bufferCommands: false,
   maxPoolSize: 20,
   serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 30000
+  socketTimeoutMS: 30000,
 });
 ```
 
@@ -128,11 +138,13 @@ If port 27017 is already in use:
 ### Connection Issues
 
 1. **Check container status:**
+
    ```bash
    docker ps
    ```
 
 2. **View container logs:**
+
    ```bash
    npm run db:logs
    ```
@@ -173,6 +185,7 @@ npm run test src/lib/database
 ```
 
 Test coverage includes:
+
 - Connection establishment
 - Error handling
 - Connection state management

@@ -104,9 +104,11 @@ export function drawSnakeSegment(
   gridSize: number = GAME_CONFIG.GRID_SIZE,
   isHead: boolean = false
 ): void {
-  const color = isHead ? GAME_CONFIG.COLORS.SNAKE_HEAD : GAME_CONFIG.COLORS.SNAKE_BODY;
+  const color = isHead
+    ? GAME_CONFIG.COLORS.SNAKE_HEAD
+    : GAME_CONFIG.COLORS.SNAKE_BODY;
   const padding = 1;
-  
+
   drawRoundedRect(
     context,
     segment.x + padding,
@@ -129,7 +131,7 @@ export function drawFood(
 ): void {
   const padding = 2;
   const size = gridSize - padding * 2;
-  
+
   drawCircle(
     context,
     position.x + padding,
@@ -209,7 +211,7 @@ export function getRandomGridPosition(
 ): Position {
   const maxX = Math.floor(canvasWidth / gridSize) - 1;
   const maxY = Math.floor(canvasHeight / gridSize) - 1;
-  
+
   return {
     x: Math.floor(Math.random() * maxX) * gridSize,
     y: Math.floor(Math.random() * maxY) * gridSize,
@@ -219,12 +221,14 @@ export function getRandomGridPosition(
 /**
  * Get canvas context with anti-aliasing disabled for pixel-perfect rendering
  */
-export function setupCanvasContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D | null {
+export function setupCanvasContext(
+  canvas: HTMLCanvasElement
+): CanvasRenderingContext2D | null {
   const context = canvas.getContext('2d');
   if (!context) return null;
 
   // Disable anti-aliasing for crisp pixel art
   context.imageSmoothingEnabled = false;
-  
+
   return context;
 }

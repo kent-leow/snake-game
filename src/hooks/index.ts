@@ -1,3 +1,5 @@
+export { useCanvas } from './useCanvas';
 export { useGameState } from './useGameState';
-export { useMediaQuery } from './useMediaQuery';
 export { useKeyboardNavigation } from './useKeyboardNavigation';
+export { useMediaQuery } from './useMediaQuery';
+export { useKeyboardInput } from './useKeyboardInput';

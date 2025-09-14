@@ -23,22 +23,22 @@ export function GamePage(): React.JSX.Element {
   }, [gameInstance]);
 
   return (
-    <PageLayout title="Snake Game" showBackButton={true}>
-      <div className="flex flex-col items-center">
-        <div className="bg-gray-800 p-8 rounded-lg shadow-lg">
+    <PageLayout title='Snake Game' showBackButton={true}>
+      <div className='flex flex-col items-center'>
+        <div className='bg-gray-800 p-8 rounded-lg shadow-lg'>
           <GameCanvas
             width={800}
             height={600}
             onGameReady={handleGameReady}
-            className="mb-4"
+            className='mb-4'
           />
-          <div className="mt-4 flex justify-between items-center">
-            <div className="text-sm">
-              <span className="text-gray-400">Score: </span>
-              <span className="font-bold">{score}</span>
+          <div className='mt-4 flex justify-between items-center'>
+            <div className='text-sm'>
+              <span className='text-gray-400'>Score: </span>
+              <span className='font-bold'>{score}</span>
             </div>
-            <button 
-              className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded disabled:opacity-50"
+            <button
+              className='bg-green-600 hover:bg-green-700 px-4 py-2 rounded disabled:opacity-50'
               onClick={handleStartGame}
               disabled={!isGameReady}
             >

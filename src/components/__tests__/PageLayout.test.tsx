@@ -6,7 +6,12 @@ import PageLayout from '../ui/PageLayout';
 jest.mock('next/link', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require('react');
-  const MockLink = ({ children, href, className, ...props }: {
+  const MockLink = ({
+    children,
+    href,
+    className,
+    ...props
+  }: {
     children: React.ReactNode;
     href: string;
     className?: string;
@@ -45,7 +50,7 @@ describe('PageLayout', () => {
   });
 
   it('renders back button with custom href', () => {
-    render(<PageLayout {...defaultProps} backHref="/custom" />);
+    render(<PageLayout {...defaultProps} backHref='/custom' />);
     const backLink = screen.getByText('← Back').closest('a');
     expect(backLink?.getAttribute('href')).toBe('/custom');
   });
@@ -58,7 +63,7 @@ describe('PageLayout', () => {
 
   it('renders navigation menu with all expected links', () => {
     render(<PageLayout {...defaultProps} />);
-    
+
     expect(screen.getByText('Home')).toBeDefined();
     expect(screen.getByText('Play')).toBeDefined();
     expect(screen.getByText('Scores')).toBeDefined();
@@ -67,12 +72,12 @@ describe('PageLayout', () => {
 
   it('renders navigation links with correct href attributes', () => {
     render(<PageLayout {...defaultProps} />);
-    
+
     const homeLink = screen.getByText('Home').closest('a');
     const gameLink = screen.getByText('Play').closest('a');
     const scoresLink = screen.getByText('Scores').closest('a');
     const settingsLink = screen.getByText('Settings').closest('a');
-    
+
     expect(homeLink?.getAttribute('href')).toBe('/');
     expect(gameLink?.getAttribute('href')).toBe('/game');
     expect(scoresLink?.getAttribute('href')).toBe('/scores');
@@ -81,10 +86,10 @@ describe('PageLayout', () => {
 
   it('has proper semantic structure with header and main elements', () => {
     const { container } = render(<PageLayout {...defaultProps} />);
-    
+
     const header = container.querySelector('header');
     const main = container.querySelector('main');
-    
+
     expect(header).toBeDefined();
     expect(main).toBeDefined();
   });

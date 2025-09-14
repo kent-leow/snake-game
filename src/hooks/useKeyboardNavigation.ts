@@ -14,14 +14,10 @@ interface KeyboardNavigationOptions {
  * Custom hook for keyboard navigation
  * Handles common keyboard interactions for navigation components
  */
-export function useKeyboardNavigation(options: KeyboardNavigationOptions): void {
-  const {
-    onEnter,
-    onSpace,
-    onEscape,
-    onArrowKeys,
-    disabled = false,
-  } = options;
+export function useKeyboardNavigation(
+  options: KeyboardNavigationOptions
+): void {
+  const { onEnter, onSpace, onEscape, onArrowKeys, disabled = false } = options;
 
   useEffect(() => {
     if (disabled) return;

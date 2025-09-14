@@ -13,7 +13,9 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-export async function connectToDatabase(options?: ConnectionOptions): Promise<mongoose.Connection> {
+export async function connectToDatabase(
+  options?: ConnectionOptions
+): Promise<mongoose.Connection> {
   if (cached.conn) {
     return cached.conn;
   }
@@ -31,7 +33,7 @@ export async function connectToDatabase(options?: ConnectionOptions): Promise<mo
       socketTimeoutMS: options?.socketTimeoutMS ?? 45000,
     };
 
-    cached.promise = mongoose.connect(mongoUrl, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(mongoUrl, opts).then(mongoose => {
       return mongoose.connection;
     });
   }

@@ -1,5 +1,7 @@
 import type { Snake, SnakeSegment, Direction, Position } from './types';
-import { GAME_CONFIG, DIRECTION_VECTORS, OPPOSITE_DIRECTIONS } from './constants';
+import { GAME_CONFIG } from './constants';
+import { SnakeMovement } from './movement';
+import { InputHandler } from './inputHandler';
 
 /**
  * Snake game class for managing snake state and behavior
@@ -8,6 +10,8 @@ export class SnakeGame {
   private snake!: Snake;
   private gridSize: number;
   private canvasSize: { width: number; height: number };
+  private movementSystem: SnakeMovement;
+  private inputHandler: InputHandler;
 
   constructor(
     canvasWidth: number = GAME_CONFIG.CANVAS_WIDTH,
@@ -16,6 +20,17 @@ export class SnakeGame {
   ) {
     this.gridSize = gridSize;
     this.canvasSize = { width: canvasWidth, height: canvasHeight };
+    
+    // Initialize movement system
+    this.movementSystem = new SnakeMovement({
+      gridSize,
+      canvasWidth,
+      canvasHeight,
+    });
+    
+    // Initialize input handler
+    this.inputHandler = new InputHandler();
+    
     this.initializeSnake();
   }
 
@@ -36,6 +51,9 @@ export class SnakeGame {
       nextDirection: 'RIGHT',
       isGrowing: false,
     };
+    
+    // Initialize input handler with initial direction
+    this.inputHandler.setDirection('RIGHT');
   }
 
   /**
@@ -63,84 +81,44 @@ export class SnakeGame {
    * Change snake direction with validation
    */
   public changeDirection(newDirection: Direction): boolean {
-    // Prevent 180-degree turns based on next direction (buffered direction)
-    if (OPPOSITE_DIRECTIONS[this.snake.nextDirection] === newDirection) {
-      return false;
-    }
-    
-    this.snake.nextDirection = newDirection;
-    return true;
+    return this.inputHandler.processDirectionInput(newDirection);
   }
 
   /**
    * Move snake one step forward
    */
   public move(): boolean {
-    // Update direction
-    this.snake.direction = this.snake.nextDirection;
-
-    const head = this.snake.segments[0];
-    const directionVector = DIRECTION_VECTORS[this.snake.direction];
+    // Process any queued input
+    this.inputHandler.processQueuedInput();
     
-    // Calculate new head position
-    const newHead: SnakeSegment = {
-      x: head.x + directionVector.x * this.gridSize,
-      y: head.y + directionVector.y * this.gridSize,
-      id: `head-${Date.now()}`,
-    };
-
-    // Check wall collision
-    if (this.checkWallCollision(newHead)) {
-      return false;
-    }
-
-    // Check self collision
-    if (this.checkSelfCollision(newHead)) {
-      return false;
-    }
-
-    // Add new head
-    this.snake.segments.unshift(newHead);
-
-    // Remove tail if not growing
-    if (!this.snake.isGrowing) {
-      this.snake.segments.pop();
-    } else {
-      this.snake.isGrowing = false;
-    }
-
-    // Update segment IDs
-    this.updateSegmentIds();
-
-    return true;
+    // Get current direction from input handler
+    const currentDirection = this.inputHandler.getCurrentDirection();
+    
+    // Use movement system to move snake
+    const movementResult = this.movementSystem.moveSnake(this.snake, currentDirection);
+    
+    return movementResult.success;
   }
 
   /**
    * Make snake grow on next move
    */
   public grow(): void {
-    this.snake.isGrowing = true;
+    this.movementSystem.setGrowth(this.snake, true);
   }
 
   /**
    * Check if position collides with walls
    */
   public checkWallCollision(position: Position): boolean {
-    return (
-      position.x < 0 ||
-      position.x >= this.canvasSize.width ||
-      position.y < 0 ||
-      position.y >= this.canvasSize.height
-    );
+    return this.movementSystem.checkWallCollision(position);
   }
 
   /**
    * Check if position collides with snake body
    */
   public checkSelfCollision(position: Position): boolean {
-    return this.snake.segments.some(segment => 
-      segment.x === position.x && segment.y === position.y
-    );
+    return this.movementSystem.checkSelfCollision(this.snake, position);
   }
 
   /**
@@ -164,51 +142,28 @@ export class SnakeGame {
    */
   public reset(): void {
     this.initializeSnake();
+    this.inputHandler.reset('RIGHT');
   }
 
   /**
    * Get valid positions for food placement (not occupied by snake)
    */
   public getValidFoodPositions(): Position[] {
-    const positions: Position[] = [];
-    
-    for (let x = 0; x < this.canvasSize.width; x += this.gridSize) {
-      for (let y = 0; y < this.canvasSize.height; y += this.gridSize) {
-        const position = { x, y };
-        if (!this.checkSnakeCollision(position)) {
-          positions.push(position);
-        }
-      }
-    }
-    
-    return positions;
-  }
-
-  /**
-   * Update segment IDs for proper tracking
-   */
-  private updateSegmentIds(): void {
-    this.snake.segments.forEach((segment, index) => {
-      if (index === 0) {
-        segment.id = 'head';
-      } else {
-        segment.id = `body-${index}`;
-      }
-    });
+    return this.movementSystem.getValidPositionsAroundSnake(this.snake);
   }
 
   /**
    * Get current direction
    */
   public getCurrentDirection(): Direction {
-    return this.snake.direction;
+    return this.inputHandler.getCurrentDirection();
   }
 
   /**
    * Get next direction
    */
   public getNextDirection(): Direction {
-    return this.snake.nextDirection;
+    return this.inputHandler.getCurrentDirection();
   }
 
   /**
@@ -216,5 +171,12 @@ export class SnakeGame {
    */
   public isSnakeAt(position: Position): boolean {
     return this.checkSnakeCollision(position);
+  }
+
+  /**
+   * Get input handler status for debugging
+   */
+  public getInputStatus(): ReturnType<InputHandler['getStatus']> {
+    return this.inputHandler.getStatus();
   }
 }

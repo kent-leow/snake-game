@@ -15,12 +15,12 @@ npm install --save-dev jest @testing-library/react @testing-library/jest-dom @ty
 Create a `jest.config.js` file in the project root:
 
 ```javascript
-const nextJest = require('next/jest')
+const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files
   dir: './',
-})
+});
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
@@ -32,10 +32,10 @@ const customJestConfig = {
     '^@/hooks/(.*)$': '<rootDir>/src/hooks/$1',
   },
   testEnvironment: 'jest-environment-jsdom',
-}
+};
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
-module.exports = createJestConfig(customJestConfig)
+module.exports = createJestConfig(customJestConfig);
 ```
 
 ## Jest Setup File
@@ -43,7 +43,7 @@ module.exports = createJestConfig(customJestConfig)
 Create a `jest.setup.js` file in the project root:
 
 ```javascript
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 ```
 
 ## Package.json Scripts
@@ -65,7 +65,7 @@ Add these scripts to your `package.json`:
 Once the setup is complete, the following test files will be ready to run:
 
 - `Layout.test.tsx` - Tests for the Layout component
-- `Button.test.tsx` - Tests for the Button component  
+- `Button.test.tsx` - Tests for the Button component
 - `Navigation.test.tsx` - Tests for the Navigation component
 
 ## Running Tests

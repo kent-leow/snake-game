@@ -47,12 +47,12 @@ export default function ResponsiveNavigation({
   }, [isMobile, isMobileMenuOpen]);
 
   return (
-    <nav 
+    <nav
       className={`responsive-navigation ${className}`}
-      role="navigation"
-      aria-label="Main navigation"
+      role='navigation'
+      aria-label='Main navigation'
     >
-      <div className="responsive-navigation__container">
+      <div className='responsive-navigation__container'>
         {isMobile ? (
           <MobileNavigation
             isOpen={isMobileMenuOpen}
@@ -63,7 +63,7 @@ export default function ResponsiveNavigation({
             brandHref={brandHref}
           />
         ) : (
-          <div className="responsive-navigation__desktop">
+          <div className='responsive-navigation__desktop'>
             <NavigationMenu
               items={items}
               currentPath={currentPath}

@@ -234,11 +234,17 @@ describe('useMediaQuery', () => {
 
       const { unmount } = renderHook(() => useMediaQuery());
 
-      expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function));
+      expect(addEventListenerSpy).toHaveBeenCalledWith(
+        'resize',
+        expect.any(Function)
+      );
 
       unmount();
 
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function));
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        'resize',
+        expect.any(Function)
+      );
 
       addEventListenerSpy.mockRestore();
       removeEventListenerSpy.mockRestore();
@@ -266,35 +272,53 @@ describe('useMediaQuery', () => {
   describe('State Consistency', () => {
     it('ensures only one breakpoint is active at a time', () => {
       const testWidths = [300, 600, 768, 769, 900, 1024, 1025, 1500];
-      
+
       testWidths.forEach(width => {
         setWindowWidth(width);
         const { result } = renderHook(() => useMediaQuery());
-        
+
         const activeStates = [
           result.current.isMobile,
           result.current.isTablet,
           result.current.isDesktop,
         ].filter(Boolean);
-        
+
         expect(activeStates).toHaveLength(1);
       });
     });
 
     it('provides predictable breakpoint logic', () => {
       const testCases = [
-        { width: 320, expected: { isMobile: true, isTablet: false, isDesktop: false } },
-        { width: 768, expected: { isMobile: true, isTablet: false, isDesktop: false } },
-        { width: 769, expected: { isMobile: false, isTablet: true, isDesktop: false } },
-        { width: 1024, expected: { isMobile: false, isTablet: true, isDesktop: false } },
-        { width: 1025, expected: { isMobile: false, isTablet: false, isDesktop: true } },
-        { width: 1920, expected: { isMobile: false, isTablet: false, isDesktop: true } },
+        {
+          width: 320,
+          expected: { isMobile: true, isTablet: false, isDesktop: false },
+        },
+        {
+          width: 768,
+          expected: { isMobile: true, isTablet: false, isDesktop: false },
+        },
+        {
+          width: 769,
+          expected: { isMobile: false, isTablet: true, isDesktop: false },
+        },
+        {
+          width: 1024,
+          expected: { isMobile: false, isTablet: true, isDesktop: false },
+        },
+        {
+          width: 1025,
+          expected: { isMobile: false, isTablet: false, isDesktop: true },
+        },
+        {
+          width: 1920,
+          expected: { isMobile: false, isTablet: false, isDesktop: true },
+        },
       ];
 
       testCases.forEach(({ width, expected }) => {
         setWindowWidth(width);
         const { result } = renderHook(() => useMediaQuery());
-        
+
         expect(result.current).toEqual(expected);
       });
     });

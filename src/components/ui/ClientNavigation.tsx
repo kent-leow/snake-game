@@ -21,18 +21,18 @@ const navigationItems: NavigationItem[] = [
   { label: 'Settings', href: '/settings', icon: '⚙️' },
 ];
 
-export function ClientNavigation({ 
-  className = ''
+export function ClientNavigation({
+  className = '',
 }: NavigationProps): React.JSX.Element {
   const pathname = usePathname();
 
   return (
     <nav className={`bg-gray-800 shadow-lg ${className}`}>
-      <div className="container mx-auto px-4">
-        <div className="flex justify-center space-x-8">
-          {navigationItems.map((item) => {
+      <div className='container mx-auto px-4'>
+        <div className='flex justify-center space-x-8'>
+          {navigationItems.map(item => {
             const isActive = pathname === item.href;
-            
+
             return (
               <Link
                 key={item.href}

@@ -7,7 +7,10 @@ import { setupCanvasContext } from '@/lib/utils/canvas';
 export interface UseCanvasProps {
   width: number;
   height: number;
-  onCanvasReady?: (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => void;
+  onCanvasReady?: (
+    canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D
+  ) => void;
 }
 
 export interface UseCanvasReturn {
@@ -16,7 +19,11 @@ export interface UseCanvasReturn {
   isReady: boolean;
 }
 
-export function useCanvas({ width, height, onCanvasReady }: UseCanvasProps): UseCanvasReturn {
+export function useCanvas({
+  width,
+  height,
+  onCanvasReady,
+}: UseCanvasProps): UseCanvasReturn {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const isReadyRef = useRef<boolean>(false);

@@ -52,7 +52,8 @@
 }
 
 @keyframes foodPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -63,7 +64,8 @@
 }
 
 @keyframes specialFoodPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1) rotate(0deg);
     opacity: 1;
   }
@@ -183,7 +185,7 @@
   bottom: 0;
   pointer-events: none;
   opacity: 0.1;
-  background-image: 
+  background-image:
     linear-gradient(to right, #fff 1px, transparent 1px),
     linear-gradient(to bottom, #fff 1px, transparent 1px);
   background-size: 20px 20px;
@@ -230,16 +232,16 @@
     width: 100%;
     max-width: 320px;
   }
-  
+
   .game-hud {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .control-hints {
     font-size: 0.75rem;
   }
-  
+
   .heading-primary {
     font-size: 2.5rem;
   }

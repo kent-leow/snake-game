@@ -52,9 +52,8 @@ export type GameAction =
   | { type: 'UPDATE_SCORE'; payload: number }
   | { type: 'CHANGE_DIRECTION'; payload: Direction }
   | { type: 'MOVE_SNAKE' }
-  | { type: 'EAT_FOOD'; payload: Food };
-
-// Navigation types
+  | { type: 'EAT_FOOD'; payload: Food }
+  | { type: 'QUEUE_DIRECTION'; payload: Direction };// Navigation types
 export interface NavigationItem {
   label: string;
   href: string;
@@ -87,3 +86,28 @@ export interface GameStats {
   averageScore: number;
   totalPlayTime: number;
 }
+
+// Input and movement types
+export interface InputState {
+  currentDirection: Direction;
+  queuedDirections: Direction[];
+  lastInputTime: number;
+}
+
+export interface MovementOptions {
+  gridSize: number;
+  canvasWidth: number;
+  canvasHeight: number;
+  enableWrapAround?: boolean;
+}
+
+export interface CollisionInfo {
+  type: 'wall' | 'self' | 'food' | 'none';
+  position: Position;
+  segmentIndex?: number;
+}
+
+export type KeyboardKey = 
+  | 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'
+  | 'w' | 'a' | 's' | 'd'
+  | 'W' | 'A' | 'S' | 'D';

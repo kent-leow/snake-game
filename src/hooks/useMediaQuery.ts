@@ -22,7 +22,7 @@ export function useMediaQuery(): MediaQueryResult {
   useEffect(() => {
     const updateMediaQuery = (): void => {
       const width = window.innerWidth;
-      
+
       setMediaQuery({
         isMobile: width <= 768,
         isTablet: width > 768 && width <= 1024,

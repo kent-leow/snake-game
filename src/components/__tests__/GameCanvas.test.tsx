@@ -34,7 +34,18 @@ HTMLCanvasElement.prototype.getContext = jest.fn((contextId: string) => {
 
 // Mock the useCanvas hook
 jest.mock('@/hooks/useCanvas', () => ({
-  useCanvas: ({ onCanvasReady }: { onCanvasReady?: (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => void }): { canvasRef: React.RefObject<HTMLCanvasElement>; contextRef: React.RefObject<CanvasRenderingContext2D>; isReady: boolean } => {
+  useCanvas: ({
+    onCanvasReady,
+  }: {
+    onCanvasReady?: (
+      canvas: HTMLCanvasElement,
+      context: CanvasRenderingContext2D
+    ) => void;
+  }): {
+    canvasRef: React.RefObject<HTMLCanvasElement>;
+    contextRef: React.RefObject<CanvasRenderingContext2D>;
+    isReady: boolean;
+  } => {
     React.useEffect(() => {
       if (onCanvasReady) {
         const mockCanvas = document.createElement('canvas');
@@ -65,14 +76,20 @@ describe('GameCanvas', () => {
     it('should apply default dimensions', () => {
       render(<GameCanvas />);
       const canvas = document.querySelector('canvas');
-      expect(canvas).toHaveAttribute('width', GAME_CONFIG.CANVAS_WIDTH.toString());
-      expect(canvas).toHaveAttribute('height', GAME_CONFIG.CANVAS_HEIGHT.toString());
+      expect(canvas).toHaveAttribute(
+        'width',
+        GAME_CONFIG.CANVAS_WIDTH.toString()
+      );
+      expect(canvas).toHaveAttribute(
+        'height',
+        GAME_CONFIG.CANVAS_HEIGHT.toString()
+      );
     });
 
     it('should apply custom dimensions', () => {
       const customWidth = 400;
       const customHeight = 300;
-      
+
       render(<GameCanvas width={customWidth} height={customHeight} />);
       const canvas = document.querySelector('canvas');
       expect(canvas).toHaveAttribute('width', customWidth.toString());
@@ -82,7 +99,7 @@ describe('GameCanvas', () => {
     it('should apply custom className', () => {
       const customClass = 'custom-game-canvas';
       render(<GameCanvas className={customClass} />);
-      
+
       const container = document.querySelector('.game-canvas-container');
       expect(container).toHaveClass('game-canvas-container', customClass);
     });
@@ -90,7 +107,7 @@ describe('GameCanvas', () => {
     it('should have proper canvas styling', () => {
       render(<GameCanvas />);
       const canvas = document.querySelector('canvas');
-      
+
       expect(canvas).toHaveClass('game-canvas');
       expect(canvas).toHaveStyle({
         imageRendering: 'pixelated',
@@ -109,7 +126,7 @@ describe('GameCanvas', () => {
     it('should call onCanvasReady when canvas is ready', () => {
       const onCanvasReady = jest.fn();
       render(<GameCanvas onCanvasReady={onCanvasReady} />);
-      
+
       expect(onCanvasReady).toHaveBeenCalledWith(
         expect.any(HTMLCanvasElement),
         expect.any(Object)
@@ -119,7 +136,7 @@ describe('GameCanvas', () => {
     it('should call onGameReady when game is initialized', () => {
       const onGameReady = jest.fn();
       render(<GameCanvas onGameReady={onGameReady} />);
-      
+
       expect(onGameReady).toHaveBeenCalledWith(expect.any(Object));
     });
   });
@@ -127,7 +144,7 @@ describe('GameCanvas', () => {
   describe('Canvas Context Setup', () => {
     it('should disable image smoothing for pixelated rendering', () => {
       render(<GameCanvas />);
-      
+
       // The context setup should be called through the useCanvas hook
       expect(mockContext.imageSmoothingEnabled).toBeDefined();
     });
@@ -138,17 +155,13 @@ describe('GameCanvas', () => {
       const onGameReady = jest.fn();
       const width = 600;
       const height = 400;
-      
+
       render(
-        <GameCanvas 
-          width={width} 
-          height={height} 
-          onGameReady={onGameReady} 
-        />
+        <GameCanvas width={width} height={height} onGameReady={onGameReady} />
       );
-      
+
       expect(onGameReady).toHaveBeenCalledWith(expect.any(Object));
-      
+
       // Verify game was created with correct dimensions
       const gameInstance = onGameReady.mock.calls[0][0];
       expect(gameInstance).toBeDefined();
@@ -156,7 +169,7 @@ describe('GameCanvas', () => {
 
     it('should render initial game state', () => {
       render(<GameCanvas />);
-      
+
       // Canvas drawing methods should be called for initial render
       expect(mockContext.fillRect).toHaveBeenCalled();
     });
@@ -165,12 +178,14 @@ describe('GameCanvas', () => {
   describe('Error Handling', () => {
     it('should handle missing canvas context gracefully', () => {
       const originalGetContext = HTMLCanvasElement.prototype.getContext;
-      HTMLCanvasElement.prototype.getContext = jest.fn(() => null) as HTMLCanvasElement['getContext'];
-      
+      HTMLCanvasElement.prototype.getContext = jest.fn(
+        () => null
+      ) as HTMLCanvasElement['getContext'];
+
       expect(() => {
         render(<GameCanvas />);
       }).not.toThrow();
-      
+
       // Restore original method
       HTMLCanvasElement.prototype.getContext = originalGetContext;
     });
@@ -180,18 +195,22 @@ describe('GameCanvas', () => {
     it('should be keyboard focusable', () => {
       render(<GameCanvas />);
       const canvas = document.querySelector('canvas');
-      
+
       expect(canvas).toHaveAttribute('tabindex', '0');
-      expect(canvas).toHaveClass('focus:outline-none', 'focus:ring-2', 'focus:ring-green-500');
+      expect(canvas).toHaveClass(
+        'focus:outline-none',
+        'focus:ring-2',
+        'focus:ring-green-500'
+      );
     });
   });
 
   describe('Responsive Behavior', () => {
     it('should update canvas size when dimensions change', () => {
       const { rerender } = render(<GameCanvas width={400} height={300} />);
-      
+
       rerender(<GameCanvas width={800} height={600} />);
-      
+
       const canvas = document.querySelector('canvas');
       expect(canvas).toHaveAttribute('width', '800');
       expect(canvas).toHaveAttribute('height', '600');

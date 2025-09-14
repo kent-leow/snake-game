@@ -37,17 +37,21 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
   },
 ];
 
-export default function MainMenu({ className = '' }: MainMenuProps): React.JSX.Element {
+export default function MainMenu({
+  className = '',
+}: MainMenuProps): React.JSX.Element {
   return (
-    <div className={`min-h-screen bg-gray-900 text-white flex items-center justify-center ${className}`}>
-      <div className="text-center">
-        <h1 className="text-6xl font-bold mb-8 text-green-400">Snake Game</h1>
-        <p className="text-xl mb-12 text-gray-300">
+    <div
+      className={`min-h-screen bg-gray-900 text-white flex items-center justify-center ${className}`}
+    >
+      <div className='text-center'>
+        <h1 className='text-6xl font-bold mb-8 text-green-400'>Snake Game</h1>
+        <p className='text-xl mb-12 text-gray-300'>
           Classic Snake game built with Next.js and TypeScript
         </p>
-        
-        <div className="space-y-4">
-          {NAVIGATION_ITEMS.map((item) => (
+
+        <div className='space-y-4'>
+          {NAVIGATION_ITEMS.map(item => (
             <NavigationButton
               key={item.href}
               href={item.href}
@@ -58,8 +62,8 @@ export default function MainMenu({ className = '' }: MainMenuProps): React.JSX.E
             </NavigationButton>
           ))}
         </div>
-        
-        <div className="mt-12 text-sm text-gray-500">
+
+        <div className='mt-12 text-sm text-gray-500'>
           Use arrow keys to control the snake
         </div>
       </div>

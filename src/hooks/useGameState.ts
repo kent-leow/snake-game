@@ -33,16 +33,16 @@ const initialGameConfig: GameConfig = {
 export function useGameState(): UseGameStateReturn {
   const [gameState, setGameState] = useState<GameState>(initialGameState);
   const [gameConfig, setGameConfig] = useState<GameConfig>(initialGameConfig);
-  
+
   // Refs for stable references in useEffect
   const gameStateRef = useRef(gameState);
   const gameConfigRef = useRef(gameConfig);
-  
+
   // Update refs when state changes
   useEffect(() => {
     gameStateRef.current = gameState;
   }, [gameState]);
-  
+
   useEffect(() => {
     gameConfigRef.current = gameConfig;
   }, [gameConfig]);

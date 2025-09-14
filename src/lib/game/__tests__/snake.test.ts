@@ -15,7 +15,8 @@ describe('SnakeGame', () => {
     it('should initialize snake at center of canvas', () => {
       const snake = game.getSnake();
       const expectedCenterX = Math.floor(canvasWidth / 2 / gridSize) * gridSize;
-      const expectedCenterY = Math.floor(canvasHeight / 2 / gridSize) * gridSize;
+      const expectedCenterY =
+        Math.floor(canvasHeight / 2 / gridSize) * gridSize;
 
       expect(snake.segments[0].x).toBe(expectedCenterX);
       expect(snake.segments[0].y).toBe(expectedCenterY);
@@ -48,26 +49,33 @@ describe('SnakeGame', () => {
   describe('Direction Changes', () => {
     it('should allow valid direction changes', () => {
       expect(game.changeDirection('UP')).toBe(true);
-      expect(game.getNextDirection()).toBe('UP');
+      // Direction should still be RIGHT until move() processes the queue
+      expect(game.getCurrentDirection()).toBe('RIGHT');
+      
+      // Move to process the direction change
+      game.move();
+      expect(game.getCurrentDirection()).toBe('UP');
     });
 
     it('should prevent 180-degree turns', () => {
       // Snake starts facing RIGHT, should not allow LEFT
       expect(game.changeDirection('LEFT')).toBe(false);
-      expect(game.getNextDirection()).toBe('RIGHT');
+      expect(game.getCurrentDirection()).toBe('RIGHT');
     });
 
     it('should allow perpendicular direction changes', () => {
       expect(game.changeDirection('UP')).toBe(true);
-      expect(game.getNextDirection()).toBe('UP');
-      
-      // Now that next direction is UP, DOWN should be prevented as 180-degree turn
+      game.move(); // Process the direction change
+      expect(game.getCurrentDirection()).toBe('UP');
+
+      // Now that direction is UP, DOWN should be prevented as 180-degree turn
       expect(game.changeDirection('DOWN')).toBe(false);
-      
+
       // LEFT and RIGHT should be allowed from UP
       expect(game.changeDirection('LEFT')).toBe(true);
-      expect(game.getNextDirection()).toBe('LEFT');
-      
+      game.move(); // Process the direction change
+      expect(game.getCurrentDirection()).toBe('LEFT');
+
       // After setting to LEFT, RIGHT should be prevented as 180-degree turn
       expect(game.changeDirection('RIGHT')).toBe(false);
     });
@@ -111,7 +119,7 @@ describe('SnakeGame', () => {
     it('should update segment IDs after movement', () => {
       game.move();
       const snake = game.getSnake();
-      
+
       expect(snake.segments[0].id).toBe('head');
       snake.segments.slice(1).forEach((segment, index) => {
         expect(segment.id).toBe(`body-${index + 1}`);
@@ -203,9 +211,9 @@ describe('SnakeGame', () => {
   describe('Food Position Generation', () => {
     it('should generate valid food positions', () => {
       const validPositions = game.getValidFoodPositions();
-      
+
       expect(validPositions.length).toBeGreaterThan(0);
-      
+
       validPositions.forEach(position => {
         expect(position.x % gridSize).toBe(0);
         expect(position.y % gridSize).toBe(0);
@@ -222,8 +230,8 @@ describe('SnakeGame', () => {
       const snake = game.getSnake();
 
       snake.segments.forEach(segment => {
-        const isIncluded = validPositions.some(pos => 
-          pos.x === segment.x && pos.y === segment.y
+        const isIncluded = validPositions.some(
+          pos => pos.x === segment.x && pos.y === segment.y
         );
         expect(isIncluded).toBe(false);
       });
@@ -235,7 +243,7 @@ describe('SnakeGame', () => {
       // Move snake to near the right wall
       const snake = game.getSnake();
       const moves = Math.floor((canvasWidth - snake.segments[0].x) / gridSize);
-      
+
       // Move to wall
       for (let i = 0; i < moves; i++) {
         const result = game.move();

@@ -65,27 +65,27 @@ export default function MobileNavigation({
   return (
     <>
       {/* Mobile header with hamburger */}
-      <div className="responsive-navigation__mobile">
-        <Link 
-          href={brandHref} 
-          className="responsive-navigation__brand"
+      <div className='responsive-navigation__mobile'>
+        <Link
+          href={brandHref}
+          className='responsive-navigation__brand'
           aria-label={`${brandName} - Go to home page`}
         >
           {brandName}
         </Link>
-        
+
         <button
-          type="button"
-          className="responsive-navigation__toggle touch-target"
+          type='button'
+          className='responsive-navigation__toggle touch-target'
           onClick={onToggle}
           aria-expanded={isOpen}
-          aria-controls="mobile-menu"
+          aria-controls='mobile-menu'
           aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
         >
           <div className={`hamburger ${isOpen ? 'hamburger--open' : ''}`}>
-            <span className="hamburger__line"></span>
-            <span className="hamburger__line"></span>
-            <span className="hamburger__line"></span>
+            <span className='hamburger__line'></span>
+            <span className='hamburger__line'></span>
+            <span className='hamburger__line'></span>
           </div>
         </button>
       </div>
@@ -99,28 +99,28 @@ export default function MobileNavigation({
 
       {/* Mobile menu panel */}
       <div
-        id="mobile-menu"
+        id='mobile-menu'
         className={`mobile-menu ${isOpen ? 'mobile-menu--open' : ''}`}
         aria-hidden={!isOpen}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="mobile-menu-title"
+        role='dialog'
+        aria-modal='true'
+        aria-labelledby='mobile-menu-title'
       >
-        <div className="mobile-menu__header">
-          <h2 id="mobile-menu-title" className="responsive-navigation__brand">
+        <div className='mobile-menu__header'>
+          <h2 id='mobile-menu-title' className='responsive-navigation__brand'>
             {brandName}
           </h2>
           <button
-            type="button"
-            className="mobile-menu__close touch-target"
+            type='button'
+            className='mobile-menu__close touch-target'
             onClick={onToggle}
-            aria-label="Close navigation menu"
+            aria-label='Close navigation menu'
           >
             ×
           </button>
         </div>
-        
-        <nav className="mobile-menu__nav" aria-label="Main navigation">
+
+        <nav className='mobile-menu__nav' aria-label='Main navigation'>
           <NavigationMenu
             items={items}
             currentPath={currentPath}

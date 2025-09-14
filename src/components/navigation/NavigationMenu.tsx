@@ -39,7 +39,7 @@ export default function NavigationMenu({
   };
 
   const getItemClass = (isMobile: boolean): string => {
-    const baseClass = isMobile 
+    const baseClass = isMobile
       ? 'mobile-menu__item'
       : 'responsive-navigation__item';
     return `${baseClass} ${itemClassName}`.trim();
@@ -47,29 +47,27 @@ export default function NavigationMenu({
 
   const getLinkClass = (href: string, isMobile: boolean): string => {
     const isActive = currentPath === href;
-    const baseClass = isMobile 
+    const baseClass = isMobile
       ? 'mobile-menu__link'
       : 'responsive-navigation__link';
-    const activeClass = isMobile 
+    const activeClass = isMobile
       ? 'mobile-menu__link--active'
       : 'responsive-navigation__link--active';
-    
+
     let classes = `${baseClass} touch-target ${linkClassName}`;
-    
+
     if (isActive) {
       classes += ` ${activeClass} ${activeClassName}`;
     }
-    
+
     return classes.trim();
   };
 
   const getIconClass = (isMobile: boolean): string => {
-    return isMobile 
-      ? 'mobile-menu__icon'
-      : 'responsive-navigation__icon';
+    return isMobile ? 'mobile-menu__icon' : 'responsive-navigation__icon';
   };
 
-  const menuClass = isMobile 
+  const menuClass = isMobile
     ? `mobile-menu__list ${className}`
     : `responsive-navigation__menu ${className}`;
 
@@ -77,7 +75,7 @@ export default function NavigationMenu({
   if (isMobile) {
     return (
       <ul className={menuClass.trim()}>
-        {items.map((item) => (
+        {items.map(item => (
           <li key={item.href} className={getItemClass(true)}>
             <Link
               href={item.href}
@@ -86,7 +84,7 @@ export default function NavigationMenu({
               aria-current={currentPath === item.href ? 'page' : undefined}
             >
               {item.icon && (
-                <span className={getIconClass(true)} aria-hidden="true">
+                <span className={getIconClass(true)} aria-hidden='true'>
                   {item.icon}
                 </span>
               )}
@@ -101,7 +99,7 @@ export default function NavigationMenu({
   // Desktop navigation
   return (
     <div className={menuClass.trim()}>
-      {items.map((item) => (
+      {items.map(item => (
         <div key={item.href} className={getItemClass(false)}>
           <Link
             href={item.href}
@@ -110,7 +108,7 @@ export default function NavigationMenu({
             aria-current={currentPath === item.href ? 'page' : undefined}
           >
             {item.icon && (
-              <span className={getIconClass(false)} aria-hidden="true">
+              <span className={getIconClass(false)} aria-hidden='true'>
                 {item.icon}
               </span>
             )}

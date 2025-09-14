@@ -301,7 +301,7 @@
   .responsive-navigation__desktop {
     display: none;
   }
-  
+
   .responsive-navigation__mobile {
     display: flex;
   }
@@ -311,11 +311,11 @@
   .responsive-navigation__desktop {
     display: flex;
   }
-  
+
   .responsive-navigation__mobile {
     display: none;
   }
-  
+
   .mobile-menu,
   .mobile-menu-overlay {
     display: none !important;

@@ -13,30 +13,30 @@ db.createCollection('game_scores', {
       properties: {
         playerName: {
           bsonType: 'string',
-          description: 'Player name must be a string and is required'
+          description: 'Player name must be a string and is required',
         },
         score: {
           bsonType: 'int',
           minimum: 0,
-          description: 'Score must be a non-negative integer and is required'
+          description: 'Score must be a non-negative integer and is required',
         },
         timestamp: {
           bsonType: 'date',
-          description: 'Timestamp must be a date and is required'
+          description: 'Timestamp must be a date and is required',
         },
         gameMode: {
           bsonType: 'string',
           enum: ['classic', 'speed', 'challenge'],
-          description: 'Game mode must be one of the allowed values'
+          description: 'Game mode must be one of the allowed values',
         },
         difficulty: {
           bsonType: 'string',
           enum: ['easy', 'medium', 'hard'],
-          description: 'Difficulty must be one of the allowed values'
-        }
-      }
-    }
-  }
+          description: 'Difficulty must be one of the allowed values',
+        },
+      },
+    },
+  },
 });
 
 db.createCollection('game_sessions', {
@@ -47,23 +47,23 @@ db.createCollection('game_sessions', {
       properties: {
         sessionId: {
           bsonType: 'string',
-          description: 'Session ID must be a string and is required'
+          description: 'Session ID must be a string and is required',
         },
         startTime: {
           bsonType: 'date',
-          description: 'Start time must be a date and is required'
+          description: 'Start time must be a date and is required',
         },
         endTime: {
           bsonType: 'date',
-          description: 'End time must be a date'
+          description: 'End time must be a date',
         },
         playerName: {
           bsonType: 'string',
-          description: 'Player name must be a string'
-        }
-      }
-    }
-  }
+          description: 'Player name must be a string',
+        },
+      },
+    },
+  },
 });
 
 // Create indexes for better performance
@@ -81,15 +81,15 @@ db.game_scores.insertMany([
     score: 150,
     timestamp: new Date(),
     gameMode: 'classic',
-    difficulty: 'medium'
+    difficulty: 'medium',
   },
   {
     playerName: 'Test User',
     score: 200,
     timestamp: new Date(Date.now() - 86400000), // 1 day ago
     gameMode: 'speed',
-    difficulty: 'hard'
-  }
+    difficulty: 'hard',
+  },
 ]);
 
 console.log('Database initialization completed successfully');
