@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { PageLayout, GameControls } from '@/components';
-import { GameCanvas } from '@/components/game/GameCanvasIntegrated';
+import { GameCanvas } from '@/components/game/GameCanvas';
 import { useGameState } from '@/hooks';
+import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '@/lib/game/gameEngine';
 
 export function GamePage(): React.JSX.Element {
   const [score, setScore] = useState(0);
   const [isGameReady, setIsGameReady] = useState(false);
+  const gameEngineRef = useRef<GameEngine | null>(null);
 
   // Game state management
   const { currentState, actions } = useGameState();
@@ -20,16 +22,101 @@ export function GamePage(): React.JSX.Element {
     setScore(newScore);
   }, []);
 
+  // Game control handlers
+  const handleStartGame = useCallback(() => {
+    if (gameEngineRef.current) {
+      gameEngineRef.current.start();
+      actions.startGame();
+    }
+  }, [actions]);
+
+  const handlePauseGame = useCallback(() => {
+    if (gameEngineRef.current) {
+      gameEngineRef.current.pause();
+      actions.pauseGame();
+    }
+  }, [actions]);
+
+  const handleResumeGame = useCallback(() => {
+    if (gameEngineRef.current) {
+      gameEngineRef.current.start(); // Resume is the same as start
+      actions.resumeGame();
+    }
+  }, [actions]);
+
+  const handleRestartGame = useCallback(() => {
+    if (gameEngineRef.current) {
+      gameEngineRef.current.reset();
+      gameEngineRef.current.start();
+      actions.restartGame();
+      setScore(0); // Reset score display
+    }
+  }, [actions]);
+
+  const handleGoToMenu = useCallback(() => {
+    if (gameEngineRef.current) {
+      gameEngineRef.current.stop();
+      actions.goToMenu();
+    }
+  }, [actions]);
+
+  // Initialize game engine
+  useEffect(() => {
+    const config: GameEngineConfig = {
+      canvasWidth: 800,
+      canvasHeight: 600,
+      gridSize: 20,
+      initialScore: 0,
+      foodSpawnDelay: 100,
+    };
+
+    const callbacks: GameEngineCallbacks = {
+      onScoreChange: (score) => {
+        handleScoreChange(score);
+      },
+      onFoodEaten: (food, newLength) => {
+        console.log('Food eaten:', food, 'New length:', newLength);
+      },
+      onGameOver: (finalScore, _snake, cause, collisionPosition) => {
+        console.log('Game over:', { finalScore, cause, collisionPosition });
+        actions.endGame();
+      },
+    };
+
+    gameEngineRef.current = new GameEngine(config, callbacks);
+    handleGameReady();
+
+    return () => {
+      if (gameEngineRef.current) {
+        gameEngineRef.current.stop();
+      }
+    };
+  }, [handleScoreChange, handleGameReady, actions]);
+
+  if (!gameEngineRef.current) {
+    return (
+      <PageLayout title='Snake Game' showBackButton={true}>
+        <div className='flex flex-col items-center gap-6'>
+          <div className='text-center'>Loading game...</div>
+        </div>
+      </PageLayout>
+    );
+  }
+
   return (
     <PageLayout title='Snake Game' showBackButton={true}>
       <div className='flex flex-col items-center gap-6'>
         <div className='bg-gray-800 p-8 rounded-lg shadow-lg'>
           <GameCanvas
-            width={800}
-            height={600}
-            onGameReady={handleGameReady}
-            onScoreChange={handleScoreChange}
+            gameEngine={gameEngineRef.current}
+            gameConfig={{
+              gridSize: 20,
+              gameSpeed: 150,
+              enableSound: true,
+            }}
             className='mb-4'
+            enablePerformanceMonitoring={true}
+            targetFPS={60}
           />
           <div className='mt-4 flex justify-between items-center'>
             <div className='text-sm'>
@@ -46,11 +133,11 @@ export function GamePage(): React.JSX.Element {
         <div className='w-full max-w-md'>
           <GameControls
             currentState={currentState}
-            onStartGame={actions.startGame}
-            onPauseGame={actions.pauseGame}
-            onResumeGame={actions.resumeGame}
-            onRestartGame={actions.restartGame}
-            onGoToMenu={actions.goToMenu}
+            onStartGame={handleStartGame}
+            onPauseGame={handlePauseGame}
+            onResumeGame={handleResumeGame}
+            onRestartGame={handleRestartGame}
+            onGoToMenu={handleGoToMenu}
             showKeyboardHints={true}
           />
         </div>

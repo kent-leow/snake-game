@@ -1,69 +1,150 @@
-import { useRef, useEffect, useCallback } from 'react';
-import { setupCanvasContext } from '@/lib/utils/canvas';
-
 /**
- * Canvas management hook for handling canvas lifecycle and context
+ * React hooks for canvas management and integration
  */
-export interface UseCanvasProps {
-  width: number;
-  height: number;
-  onCanvasReady?: (
-    canvas: HTMLCanvasElement,
-    context: CanvasRenderingContext2D
-  ) => void;
+
+'use client';
+
+import { useRef, useEffect, useState, useCallback } from 'react';
+import { 
+  CanvasRenderer, 
+  ResponsiveCanvas,
+  type GameConfig,
+  type CanvasDimensions
+} from '@/lib/rendering';
+
+export interface UseCanvasOptions {
+  gameConfig: GameConfig;
+  enableResponsive?: boolean;
+  onResize?: (dimensions: CanvasDimensions) => void;
+  onError?: (error: Error) => void;
 }
 
 export interface UseCanvasReturn {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  contextRef: React.RefObject<CanvasRenderingContext2D | null>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  renderer: CanvasRenderer | null;
+  responsiveCanvas: ResponsiveCanvas | null;
   isReady: boolean;
+  error: Error | null;
+  dimensions: CanvasDimensions | null;
+  resize: () => void;
 }
 
-export function useCanvas({
-  width,
-  height,
-  onCanvasReady,
-}: UseCanvasProps): UseCanvasReturn {
+/**
+ * Hook for managing canvas setup and responsive behavior
+ */
+export const useCanvas = ({
+  gameConfig,
+  enableResponsive = true,
+  onResize,
+  onError,
+}: UseCanvasOptions): UseCanvasReturn => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const contextRef = useRef<CanvasRenderingContext2D | null>(null);
-  const isReadyRef = useRef<boolean>(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const rendererRef = useRef<CanvasRenderer | null>(null);
+  const responsiveCanvasRef = useRef<ResponsiveCanvas | null>(null);
+  
+  const [isReady, setIsReady] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [dimensions, setDimensions] = useState<CanvasDimensions | null>(null);
 
-  const initializeCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const context = setupCanvasContext(canvas);
-    if (!context) return;
-
-    contextRef.current = context;
-    isReadyRef.current = true;
-
-    // Set canvas size
-    canvas.width = width;
-    canvas.height = height;
-
-    // Call ready callback
-    if (onCanvasReady) {
-      onCanvasReady(canvas, context);
+  /**
+   * Handle resize events
+   */
+  const handleResize = useCallback((newDimensions: CanvasDimensions) => {
+    setDimensions(newDimensions);
+    onResize?.(newDimensions);
+    
+    // Update renderer with new config
+    if (rendererRef.current) {
+      const newConfig = {
+        ...gameConfig,
+        gridSize: Math.min(gameConfig.gridSize, Math.floor(newDimensions.width / 15)),
+      };
+      rendererRef.current.resize(newConfig);
     }
-  }, [width, height, onCanvasReady]);
+  }, [gameConfig, onResize]);
 
+  /**
+   * Manual resize trigger
+   */
+  const resize = useCallback(() => {
+    if (responsiveCanvasRef.current) {
+      const newDimensions = responsiveCanvasRef.current.resize();
+      handleResize(newDimensions);
+    }
+  }, [handleResize]);
+
+  /**
+   * Initialize canvas and renderer
+   */
   useEffect(() => {
-    initializeCanvas();
-  }, [initializeCanvas]);
+    if (!canvasRef.current || !containerRef.current) return;
 
-  // Reinitialize if dimensions change
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !contextRef.current) return;
+    try {
+      let responsiveCanvas: ResponsiveCanvas | null = null;
+      
+      // Set up responsive canvas if enabled
+      if (enableResponsive) {
+        responsiveCanvas = new ResponsiveCanvas(
+          canvasRef.current,
+          containerRef.current,
+          {
+            minSize: 300,
+            maxSize: 800,
+            maintainAspectRatio: true,
+          }
+        );
+        responsiveCanvasRef.current = responsiveCanvas;
+        responsiveCanvas.onResize(handleResize);
+      }
 
-    canvas.width = width;
-    canvas.height = height;
-  }, [width, height]);
+      // Initialize renderer
+      const renderer = new CanvasRenderer(canvasRef.current, gameConfig);
+      rendererRef.current = renderer;
+
+      // Get initial dimensions
+      if (responsiveCanvas) {
+        const initialDimensions = responsiveCanvas.resize();
+        setDimensions(initialDimensions);
+      } else {
+        // Calculate dimensions manually if responsive is disabled
+        const rect = canvasRef.current.getBoundingClientRect();
+        setDimensions({
+          width: rect.width,
+          height: rect.height,
+          cellSize: Math.floor(Math.min(rect.width, rect.height) / gameConfig.gridSize),
+        });
+      }
+
+      setIsReady(true);
+      setError(null);
+
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Canvas initialization failed');
+      setError(error);
+      setIsReady(false);
+      onError?.(error);
+    }
+
+    // Cleanup
+    return () => {
+      rendererRef.current?.destroy();
+      responsiveCanvasRef.current?.destroy();
+      rendererRef.current = null;
+      responsiveCanvasRef.current = null;
+      setIsReady(false);
+    };
+  }, [gameConfig, enableResponsive, handleResize, onError]);
 
   return {
     canvasRef,
-    contextRef,
-    isReady: isReadyRef.current,
+    containerRef,
+    renderer: rendererRef.current,
+    responsiveCanvas: responsiveCanvasRef.current,
+    isReady,
+    error,
+    dimensions,
+    resize,
   };
-}
+};
