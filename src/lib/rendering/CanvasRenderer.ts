@@ -28,6 +28,8 @@ export interface GameConfig {
   gridSize: number;
   gameSpeed: number;
   enableSound: boolean;
+  canvasWidth?: number;
+  canvasHeight?: number;
 }
 
 /**
@@ -152,8 +154,9 @@ export class CanvasRenderer {
     const { ctx, cellSize } = this.renderContext;
 
     snake.segments.forEach((segment, index) => {
-      const x = segment.x * cellSize;
-      const y = segment.y * cellSize;
+      // Snake segments are already in pixel coordinates, not grid coordinates
+      const x = segment.x;
+      const y = segment.y;
 
       if (index === 0) {
         // Snake head - bright green with eyes
@@ -183,8 +186,9 @@ export class CanvasRenderer {
    */
   private drawFood(food: EnhancedFood): void {
     const { ctx, cellSize } = this.renderContext;
-    const x = food.x * cellSize;
-    const y = food.y * cellSize;
+    // Food positions are already in pixel coordinates, not grid coordinates
+    const x = food.x;
+    const y = food.y;
     const centerX = x + cellSize / 2;
     const centerY = y + cellSize / 2;
     const baseRadius = (cellSize - 4) / 2;
@@ -321,6 +325,17 @@ export class CanvasRenderer {
     config: GameConfig,
     container?: Element | null
   ): CanvasDimensions {
+    // If game config has explicit canvas dimensions, use those
+    if ('canvasWidth' in config && 'canvasHeight' in config) {
+      const gameConfig = config as GameConfig & { canvasWidth: number; canvasHeight: number };
+      return {
+        width: gameConfig.canvasWidth,
+        height: gameConfig.canvasHeight,
+        cellSize: config.gridSize,
+      };
+    }
+    
+    // Otherwise, calculate based on container
     const containerWidth = container?.clientWidth || window.innerWidth * 0.9;
     const containerHeight = container?.clientHeight || window.innerHeight * 0.8;
     

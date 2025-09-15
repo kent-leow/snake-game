@@ -17,6 +17,16 @@ export function GamePage(): React.JSX.Element {
   const { currentState, actions } = useGameState();
   const { isMobile } = useResponsiveLayout();
 
+  // Calculate canvas dimensions
+  const containerWidth = 800; // Desired max width
+  const containerHeight = 600; // Desired max height
+  const gridSize = 20;
+  
+  // Use the same calculation as CanvasRenderer
+  const availableSize = Math.min(containerWidth, containerHeight, 600);
+  const cellSize = Math.floor(availableSize / gridSize);
+  const actualSize = cellSize * gridSize;
+
   const handleGameReady = useCallback(() => {
     setIsGameReady(true);
   }, []);
@@ -75,9 +85,10 @@ export function GamePage(): React.JSX.Element {
   // Initialize game engine
   useEffect(() => {
     const config: GameEngineConfig = {
-      canvasWidth: 800,
-      canvasHeight: 600,
-      gridSize: 20,
+      canvasWidth: actualSize,
+      canvasHeight: actualSize, // Make it square to match renderer
+      gridSize: gridSize,
+      gameSpeed: 150, // Snake moves every 150ms
       initialScore: 0,
       foodSpawnDelay: 100,
     };
@@ -128,9 +139,11 @@ export function GamePage(): React.JSX.Element {
               <GameCanvas
                 gameEngine={gameEngineRef.current}
                 gameConfig={{
-                  gridSize: 20,
+                  gridSize: gridSize,
                   gameSpeed: 150,
                   enableSound: true,
+                  canvasWidth: actualSize,
+                  canvasHeight: actualSize,
                 }}
                 className='mb-4'
                 enablePerformanceMonitoring={true}
@@ -156,9 +169,11 @@ export function GamePage(): React.JSX.Element {
             <GameCanvas
               gameEngine={gameEngineRef.current}
               gameConfig={{
-                gridSize: 20,
+                gridSize: gridSize,
                 gameSpeed: 150,
                 enableSound: true,
+                canvasWidth: actualSize,
+                canvasHeight: actualSize,
               }}
               className='mb-4'
               enablePerformanceMonitoring={true}

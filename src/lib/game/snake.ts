@@ -40,8 +40,13 @@ export class SnakeGame {
    * Initialize snake at center of canvas with initial length
    */
   private initializeSnake(): void {
-    const centerX = Math.floor(this.canvasSize.width / 2 / this.gridSize) * this.gridSize;
-    const centerY = Math.floor(this.canvasSize.height / 2 / this.gridSize) * this.gridSize;
+    // Calculate center position in grid coordinates
+    const centerGridX = Math.floor(this.canvasSize.width / 2 / this.gridSize);
+    const centerGridY = Math.floor(this.canvasSize.height / 2 / this.gridSize);
+    
+    // Convert to pixel coordinates
+    const centerX = centerGridX * this.gridSize;
+    const centerY = centerGridY * this.gridSize;
 
     this.snake = {
       segments: [

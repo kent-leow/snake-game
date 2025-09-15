@@ -12,6 +12,7 @@ export interface GameEngineConfig {
   canvasWidth: number;
   canvasHeight: number;
   gridSize: number;
+  gameSpeed?: number; // Movement interval in milliseconds
   initialScore?: number;
   foodSpawnDelay?: number;
 }
@@ -44,10 +45,13 @@ export class GameEngine {
   private gameStartTime: number = 0;
   private foodConsumed: number = 0;
   private maxSnakeLength: number = 1;
+  private lastMoveTime: number = 0;
+  private gameSpeed: number;
 
   constructor(config: GameEngineConfig, callbacks: GameEngineCallbacks = {}) {
     this.config = config;
     this.callbacks = callbacks;
+    this.gameSpeed = config.gameSpeed || 150; // Default to 150ms per move
 
     // Initialize game systems
     this.snakeGame = new SnakeGame(
@@ -106,6 +110,7 @@ export class GameEngine {
   public start(): void {
     this.isRunning = true;
     this.gameStartTime = Date.now();
+    this.lastMoveTime = performance.now();
     this.foodConsumed = 0;
     this.maxSnakeLength = this.snakeGame.getLength();
   }
@@ -136,6 +141,15 @@ export class GameEngine {
    */
   public update(): boolean {
     if (!this.isRunning || this.gameOverManager.isGameOver()) return false;
+
+    const currentTime = performance.now();
+    
+    // Only move the snake at the specified game speed interval
+    if (currentTime - this.lastMoveTime < this.gameSpeed) {
+      return true; // Game is running but no update needed yet
+    }
+    
+    this.lastMoveTime = currentTime;
 
     // Check for collisions before moving
     const collisionResult = this.collisionDetector.checkAllCollisions(this.snakeGame.getSnake());
@@ -366,6 +380,7 @@ export class GameEngine {
     this.currentFood = null;
     this.isRunning = false;
     this.gameStartTime = 0;
+    this.lastMoveTime = 0;
     this.foodConsumed = 0;
     this.maxSnakeLength = 1;
     

@@ -63,8 +63,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
    */
   const handleUpdate = useCallback((deltaTime: number, interpolation: number): void => {
     try {
-      // Game engine update is handled separately to avoid coupling
-      // This is just for any canvas-specific update logic
+      if (gameEngine) {
+        // Call the game engine update method to move the snake
+        gameEngine.update();
+      }
       
       // Use the parameters to avoid unused variable warnings
       if (deltaTime && interpolation) {
@@ -74,7 +76,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       console.error('Game update error:', error);
       setError('Game update failed');
     }
-  }, []);
+  }, [gameEngine]);
 
   /**
    * Render frame
@@ -259,8 +261,26 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     // Prevent default browser behavior for game keys
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(event.code)) {
       event.preventDefault();
+      
+      // Handle direction changes
+      if (onDirectionChange) {
+        switch (event.code) {
+          case 'ArrowUp':
+            onDirectionChange('UP');
+            break;
+          case 'ArrowDown':
+            onDirectionChange('DOWN');
+            break;
+          case 'ArrowLeft':
+            onDirectionChange('LEFT');
+            break;
+          case 'ArrowRight':
+            onDirectionChange('RIGHT');
+            break;
+        }
+      }
     }
-  }, []);
+  }, [onDirectionChange]);
 
   /**
    * Handle touch direction changes from swipe gestures
