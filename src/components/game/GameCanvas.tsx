@@ -327,6 +327,17 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
               background: '#1a1a1a',
               outline: 'none',
               cursor: 'pointer',
+              transition: 'border-color 0.2s ease',
+            }}
+            onFocus={() => {
+              if (canvasRef.current) {
+                canvasRef.current.style.borderColor = '#4ade80';
+              }
+            }}
+            onBlur={() => {
+              if (canvasRef.current) {
+                canvasRef.current.style.borderColor = '#333';
+              }
             }}
           />
         </SwipeGestureHandler>
@@ -345,6 +356,17 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             background: '#1a1a1a',
             outline: 'none',
             cursor: 'pointer',
+            transition: 'border-color 0.2s ease',
+          }}
+          onFocus={() => {
+            if (canvasRef.current) {
+              canvasRef.current.style.borderColor = '#4ade80';
+            }
+          }}
+          onBlur={() => {
+            if (canvasRef.current) {
+              canvasRef.current.style.borderColor = '#333';
+            }
           }}
         />
       )}

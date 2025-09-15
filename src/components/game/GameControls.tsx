@@ -3,7 +3,6 @@
 import React from 'react';
 import { GameStateEnum } from '@/lib/game/gameState';
 import { ControlButton } from './ControlButton';
-import { GameStateIndicator } from './GameStateIndicator';
 import { KeyboardShortcuts } from './KeyboardShortcuts';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
@@ -69,7 +68,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
               icon="⏸️"
               shortcut="Space"
             >
-              Pause
+              Pause Game
             </ControlButton>
             <ControlButton
               onClick={onRestartGame}
@@ -146,8 +145,6 @@ export const GameControls: React.FC<GameControlsProps> = ({
 
   return (
     <div className={`game-controls ${className}`}>
-      <GameStateIndicator currentState={currentState} />
-
       <div className="controls-buttons">
         {getControlButtons()}
       </div>

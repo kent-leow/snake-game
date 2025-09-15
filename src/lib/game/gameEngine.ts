@@ -134,6 +134,7 @@ export class GameEngine {
    */
   public resume(): void {
     this.isRunning = true;
+    this.lastMoveTime = performance.now(); // Reset timing to prevent immediate movement
   }
 
   /**

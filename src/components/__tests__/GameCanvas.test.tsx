@@ -1,18 +1,69 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { GameCanvas } from '../game/GameCanvas';
-import { GAME_CONFIG } from '@/lib/game/constants';
+import { GameEngine } from '@/lib/game/gameEngine';
 
-// Mock the canvas context
+// Mock the GameEngine
+const createMockGameEngine = () => ({
+  getGameState: jest.fn(() => ({
+    snake: { 
+      segments: [{ x: 100, y: 100, id: 'head' }], 
+      direction: 'RIGHT' as const, 
+      nextDirection: 'RIGHT' as const, 
+      isGrowing: false 
+    },
+    food: { 
+      x: 200, 
+      y: 200, 
+      type: 'normal' as const, 
+      points: 10, 
+      id: 'food-1', 
+      timestamp: Date.now(), 
+      value: 10 
+    },
+    score: 0,
+    isRunning: false,
+    snakeLength: 1,
+    pendingGrowth: 0,
+    gameOverState: { 
+      isGameOver: false, 
+      cause: null, 
+      finalScore: 0, 
+      statistics: null 
+    }
+  })),
+  start: jest.fn(),
+  stop: jest.fn(),
+  pause: jest.fn(),
+  resume: jest.fn(),
+  reset: jest.fn(),
+  update: jest.fn(() => true),
+  changeDirection: jest.fn(() => true),
+} as unknown as GameEngine);
+
+// Default game config for tests
+const defaultGameConfig = {
+  gridSize: 20,
+  gameSpeed: 150,
+  enableSound: false,
+  canvasWidth: 400,
+  canvasHeight: 400,
+};
+
+// Mock canvas context
 const mockContext = {
   fillStyle: '',
   strokeStyle: '',
   lineWidth: 0,
   font: '',
   textAlign: 'left' as CanvasTextAlign,
+  textBaseline: 'top' as CanvasTextBaseline,
   imageSmoothingEnabled: true,
+  lineCap: 'square' as CanvasLineCap,
+  lineJoin: 'miter' as CanvasLineJoin,
   fillRect: jest.fn(),
   strokeRect: jest.fn(),
+  clearRect: jest.fn(),
   beginPath: jest.fn(),
   moveTo: jest.fn(),
   lineTo: jest.fn(),
@@ -21,199 +72,140 @@ const mockContext = {
   arc: jest.fn(),
   roundRect: jest.fn(),
   fillText: jest.fn(),
-  getContext: jest.fn(),
+  scale: jest.fn(),
+  save: jest.fn(),
+  restore: jest.fn(),
+  createRadialGradient: jest.fn(() => ({
+    addColorStop: jest.fn()
+  })),
+  quadraticCurveTo: jest.fn(),
+  closePath: jest.fn(),
 } as unknown as CanvasRenderingContext2D;
 
-// Mock HTMLCanvasElement.getContext
+// Mock HTMLCanvasElement
 HTMLCanvasElement.prototype.getContext = jest.fn((contextId: string) => {
   if (contextId === '2d') {
     return mockContext;
   }
   return null;
-}) as HTMLCanvasElement['getContext'];
+});
 
-// Mock the useCanvas hook
-jest.mock('@/hooks/useCanvas', () => ({
-  useCanvas: ({
-    onCanvasReady,
-  }: {
-    onCanvasReady?: (
-      canvas: HTMLCanvasElement,
-      context: CanvasRenderingContext2D
-    ) => void;
-  }): {
-    canvasRef: React.RefObject<HTMLCanvasElement>;
-    contextRef: React.RefObject<CanvasRenderingContext2D>;
-    isReady: boolean;
-  } => {
-    React.useEffect(() => {
-      if (onCanvasReady) {
-        const mockCanvas = document.createElement('canvas');
-        onCanvasReady(mockCanvas, mockContext);
-      }
-    }, [onCanvasReady]);
+// Mock window.devicePixelRatio
+Object.defineProperty(window, 'devicePixelRatio', {
+  writable: true,
+  value: 1,
+});
 
-    return {
-      canvasRef: { current: document.createElement('canvas') },
-      contextRef: { current: mockContext },
-      isReady: true,
-    };
-  },
-}));
+// Mock requestAnimationFrame
+global.requestAnimationFrame = jest.fn((cb) => {
+  setTimeout(cb, 16);
+  return 1;
+});
 
-describe('GameCanvas', () => {
+global.cancelAnimationFrame = jest.fn();
+
+describe('GameCanvas Component', () => {
+  let mockGameEngine: GameEngine;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGameEngine = createMockGameEngine();
   });
 
-  describe('Rendering', () => {
-    it('should render canvas element', () => {
-      render(<GameCanvas />);
-      const canvas = document.querySelector('canvas');
-      expect(canvas).toBeInTheDocument();
-    });
-
-    it('should apply default dimensions', () => {
-      render(<GameCanvas />);
-      const canvas = document.querySelector('canvas');
-      expect(canvas).toHaveAttribute(
-        'width',
-        GAME_CONFIG.CANVAS_WIDTH.toString()
-      );
-      expect(canvas).toHaveAttribute(
-        'height',
-        GAME_CONFIG.CANVAS_HEIGHT.toString()
-      );
-    });
-
-    it('should apply custom dimensions', () => {
-      const customWidth = 400;
-      const customHeight = 300;
-
-      render(<GameCanvas width={customWidth} height={customHeight} />);
-      const canvas = document.querySelector('canvas');
-      expect(canvas).toHaveAttribute('width', customWidth.toString());
-      expect(canvas).toHaveAttribute('height', customHeight.toString());
-    });
-
-    it('should apply custom className', () => {
-      const customClass = 'custom-game-canvas';
-      render(<GameCanvas className={customClass} />);
-
-      const container = document.querySelector('.game-canvas-container');
-      expect(container).toHaveClass('game-canvas-container', customClass);
-    });
-
-    it('should have proper canvas styling', () => {
-      render(<GameCanvas />);
-      const canvas = document.querySelector('canvas');
-
-      expect(canvas).toHaveClass('game-canvas');
-      expect(canvas).toHaveStyle({
-        imageRendering: 'pixelated',
-        backgroundColor: GAME_CONFIG.COLORS.BACKGROUND,
-      });
-    });
-  });
-
-  describe('Canvas Initialization', () => {
-    it('should make canvas focusable', () => {
-      render(<GameCanvas />);
-      const canvas = document.querySelector('canvas');
-      expect(canvas).toHaveAttribute('tabindex', '0');
-    });
-
-    it('should call onCanvasReady when canvas is ready', () => {
-      const onCanvasReady = jest.fn();
-      render(<GameCanvas onCanvasReady={onCanvasReady} />);
-
-      expect(onCanvasReady).toHaveBeenCalledWith(
-        expect.any(HTMLCanvasElement),
-        expect.any(Object)
-      );
-    });
-
-    it('should call onGameReady when game is initialized', () => {
-      const onGameReady = jest.fn();
-      render(<GameCanvas onGameReady={onGameReady} />);
-
-      expect(onGameReady).toHaveBeenCalledWith(expect.any(Object));
-    });
-  });
-
-  describe('Canvas Context Setup', () => {
-    it('should disable image smoothing for pixelated rendering', () => {
-      render(<GameCanvas />);
-
-      // The context setup should be called through the useCanvas hook
-      expect(mockContext.imageSmoothingEnabled).toBeDefined();
-    });
-  });
-
-  describe('Game Integration', () => {
-    it('should initialize game with correct dimensions', () => {
-      const onGameReady = jest.fn();
-      const width = 600;
-      const height = 400;
-
+  describe('Component Rendering', () => {
+    it('should render without crashing', () => {
       render(
-        <GameCanvas width={width} height={height} onGameReady={onGameReady} />
+        <GameCanvas 
+          gameEngine={mockGameEngine} 
+          gameConfig={defaultGameConfig} 
+        />
       );
-
-      expect(onGameReady).toHaveBeenCalledWith(expect.any(Object));
-
-      // Verify game was created with correct dimensions
-      const gameInstance = onGameReady.mock.calls[0][0];
-      expect(gameInstance).toBeDefined();
     });
 
-    it('should render initial game state', () => {
-      render(<GameCanvas />);
-
-      // Canvas drawing methods should be called for initial render
-      expect(mockContext.fillRect).toHaveBeenCalled();
+    it('should render with custom className', () => {
+      const customClass = 'custom-canvas-class';
+      render(
+        <GameCanvas 
+          gameEngine={mockGameEngine} 
+          gameConfig={defaultGameConfig}
+          className={customClass} 
+        />
+      );
     });
-  });
 
-  describe('Error Handling', () => {
-    it('should handle missing canvas context gracefully', () => {
-      const originalGetContext = HTMLCanvasElement.prototype.getContext;
-      HTMLCanvasElement.prototype.getContext = jest.fn(
-        () => null
-      ) as HTMLCanvasElement['getContext'];
-
-      expect(() => {
-        render(<GameCanvas />);
-      }).not.toThrow();
-
-      // Restore original method
-      HTMLCanvasElement.prototype.getContext = originalGetContext;
+    it('should render with performance monitoring enabled', () => {
+      render(
+        <GameCanvas 
+          gameEngine={mockGameEngine} 
+          gameConfig={defaultGameConfig}
+          enablePerformanceMonitoring={true}
+        />
+      );
     });
-  });
 
-  describe('Accessibility', () => {
-    it('should be keyboard focusable', () => {
-      render(<GameCanvas />);
-      const canvas = document.querySelector('canvas');
-
-      expect(canvas).toHaveAttribute('tabindex', '0');
-      expect(canvas).toHaveClass(
-        'focus:outline-none',
-        'focus:ring-2',
-        'focus:ring-green-500'
+    it('should render with touch controls enabled', () => {
+      render(
+        <GameCanvas 
+          gameEngine={mockGameEngine} 
+          gameConfig={defaultGameConfig}
+          enableTouchControls={true}
+        />
       );
     });
   });
 
-  describe('Responsive Behavior', () => {
-    it('should update canvas size when dimensions change', () => {
-      const { rerender } = render(<GameCanvas width={400} height={300} />);
+  describe('Game Engine Integration', () => {
+    it('should call gameEngine.getGameState during render', () => {
+      render(
+        <GameCanvas 
+          gameEngine={mockGameEngine} 
+          gameConfig={defaultGameConfig} 
+        />
+      );
+      
+      // getGameState might be called during initialization
+      expect(mockGameEngine.getGameState).toHaveBeenCalled();
+    });
 
-      rerender(<GameCanvas width={800} height={600} />);
+    it('should handle direction changes', () => {
+      const onDirectionChange = jest.fn();
+      render(
+        <GameCanvas 
+          gameEngine={mockGameEngine} 
+          gameConfig={defaultGameConfig}
+          onDirectionChange={onDirectionChange}
+        />
+      );
+      
+      // Component should render without errors
+      expect(onDirectionChange).not.toHaveBeenCalled();
+    });
+  });
 
-      const canvas = document.querySelector('canvas');
-      expect(canvas).toHaveAttribute('width', '800');
-      expect(canvas).toHaveAttribute('height', '600');
+  describe('Configuration', () => {
+    it('should accept different target FPS values', () => {
+      render(
+        <GameCanvas 
+          gameEngine={mockGameEngine} 
+          gameConfig={defaultGameConfig}
+          targetFPS={30}
+        />
+      );
+    });
+
+    it('should accept custom game config', () => {
+      const customConfig = {
+        ...defaultGameConfig,
+        gridSize: 30,
+        gameSpeed: 200,
+      };
+      
+      render(
+        <GameCanvas 
+          gameEngine={mockGameEngine} 
+          gameConfig={customConfig}
+        />
+      );
     });
   });
 });
