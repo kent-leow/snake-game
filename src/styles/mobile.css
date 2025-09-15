@@ -1,0 +1,403 @@
+/* Mobile-specific styling for Snake Game */
+
+/* ===========================
+   Mobile Game Layout
+   =========================== */
+
+.mobile-game-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  background: #1a1a1a;
+}
+
+.mobile-game-layout--portrait {
+  flex-direction: column;
+}
+
+.mobile-game-layout--landscape {
+  flex-direction: row;
+}
+
+.mobile-game-layout__content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.mobile-game-layout__controls {
+  flex-shrink: 0;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.8);
+  border-top: 1px solid #374151;
+}
+
+.mobile-game-layout--with-controls .mobile-game-layout__content {
+  padding-bottom: 0.5rem;
+}
+
+/* ===========================
+   Touch Controls
+   =========================== */
+
+.touch-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 0.5rem;
+  max-width: 200px;
+  margin: 0 auto;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.touch-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border: 2px solid #374151;
+  border-radius: 50%;
+  background: #1f2937;
+  color: #ffffff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  outline: none;
+  position: relative;
+}
+
+.touch-control:active,
+.touch-control--active {
+  background: #3b82f6;
+  border-color: #2563eb;
+  transform: scale(0.95);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.touch-control:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #374151;
+}
+
+.touch-control:disabled:active {
+  transform: none;
+  background: #374151;
+  box-shadow: none;
+}
+
+/* Touch control positions */
+.touch-controls__spacer {
+  /* Empty grid cells for layout positioning */
+  display: block;
+}
+
+.touch-controls__center {
+  /* Center cell for layout positioning */
+  display: block;
+}
+
+/* ===========================
+   Swipe Gesture Handler
+   =========================== */
+
+.swipe-gesture-handler {
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  position: relative;
+}
+
+/* Visual feedback for swipe areas */
+.swipe-gesture-handler::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border: 2px dashed #374151;
+  border-radius: 50%;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ===========================
+   Responsive Breakpoints
+   =========================== */
+
+/* Mobile (small screens) */
+@media (max-width: 768px) {
+  .mobile-game-layout__content {
+    padding: 0.5rem;
+  }
+
+  .touch-control {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+  }
+
+  .touch-controls {
+    max-width: 170px;
+    gap: 0.375rem;
+  }
+
+  .mobile-game-layout__controls {
+    padding: 0.75rem;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .touch-controls {
+    max-width: 150px;
+    gap: 0.25rem;
+  }
+
+  .touch-control {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .mobile-game-layout__content {
+    padding: 0.25rem;
+  }
+
+  .mobile-game-layout__controls {
+    padding: 0.5rem;
+  }
+}
+
+/* Large mobile/small tablet */
+@media (min-width: 481px) and (max-width: 768px) {
+  .touch-control {
+    width: 55px;
+    height: 55px;
+    font-size: 1.375rem;
+  }
+
+  .touch-controls {
+    max-width: 185px;
+  }
+}
+
+/* ===========================
+   Landscape Orientation
+   =========================== */
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .mobile-game-layout--with-controls {
+    flex-direction: row;
+  }
+
+  .mobile-game-layout__controls {
+    width: 200px;
+    padding: 0.5rem;
+    border-top: none;
+    border-left: 1px solid #374151;
+  }
+
+  .touch-controls {
+    max-width: 160px;
+  }
+
+  .touch-control {
+    width: 45px;
+    height: 45px;
+    font-size: 1.125rem;
+  }
+}
+
+/* Ultra-wide landscape */
+@media (orientation: landscape) and (min-width: 896px) and (max-height: 414px) {
+  .mobile-game-layout__controls {
+    width: 180px;
+  }
+
+  .touch-controls {
+    max-width: 140px;
+  }
+
+  .touch-control {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+}
+
+/* ===========================
+   Safe Area Support
+   =========================== */
+
+@supports (padding: env(safe-area-inset-top)) {
+  .mobile-game-layout {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .mobile-game-layout--landscape .mobile-game-layout__controls {
+    padding-right: calc(0.5rem + env(safe-area-inset-right));
+  }
+
+  .mobile-game-layout--portrait .mobile-game-layout__controls {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* ===========================
+   High DPI Display Support
+   =========================== */
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .touch-control {
+    border-width: 1px;
+  }
+}
+
+@media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 288dpi) {
+  .touch-control {
+    border-width: 0.5px;
+  }
+}
+
+/* ===========================
+   Performance Optimizations
+   =========================== */
+
+.touch-control {
+  will-change: transform, background-color;
+}
+
+.mobile-game-layout {
+  will-change: flex-direction;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .touch-control {
+    transition: background-color 0.1s ease;
+  }
+
+  .touch-control:active,
+  .touch-control--active {
+    transform: none;
+  }
+}
+
+/* ===========================
+   Dark Mode Adjustments
+   =========================== */
+
+@media (prefers-color-scheme: dark) {
+  .touch-control {
+    background: #111827;
+    border-color: #4b5563;
+  }
+
+  .touch-control:active,
+  .touch-control--active {
+    background: #1d4ed8;
+    border-color: #1e40af;
+  }
+
+  .mobile-game-layout__controls {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: #4b5563;
+  }
+}
+
+/* ===========================
+   Accessibility Enhancements
+   =========================== */
+
+.touch-control:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Increase touch target size for better accessibility */
+.touch-control::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px; /* Minimum 44px touch target */
+  height: 44px;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .touch-control {
+    border-width: 3px;
+    border-color: #ffffff;
+    background: #000000;
+    color: #ffffff;
+  }
+
+  .touch-control:active,
+  .touch-control--active {
+    background: #ffffff;
+    color: #000000;
+  }
+}
+
+/* ===========================
+   Error States and Feedback
+   =========================== */
+
+.touch-control--error {
+  background: #dc2626;
+  border-color: #b91c1c;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+/* Loading state */
+.touch-control--loading {
+  opacity: 0.7;
+  background: #6b7280;
+  border-color: #9ca3af;
+  cursor: wait;
+}
+
+.touch-control--loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

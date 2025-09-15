@@ -14,3 +14,8 @@ export {
 } from './useCollisionDetection';
 export { useGameOver } from './useGameOver';
 export { useKeyboardShortcuts } from './useKeyboardShortcuts';
+
+// Mobile-specific hooks
+export { useResponsiveLayout } from './useResponsiveLayout';
+export { useDeviceOrientation } from './useDeviceOrientation';
+export { useTouchControls } from './useTouchControls';

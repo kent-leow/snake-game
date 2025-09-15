@@ -3,6 +3,7 @@
 @import '../styles/game.css';
 @import '../styles/gameOver.css';
 @import '../styles/navigation.css';
+@import '../styles/mobile.css';
 
 :root {
   --background: #0a0a0a;

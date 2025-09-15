@@ -3,8 +3,10 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { PageLayout, GameControls } from '@/components';
 import { GameCanvas } from '@/components/game/GameCanvas';
-import { useGameState } from '@/hooks';
+import { MobileGameLayout } from '@/components/mobile';
+import { useGameState, useResponsiveLayout } from '@/hooks';
 import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '@/lib/game/gameEngine';
+import type { Direction } from '@/lib/game/types';
 
 export function GamePage(): React.JSX.Element {
   const [score, setScore] = useState(0);
@@ -13,6 +15,7 @@ export function GamePage(): React.JSX.Element {
 
   // Game state management
   const { currentState, actions } = useGameState();
+  const { isMobile } = useResponsiveLayout();
 
   const handleGameReady = useCallback(() => {
     setIsGameReady(true);
@@ -60,6 +63,15 @@ export function GamePage(): React.JSX.Element {
     }
   }, [actions]);
 
+  /**
+   * Handle direction changes from mobile touch controls
+   */
+  const handleDirectionChange = useCallback((direction: Direction) => {
+    if (gameEngineRef.current) {
+      gameEngineRef.current.changeDirection(direction);
+    }
+  }, []);
+
   // Initialize game engine
   useEffect(() => {
     const config: GameEngineConfig = {
@@ -105,43 +117,80 @@ export function GamePage(): React.JSX.Element {
 
   return (
     <PageLayout title='Snake Game' showBackButton={true}>
-      <div className='flex flex-col items-center gap-6'>
-        <div className='bg-gray-800 p-8 rounded-lg shadow-lg'>
-          <GameCanvas
-            gameEngine={gameEngineRef.current}
-            gameConfig={{
-              gridSize: 20,
-              gameSpeed: 150,
-              enableSound: true,
-            }}
-            className='mb-4'
-            enablePerformanceMonitoring={true}
-            targetFPS={60}
-          />
-          <div className='mt-4 flex justify-between items-center'>
-            <div className='text-sm'>
-              <span className='text-gray-400'>Score: </span>
-              <span className='font-bold'>{score}</span>
-            </div>
-            <div className='text-sm text-gray-400'>
-              {isGameReady ? 'Game Ready - Use controls below to play' : 'Loading game...'}
+      {isMobile ? (
+        <MobileGameLayout 
+          gameState={currentState}
+          showTouchControls={true}
+          onDirectionChange={handleDirectionChange}
+        >
+          <div className='flex flex-col items-center gap-6'>
+            <div className='bg-gray-800 p-8 rounded-lg shadow-lg'>
+              <GameCanvas
+                gameEngine={gameEngineRef.current}
+                gameConfig={{
+                  gridSize: 20,
+                  gameSpeed: 150,
+                  enableSound: true,
+                }}
+                className='mb-4'
+                enablePerformanceMonitoring={true}
+                targetFPS={60}
+                enableTouchControls={true}
+                onDirectionChange={handleDirectionChange}
+              />
+              <div className='mt-4 flex justify-between items-center'>
+                <div className='text-sm'>
+                  <span className='text-gray-400'>Score: </span>
+                  <span className='font-bold'>{score}</span>
+                </div>
+                <div className='text-sm text-gray-400'>
+                  {isGameReady ? 'Game Ready - Swipe to play' : 'Loading game...'}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </MobileGameLayout>
+      ) : (
+        <div className='flex flex-col items-center gap-6'>
+          <div className='bg-gray-800 p-8 rounded-lg shadow-lg'>
+            <GameCanvas
+              gameEngine={gameEngineRef.current}
+              gameConfig={{
+                gridSize: 20,
+                gameSpeed: 150,
+                enableSound: true,
+              }}
+              className='mb-4'
+              enablePerformanceMonitoring={true}
+              targetFPS={60}
+              enableTouchControls={false}
+              onDirectionChange={handleDirectionChange}
+            />
+            <div className='mt-4 flex justify-between items-center'>
+              <div className='text-sm'>
+                <span className='text-gray-400'>Score: </span>
+                <span className='font-bold'>{score}</span>
+              </div>
+              <div className='text-sm text-gray-400'>
+                {isGameReady ? 'Game Ready - Use controls below to play' : 'Loading game...'}
+              </div>
+            </div>
+          </div>
 
-        {/* Game Controls */}
-        <div className='w-full max-w-md'>
-          <GameControls
-            currentState={currentState}
-            onStartGame={handleStartGame}
-            onPauseGame={handlePauseGame}
-            onResumeGame={handleResumeGame}
-            onRestartGame={handleRestartGame}
-            onGoToMenu={handleGoToMenu}
-            showKeyboardHints={true}
-          />
+          {/* Game Controls */}
+          <div className='w-full max-w-md'>
+            <GameControls
+              currentState={currentState}
+              onStartGame={handleStartGame}
+              onPauseGame={handlePauseGame}
+              onResumeGame={handleResumeGame}
+              onRestartGame={handleRestartGame}
+              onGoToMenu={handleGoToMenu}
+              showKeyboardHints={true}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </PageLayout>
   );
 }

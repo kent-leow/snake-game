@@ -1,6 +1,6 @@
 /**
- * High-performance GameCanvas component with responsive design
- * Integrates canvas rendering system with React lifecycle
+ * High-performance GameCanvas component with responsive design and mobile support
+ * Integrates canvas rendering system with React lifecycle and touch controls
  */
 
 'use client';
@@ -15,7 +15,11 @@ import {
   type GameElements,
   type PerformanceMetrics 
 } from '@/lib/rendering';
+import { SwipeGestureHandler } from '@/components/mobile';
+import { useResponsiveLayout } from '@/hooks';
+import { MobileUtils } from '@/lib/mobile';
 import type { GameEngine } from '@/lib/game/gameEngine';
+import type { Direction } from '@/lib/game/types';
 
 export interface GameCanvasProps {
   gameEngine: GameEngine;
@@ -24,6 +28,8 @@ export interface GameCanvasProps {
   className?: string;
   enablePerformanceMonitoring?: boolean;
   targetFPS?: number;
+  enableTouchControls?: boolean;
+  onDirectionChange?: (direction: Direction) => void;
 }
 
 /**
@@ -36,6 +42,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   className = '',
   enablePerformanceMonitoring = process.env.NODE_ENV === 'development',
   targetFPS = 60,
+  enableTouchControls = true,
+  onDirectionChange,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -48,13 +56,20 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [currentFPS, setCurrentFPS] = useState(0);
 
+  const { isMobile } = useResponsiveLayout();
+
   /**
    * Update game state and render
    */
-  const handleUpdate = useCallback((_deltaTime: number, _interpolation: number) => {
+  const handleUpdate = useCallback((deltaTime: number, interpolation: number): void => {
     try {
       // Game engine update is handled separately to avoid coupling
       // This is just for any canvas-specific update logic
+      
+      // Use the parameters to avoid unused variable warnings
+      if (deltaTime && interpolation) {
+        // Parameters are available if needed for future enhancements
+      }
     } catch (error) {
       console.error('Game update error:', error);
       setError('Game update failed');
@@ -152,6 +167,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         renderer.resize(newConfig);
       });
 
+      // Mobile optimizations
+      if (isMobile && canvasRef.current) {
+        MobileUtils.optimizeCanvasForMobile(canvasRef.current);
+      }
+
       // Initial resize
       responsiveCanvas.resize();
 
@@ -177,7 +197,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       performanceMonitorRef.current = null;
       responsiveCanvasRef.current = null;
     };
-  }, [gameConfig, enablePerformanceMonitoring, targetFPS, handleUpdate, handleRender, handlePerformanceUpdate]);
+  }, [gameConfig, enablePerformanceMonitoring, targetFPS, handleUpdate, handleRender, handlePerformanceUpdate, isMobile]);
 
   /**
    * Handle game engine state changes
@@ -242,6 +262,18 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
   }, []);
 
+  /**
+   * Handle touch direction changes from swipe gestures
+   */
+  const handleSwipeDirection = useCallback((direction: Direction) => {
+    if (onDirectionChange) {
+      onDirectionChange(direction);
+    } else if (gameEngine) {
+      // Fallback: call gameEngine direction change directly
+      gameEngine.changeDirection(direction);
+    }
+  }, [onDirectionChange, gameEngine]);
+
   return (
     <div
       ref={containerRef}
@@ -255,22 +287,47 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         position: 'relative',
       }}
     >
-      <canvas
-        ref={canvasRef}
-        className="game-canvas"
-        tabIndex={0}
-        role="img"
-        aria-label="Snake game canvas"
-        onClick={handleCanvasClick}
-        onKeyDown={handleKeyDown}
-        style={{
-          border: '2px solid #333',
-          borderRadius: '8px',
-          background: '#1a1a1a',
-          outline: 'none',
-          cursor: 'pointer',
-        }}
-      />
+      {isMobile && enableTouchControls ? (
+        <SwipeGestureHandler
+          onSwipe={handleSwipeDirection}
+          sensitivity={50}
+          disabled={!isInitialized}
+        >
+          <canvas
+            ref={canvasRef}
+            className="game-canvas"
+            tabIndex={0}
+            role="img"
+            aria-label="Snake game canvas"
+            onClick={handleCanvasClick}
+            onKeyDown={handleKeyDown}
+            style={{
+              border: '2px solid #333',
+              borderRadius: '8px',
+              background: '#1a1a1a',
+              outline: 'none',
+              cursor: 'pointer',
+            }}
+          />
+        </SwipeGestureHandler>
+      ) : (
+        <canvas
+          ref={canvasRef}
+          className="game-canvas"
+          tabIndex={0}
+          role="img"
+          aria-label="Snake game canvas"
+          onClick={handleCanvasClick}
+          onKeyDown={handleKeyDown}
+          style={{
+            border: '2px solid #333',
+            borderRadius: '8px',
+            background: '#1a1a1a',
+            outline: 'none',
+            cursor: 'pointer',
+          }}
+        />
+      )}
       
       {/* Loading state */}
       {!isInitialized && !error && (
