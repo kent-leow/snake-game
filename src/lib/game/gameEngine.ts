@@ -1,6 +1,8 @@
 import type { Position, EnhancedFood, Snake } from './types';
 import { SnakeGame } from './snake';
 import { FoodManager } from './food';
+import { MultipleFoodManager } from './MultipleFoodManager';
+import type { NumberedFood, FoodConsumptionResult } from './multipleFoodTypes';
 import { CollisionDetector, type CollisionResult } from './collisionDetection';
 import { ScoringSystem } from './scoring';
 import { GameOverManager, type GameOverState, type GameStatistics } from './gameOverState';
@@ -23,6 +25,7 @@ export interface GameEngineConfig {
 export interface GameEngineCallbacks {
   onScoreChange?: (score: number, event: Parameters<ScoringSystem['subscribeToScoreChanges']>[0] extends (score: number, event: infer E) => void ? E : never) => void;
   onFoodEaten?: (food: EnhancedFood, newLength: number) => void;
+  onMultipleFoodEaten?: (result: FoodConsumptionResult, newLength: number) => void;
   onGameOver?: (finalScore: number, snake: Snake, cause?: 'boundary' | 'self', collisionPosition?: Position) => void;
   onLevelUp?: (level: number, score: number) => void;
   onGameOverStateChange?: (state: GameOverState) => void;
@@ -35,10 +38,12 @@ export interface GameEngineCallbacks {
 export class GameEngine {
   private snakeGame: SnakeGame;
   private foodManager: FoodManager;
+  private multipleFoodManager: MultipleFoodManager;
   private collisionDetector: CollisionDetector;
   private scoringSystem: ScoringSystem;
   private gameOverManager: GameOverManager;
   private currentFood: EnhancedFood | null = null;
+  private useMultipleFood: boolean = false;
   private isRunning: boolean = false;
   private callbacks: GameEngineCallbacks;
   private config: GameEngineConfig;
@@ -65,6 +70,12 @@ export class GameEngine {
       config.canvasWidth,
       config.canvasHeight
     );
+
+    this.multipleFoodManager = new MultipleFoodManager({
+      gridSize: config.gridSize,
+      boardWidth: config.canvasWidth,
+      boardHeight: config.canvasHeight
+    });
 
     this.collisionDetector = new CollisionDetector(
       config.canvasWidth,
@@ -187,12 +198,23 @@ export class GameEngine {
    * Check for collision between snake and food
    */
   private checkFoodCollision(): void {
-    if (!this.currentFood) return;
-
     const snakeHead = this.snakeGame.getHead();
     
-    if (this.collisionDetector.checkFoodCollision(snakeHead, this.currentFood)) {
-      this.handleFoodConsumption(this.currentFood);
+    if (this.useMultipleFood) {
+      // Check collision with multiple numbered foods
+      const foods = this.multipleFoodManager.getFoods();
+      const collidedFood = this.collisionDetector.checkMultipleFoodCollision(snakeHead, foods);
+      
+      if (collidedFood) {
+        this.handleMultipleFoodConsumption(collidedFood);
+      }
+    } else {
+      // Check collision with single food (legacy mode)
+      if (!this.currentFood) return;
+      
+      if (this.collisionDetector.checkFoodCollision(snakeHead, this.currentFood)) {
+        this.handleFoodConsumption(this.currentFood);
+      }
     }
   }
 
@@ -227,11 +249,47 @@ export class GameEngine {
   }
 
   /**
+   * Handle multiple food consumption logic
+   */
+  private handleMultipleFoodConsumption(food: NumberedFood): void {
+    // Add score for food consumption
+    this.scoringSystem.addScore({
+      type: 'food',
+      points: food.value,
+      position: food.position,
+    });
+
+    // Make snake grow
+    this.snakeGame.addGrowth(1, 'food');
+
+    // Track food consumption
+    this.foodConsumed++;
+
+    // Consume the food and spawn replacement
+    const snakePositions = this.snakeGame.getSnake().segments;
+    const result = this.multipleFoodManager.consumeFood(food.number, snakePositions);
+
+    if (result) {
+      // Trigger callback with the consumption result
+      this.callbacks.onMultipleFoodEaten?.(result, this.snakeGame.getLength());
+    }
+  }
+
+  /**
    * Spawn new food on the game field
    */
   private spawnFood(): void {
-    const occupiedPositions = this.snakeGame.getSnake().segments;
-    this.currentFood = this.foodManager.spawnFood(occupiedPositions);
+    if (this.useMultipleFood) {
+      // Initialize multiple foods if not already done
+      if (this.multipleFoodManager.getFoods().length === 0) {
+        const snakePositions = this.snakeGame.getSnake().segments;
+        this.multipleFoodManager.initializeFoods(snakePositions);
+      }
+    } else {
+      // Spawn single food (legacy mode)
+      const occupiedPositions = this.snakeGame.getSnake().segments;
+      this.currentFood = this.foodManager.spawnFood(occupiedPositions);
+    }
   }
 
   /**
@@ -290,6 +348,8 @@ export class GameEngine {
   public getGameState(): {
     snake: Snake;
     food: EnhancedFood | null;
+    multipleFoods: NumberedFood[];
+    useMultipleFood: boolean;
     score: number;
     isRunning: boolean;
     snakeLength: number;
@@ -299,6 +359,8 @@ export class GameEngine {
     return {
       snake: this.snakeGame.getSnake(),
       food: this.currentFood,
+      multipleFoods: this.useMultipleFood ? this.multipleFoodManager.getFoods() : [],
+      useMultipleFood: this.useMultipleFood,
       score: this.scoringSystem.getCurrentScore(),
       isRunning: this.isRunning,
       snakeLength: this.snakeGame.getLength(),
@@ -377,6 +439,7 @@ export class GameEngine {
     this.snakeGame.reset();
     this.scoringSystem.resetScore();
     this.foodManager.reset();
+    this.multipleFoodManager.reset();
     this.gameOverManager.resetGameOver();
     this.currentFood = null;
     this.isRunning = false;
@@ -385,7 +448,7 @@ export class GameEngine {
     this.foodConsumed = 0;
     this.maxSnakeLength = 1;
     
-    // Spawn initial food
+    // Spawn initial food (respects current mode)
     this.spawnFood();
   }
 
@@ -524,5 +587,57 @@ export class GameEngine {
     score: Parameters<ScoringSystem['importData']>[0];
   }): void {
     this.scoringSystem.importData(data.score);
+  }
+
+  /**
+   * Enable multiple food mode (5 numbered food blocks)
+   */
+  public enableMultipleFood(): void {
+    this.useMultipleFood = true;
+    // Clear any existing single food
+    this.currentFood = null;
+    this.foodManager.clearFood();
+    // Initialize multiple foods
+    const snakePositions = this.snakeGame.getSnake().segments;
+    this.multipleFoodManager.initializeFoods(snakePositions);
+  }
+
+  /**
+   * Disable multiple food mode (revert to single food)
+   */
+  public disableMultipleFood(): void {
+    this.useMultipleFood = false;
+    // Clear multiple foods
+    this.multipleFoodManager.reset();
+    // Spawn single food
+    this.spawnFood();
+  }
+
+  /**
+   * Get all numbered foods (multiple food mode)
+   */
+  public getMultipleFoods(): NumberedFood[] {
+    return this.multipleFoodManager.getFoods();
+  }
+
+  /**
+   * Check if multiple food mode is enabled
+   */
+  public isMultipleFoodEnabled(): boolean {
+    return this.useMultipleFood;
+  }
+
+  /**
+   * Get multiple food manager statistics
+   */
+  public getMultipleFoodStats(): ReturnType<MultipleFoodManager['getStats']> {
+    return this.multipleFoodManager.getStats();
+  }
+
+  /**
+   * Validate multiple food system state
+   */
+  public validateMultipleFoodState(): ReturnType<MultipleFoodManager['validateState']> {
+    return this.multipleFoodManager.validateState();
   }
 }

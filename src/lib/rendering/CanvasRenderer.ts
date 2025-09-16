@@ -4,6 +4,8 @@
  */
 
 import type { Snake, EnhancedFood } from '@/lib/game/types';
+import type { NumberedFood } from '@/lib/game/multipleFoodTypes';
+import { NumberedFoodRenderer } from '@/lib/game/NumberedFoodRenderer';
 import { CanvasUtils, type CanvasDimensions } from './CanvasUtils';
 import type { PerformanceMonitor } from './PerformanceMonitor';
 
@@ -20,6 +22,8 @@ export interface RenderContext {
 export interface GameElements {
   snake: Snake;
   food: EnhancedFood | null;
+  multipleFoods?: NumberedFood[];
+  useMultipleFood?: boolean;
   score: number;
   gameState: 'playing' | 'paused' | 'game-over' | 'menu';
 }
@@ -41,6 +45,7 @@ export class CanvasRenderer {
   private lastRenderTime: number = 0;
   private gridColor: string = '#333333';
   private backgroundColor: string = '#1a1a1a';
+  private numberedFoodRenderer: NumberedFoodRenderer | null = null;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -50,6 +55,12 @@ export class CanvasRenderer {
     this.renderContext = this.initializeRenderContext(canvas, gameConfig);
     this.performanceMonitor = performanceMonitor || null;
     this.setupCanvasOptimizations();
+    
+    // Initialize numbered food renderer
+    this.numberedFoodRenderer = new NumberedFoodRenderer(
+      this.renderContext.ctx,
+      this.renderContext.gridSize
+    );
   }
 
   /**
@@ -95,7 +106,10 @@ export class CanvasRenderer {
       this.clearCanvas();
       this.drawGrid();
       
-      if (gameElements.food) {
+      // Render foods based on mode
+      if (gameElements.useMultipleFood && gameElements.multipleFoods) {
+        this.drawMultipleFoods(gameElements.multipleFoods);
+      } else if (gameElements.food) {
         this.drawFood(gameElements.food);
       }
       
@@ -239,6 +253,21 @@ export class CanvasRenderer {
       );
       ctx.textAlign = 'left';
     }
+  }
+
+  /**
+   * Draw multiple numbered food blocks
+   */
+  private drawMultipleFoods(foods: NumberedFood[]): void {
+    if (!this.numberedFoodRenderer) {
+      console.warn('NumberedFoodRenderer not initialized');
+      return;
+    }
+
+    // Calculate delta time for animation (simplified)
+    const deltaTime = 16; // Assume 60fps
+    
+    this.numberedFoodRenderer.renderMultipleNumberedFoods(foods, deltaTime);
   }
 
   /**

@@ -1,4 +1,5 @@
 import type { Position, Snake, Food, SnakeSegment } from './types';
+import type { NumberedFood } from './multipleFoodTypes';
 
 /**
  * Boundary configuration interface for collision detection
@@ -460,5 +461,52 @@ export class CollisionDetector {
     }
 
     return safePositions;
+  }
+
+  /**
+   * Check collision between snake head and multiple numbered food blocks
+   */
+  public checkMultipleFoodCollision(snakeHead: Position, foods: NumberedFood[]): NumberedFood | null {
+    for (const food of foods) {
+      if (snakeHead.x === food.position.x && snakeHead.y === food.position.y) {
+        return food;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Check if a position collides with any numbered food block
+   */
+  public checkPositionAgainstFoods(position: Position, foods: NumberedFood[]): NumberedFood | null {
+    for (const food of foods) {
+      if (position.x === food.position.x && position.y === food.position.y) {
+        return food;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get all food positions that would collide with snake at given positions
+   */
+  public getFoodCollisionsForPositions(positions: Position[], foods: NumberedFood[]): NumberedFood[] {
+    const collisions: NumberedFood[] = [];
+    
+    for (const position of positions) {
+      const collidingFood = this.checkPositionAgainstFoods(position, foods);
+      if (collidingFood && !collisions.find(f => f.id === collidingFood.id)) {
+        collisions.push(collidingFood);
+      }
+    }
+    
+    return collisions;
+  }
+
+  /**
+   * Check if any position in array collides with numbered foods
+   */
+  public hasAnyFoodCollision(positions: Position[], foods: NumberedFood[]): boolean {
+    return this.getFoodCollisionsForPositions(positions, foods).length > 0;
   }
 }

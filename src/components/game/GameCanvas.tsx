@@ -91,6 +91,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       const gameElements: GameElements = {
         snake: gameState.snake,
         food: gameState.food,
+        multipleFoods: gameState.multipleFoods,
+        useMultipleFood: gameState.useMultipleFood,
         score: gameState.score,
         gameState: gameState.isRunning ? 'playing' : 'paused',
       };
