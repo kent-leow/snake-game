@@ -5,7 +5,7 @@
 
 import type { Snake, EnhancedFood } from '@/lib/game/types';
 import type { NumberedFood } from '@/lib/game/multipleFoodTypes';
-import { NumberedFoodRenderer } from '@/lib/game/NumberedFoodRenderer';
+import { FoodRenderer } from '@/game/FoodRenderer';
 import { CanvasUtils, type CanvasDimensions } from './CanvasUtils';
 import type { PerformanceMonitor } from './PerformanceMonitor';
 
@@ -45,7 +45,7 @@ export class CanvasRenderer {
   private lastRenderTime: number = 0;
   private gridColor: string = '#333333';
   private backgroundColor: string = '#1a1a1a';
-  private numberedFoodRenderer: NumberedFoodRenderer | null = null;
+  private foodRenderer: FoodRenderer | null = null;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -56,8 +56,8 @@ export class CanvasRenderer {
     this.performanceMonitor = performanceMonitor || null;
     this.setupCanvasOptimizations();
     
-    // Initialize numbered food renderer
-    this.numberedFoodRenderer = new NumberedFoodRenderer(
+    // Initialize food renderer
+    this.foodRenderer = new FoodRenderer(
       this.renderContext.ctx,
       this.renderContext.gridSize
     );
@@ -259,15 +259,15 @@ export class CanvasRenderer {
    * Draw multiple numbered food blocks
    */
   private drawMultipleFoods(foods: NumberedFood[]): void {
-    if (!this.numberedFoodRenderer) {
-      console.warn('NumberedFoodRenderer not initialized');
+    if (!this.foodRenderer) {
+      console.warn('FoodRenderer not initialized');
       return;
     }
 
     // Calculate delta time for animation (simplified)
     const deltaTime = 16; // Assume 60fps
     
-    this.numberedFoodRenderer.renderMultipleNumberedFoods(foods, deltaTime);
+    this.foodRenderer.renderMultipleFoods(foods, deltaTime);
   }
 
   /**
@@ -345,6 +345,12 @@ export class CanvasRenderer {
       newConfig
     );
     this.setupCanvasOptimizations();
+    
+    // Update food renderer with new grid size
+    if (this.foodRenderer) {
+      this.foodRenderer.updateGridSize(this.renderContext.gridSize);
+      this.foodRenderer.updateContext(this.renderContext.ctx);
+    }
   }
 
   /**
@@ -385,7 +391,7 @@ export class CanvasRenderer {
   /**
    * Get performance metrics
    */
-  public getPerformanceMetrics() {
+  public getPerformanceMetrics(): object | null {
     return this.performanceMonitor?.getMetrics() || null;
   }
 
@@ -405,5 +411,11 @@ export class CanvasRenderer {
    */
   public destroy(): void {
     this.performanceMonitor = null;
+    
+    // Clean up food renderer
+    if (this.foodRenderer) {
+      this.foodRenderer.destroy();
+      this.foodRenderer = null;
+    }
   }
 }
