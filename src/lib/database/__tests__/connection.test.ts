@@ -34,14 +34,16 @@ const mockedMongoose = mongoose as jest.Mocked<typeof mongoose>;
 describe('Database Connection', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset global cache completely
-    (global as Record<string, unknown>).mongoose = undefined;
+    // Reset global cache completely and force module to recheck
+    delete (global as any).mongoose;
+    // Also clear the mongoose connection state
+    (mockedMongoose.connection as any).readyState = 0;
   });
 
   afterEach(async () => {
     await disconnectFromDatabase();
-    // Clean up global state after each test
-    (global as Record<string, unknown>).mongoose = undefined;
+    // Clean up global state after each test  
+    delete (global as any).mongoose;
   });
 
   describe('connectToDatabase', () => {
@@ -78,6 +80,7 @@ describe('Database Connection', () => {
 
     it('should connect to database with custom options', async () => {
       const mockConnection = { readyState: 1 };
+      // Mock mongoose.connect to return a mongoose instance with .connection property
       mockedMongoose.connect.mockResolvedValue({
         connection: mockConnection,
       } as any);

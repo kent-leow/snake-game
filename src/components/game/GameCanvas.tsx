@@ -261,22 +261,26 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
    */
   const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
     // Prevent default browser behavior for game keys
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(event.code)) {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) {
       event.preventDefault();
       
       // Handle direction changes
       if (onDirectionChange) {
         switch (event.code) {
           case 'ArrowUp':
+          case 'KeyW':
             onDirectionChange('UP');
             break;
           case 'ArrowDown':
+          case 'KeyS':
             onDirectionChange('DOWN');
             break;
           case 'ArrowLeft':
+          case 'KeyA':
             onDirectionChange('LEFT');
             break;
           case 'ArrowRight':
+          case 'KeyD':
             onDirectionChange('RIGHT');
             break;
         }

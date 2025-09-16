@@ -228,11 +228,22 @@ describe('StateTransitionManager', () => {
 
   describe('Configuration Management', () => {
     it('should update transition rules', () => {
+      // Mock the GameStateManager's transitionTo method for this test
+      const originalTransitionTo = gameStateManager.transitionTo;
+      gameStateManager.transitionTo = jest.fn().mockReturnValue(true);
+      
       const originalRules = transitionManager.getRules();
       const newRules = {
         allowedTransitions: {
           ...originalRules.allowedTransitions,
-          [GameStateEnum.MENU]: [GameStateEnum.GAME_OVER], // Custom rule
+          [GameStateEnum.MENU]: [...originalRules.allowedTransitions[GameStateEnum.MENU], GameStateEnum.GAME_OVER],
+        },
+        actionMapping: {
+          ...originalRules.actionMapping,
+          [StateTransitionAction.END_GAME]: {
+            from: [GameStateEnum.PLAYING, GameStateEnum.PAUSED, GameStateEnum.MENU],
+            to: GameStateEnum.GAME_OVER,
+          },
         },
       };
 
@@ -241,6 +252,10 @@ describe('StateTransitionManager', () => {
       // Should now allow direct transition to GAME_OVER from MENU
       const result = transitionManager.executeAction(StateTransitionAction.END_GAME);
       expect(result.success).toBe(true);
+      expect(result.toState).toBe(GameStateEnum.GAME_OVER);
+      
+      // Restore original method
+      gameStateManager.transitionTo = originalTransitionTo;
     });
 
     it('should reset rules to default', () => {

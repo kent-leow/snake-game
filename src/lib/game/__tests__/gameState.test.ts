@@ -285,8 +285,8 @@ describe('GameStateManager', () => {
     it('should calculate final statistics on game end', async () => {
       gameStateManager.transitionTo(GameStateEnum.PLAYING);
       
-      // Wait a bit to ensure duration > 0
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Wait long enough to ensure duration > 0 seconds
+      await new Promise(resolve => setTimeout(resolve, 1100));
       
       gameStateManager.transitionTo(GameStateEnum.GAME_OVER);
 

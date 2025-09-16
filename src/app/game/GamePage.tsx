@@ -143,7 +143,6 @@ export function GamePage(): React.JSX.Element {
       gridSize: gridSize,
       gameSpeed: 150, // Snake moves every 150ms
       initialScore: 0,
-      foodSpawnDelay: 100,
     };
 
     const callbacks: GameEngineCallbacks = {
@@ -286,19 +285,31 @@ export function GamePage(): React.JSX.Element {
                 <h3 className='text-base font-semibold mb-3 text-white'>How to Play</h3>
                 <div className='space-y-2 text-xs text-gray-300'>
                   <div className='flex items-center gap-2'>
-                    <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>↑</kbd>
+                    <div className='flex gap-1'>
+                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>↑</kbd>
+                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>W</kbd>
+                    </div>
                     <span>Move Up</span>
                   </div>
                   <div className='flex items-center gap-2'>
-                    <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>↓</kbd>
+                    <div className='flex gap-1'>
+                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>↓</kbd>
+                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>S</kbd>
+                    </div>
                     <span>Move Down</span>
                   </div>
                   <div className='flex items-center gap-2'>
-                    <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>←</kbd>
+                    <div className='flex gap-1'>
+                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>←</kbd>
+                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>A</kbd>
+                    </div>
                     <span>Move Left</span>
                   </div>
                   <div className='flex items-center gap-2'>
-                    <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>→</kbd>
+                    <div className='flex gap-1'>
+                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>→</kbd>
+                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>D</kbd>
+                    </div>
                     <span>Move Right</span>
                   </div>
                   <div className='flex items-center gap-2'>

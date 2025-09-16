@@ -7,15 +7,19 @@ interface ConnectionOptions {
   socketTimeoutMS?: number;
 }
 
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+// Function to get or initialize the cache
+function getCache() {
+  if (!global.mongoose) {
+    global.mongoose = { conn: null, promise: null };
+  }
+  return global.mongoose;
 }
 
 export async function connectToDatabase(
   options?: ConnectionOptions
 ): Promise<mongoose.Connection> {
+  const cached = getCache();
+  
   if (cached.conn) {
     return cached.conn;
   }

@@ -2,6 +2,13 @@
  * @jest-environment jsdom
  */
 
+// Mock performance.now BEFORE importing the timing module
+const mockPerformanceNow = jest.fn();
+Object.defineProperty(global.performance, 'now', {
+  writable: true,
+  value: mockPerformanceNow,
+});
+
 import {
   PrecisionTimer,
   FrameTimer,
@@ -9,10 +16,6 @@ import {
   Interpolator,
   TimeUtils,
 } from '@/lib/game/timing';
-
-// Mock performance.now for consistent testing
-const mockPerformanceNow = jest.fn();
-global.performance = { now: mockPerformanceNow } as any;
 
 describe('PrecisionTimer', () => {
   let timer: PrecisionTimer;
@@ -83,15 +86,15 @@ describe('FrameTimer', () => {
 
   beforeEach(() => {
     frameTimer = new FrameTimer(60);
-    jest.clearAllMocks();
+    mockPerformanceNow.mockReturnValue(0); // Reset mock to 0
   });
 
   describe('Frame timing', () => {
     test('should calculate delta time correctly', () => {
-      const deltaTime1 = frameTimer.tick(0);
-      expect(deltaTime1).toBe(0); // First frame
+      const deltaTime1 = frameTimer.tick(100); // Start with non-zero time
+      expect(deltaTime1).toBe(0); // First frame is always 0
       
-      const deltaTime2 = frameTimer.tick(16.67);
+      const deltaTime2 = frameTimer.tick(116.67); // 100 + 16.67
       expect(deltaTime2).toBeCloseTo(16.67, 1);
     });
 
@@ -106,9 +109,12 @@ describe('FrameTimer', () => {
     });
 
     test('should calculate current FPS', () => {
-      frameTimer.tick(0);
-      frameTimer.tick(16.67);
-      frameTimer.tick(33.34);
+      // Generate several frames at 60 FPS (16.67ms each) for stable measurement
+      let time = 100;
+      for (let i = 0; i < 10; i++) {
+        frameTimer.tick(time);
+        time += 16.67;
+      }
       
       const fps = frameTimer.getCurrentFPS();
       expect(fps).toBeCloseTo(60, 0);

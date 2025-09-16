@@ -43,7 +43,7 @@ export class ScoringSystem {
     this.currentScore = initialScore;
   }
 
-    /**
+  /**
    * Add a score event to the system
    */
   public addScore(event: Omit<ScoreEvent, 'timestamp'>): number {
@@ -59,6 +59,37 @@ export class ScoringSystem {
     this.scoreHistory.push(scoreEvent);
     if (this.scoreHistory.length > 1000) {
       this.scoreHistory = this.scoreHistory.slice(-1000);
+    }
+    
+    // Update combo count
+    const previousComboCount = this.comboCount;
+    this.comboCount = this.calculateCurrentCombo();
+    this.lastScoreTime = scoreEvent.timestamp;
+    
+    // Add combo bonus for consecutive food consumption
+    // Only award bonuses for combos >= 2 and when there's been some time between events
+    if (event.type === 'food' && this.comboCount >= 2 && this.comboCount > previousComboCount) {
+      // Check if there's been at least some time between the current and previous food event
+      const previousFoodEvents = this.scoreHistory.filter(e => e.type === 'food').slice(-2);
+      const shouldAwardBonus = previousFoodEvents.length >= 2 && 
+        (scoreEvent.timestamp - previousFoodEvents[previousFoodEvents.length - 2].timestamp) >= 100; // At least 100ms gap
+      
+      if (shouldAwardBonus) {
+        const comboBonus = Math.floor(this.comboCount * 2); // Simple bonus: combo * 2 points
+        const comboBonusEvent: ScoreEvent = {
+          type: 'combo',
+          points: comboBonus,
+          timestamp: Date.now(),
+        };
+        
+        this.currentScore += comboBonus;
+        this.scoreHistory.push(comboBonusEvent);
+        
+        // Notify subscribers about the combo bonus
+        this.scoreCallbacks.forEach(callback => {
+          callback(this.currentScore, comboBonusEvent);
+        });
+      }
     }
     
     // Notify subscribers

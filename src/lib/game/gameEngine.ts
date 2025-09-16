@@ -16,7 +16,6 @@ export interface GameEngineConfig {
   gridSize: number;
   gameSpeed?: number; // Movement interval in milliseconds
   initialScore?: number;
-  foodSpawnDelay?: number;
 }
 
 /**
@@ -235,17 +234,15 @@ export class GameEngine {
     // Track food consumption
     this.foodConsumed++;
 
-    // Clear current food
-    this.currentFood = null;
-    this.foodManager.clearFood();
-
-    // Trigger callback
+    // Trigger callback before clearing food for smooth transition
     this.callbacks.onFoodEaten?.(food, this.snakeGame.getLength());
 
-    // Spawn new food after a delay
-    setTimeout(() => {
-      this.spawnFood();
-    }, this.config.foodSpawnDelay || 100);
+    // Clear current food and spawn new one immediately to prevent canvas blink
+    this.currentFood = null;
+    this.foodManager.clearFood();
+    
+    // Spawn new food immediately instead of using delay
+    this.spawnFood();
   }
 
   /**

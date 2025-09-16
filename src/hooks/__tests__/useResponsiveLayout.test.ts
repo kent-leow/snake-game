@@ -5,7 +5,7 @@ import { useResponsiveLayout } from '../useResponsiveLayout';
 Object.defineProperty(window, 'innerWidth', {
   writable: true,
   configurable: true,
-  value: 1024,
+  value: 1280, // Desktop size
 });
 
 Object.defineProperty(window, 'innerHeight', {
@@ -23,8 +23,8 @@ Object.defineProperty(window, 'removeEventListener', { value: mockRemoveEventLis
 describe('useResponsiveLayout', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset to desktop size
-    window.innerWidth = 1024;
+    // Reset to desktop size (larger than 1024px)
+    window.innerWidth = 1280;
     window.innerHeight = 768;
   });
 
@@ -111,6 +111,7 @@ describe('useResponsiveLayout', () => {
   });
 
   it('updates layout state on window resize', () => {
+    jest.useFakeTimers();
     let resizeCallback: (() => void) | undefined;
 
     mockAddEventListener.mockImplementation((event, callback) => {
@@ -130,11 +131,15 @@ describe('useResponsiveLayout', () => {
       window.innerHeight = 800;
       if (resizeCallback) {
         resizeCallback();
+        // Fast-forward timers to complete debounce
+        jest.advanceTimersByTime(100);
       }
     });
 
     expect(result.current.isMobile).toBe(true);
     expect(result.current.isDesktop).toBe(false);
+    
+    jest.useRealTimers();
   });
 
   it('handles edge case breakpoints correctly', () => {

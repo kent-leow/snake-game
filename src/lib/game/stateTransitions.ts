@@ -123,6 +123,20 @@ export class StateTransitionManager {
     const currentState = this.gameStateManager.getCurrentState();
     const actionRule = this.rules.actionMapping[action];
 
+    // Check if action exists
+    if (!actionRule) {
+      const result: StateTransitionResult = {
+        success: false,
+        fromState: currentState,
+        toState: currentState,
+        action,
+        error: `Unknown action: ${action}`,
+        timestamp: Date.now(),
+      };
+      this.addToHistory(result);
+      return result;
+    }
+
     // Validate action is possible from current state
     if (!actionRule.from.includes(currentState)) {
       const result: StateTransitionResult = {
