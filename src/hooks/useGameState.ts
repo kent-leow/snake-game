@@ -108,7 +108,7 @@ export const useGameState = ({
     setCurrentState(stateManager.getCurrentState());
     setGameData(stateManager.getGameData());
 
-    return () => {
+    return (): void => {
       unsubscribers.forEach(unsubscribe => unsubscribe());
       transitionUnsubscriber();
     };

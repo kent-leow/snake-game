@@ -34,14 +34,14 @@ export const usePerformanceMonitor = (
 
     monitorRef.current = new PerformanceMonitor(
       { targetFPS },
-      (perfStats) => {
+      (perfStats): void => {
         if (perfStats.fps < warningThreshold) {
           setWarnings(prev => [...prev, `Low FPS detected: ${perfStats.fps}`]);
         }
       }
     );
 
-    return () => {
+    return (): void => {
       monitorRef.current = null;
     };
   }, [enabled, targetFPS, warningThreshold]);
@@ -50,14 +50,14 @@ export const usePerformanceMonitor = (
   useEffect(() => {
     if (!enabled || !monitorRef.current) return;
 
-    const interval = setInterval(() => {
+    const interval = setInterval((): void => {
       const currentStats = monitorRef.current?.getPerformanceStats();
       if (currentStats) {
         setStats(currentStats);
       }
     }, updateInterval);
 
-    return () => clearInterval(interval);
+    return (): void => clearInterval(interval);
   }, [enabled, updateInterval]);
 
   const startFrame = useCallback(() => {

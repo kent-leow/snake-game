@@ -128,7 +128,7 @@ export const useCanvas = ({
     }
 
     // Cleanup
-    return () => {
+    return (): void => {
       rendererRef.current?.destroy();
       responsiveCanvasRef.current?.destroy();
       rendererRef.current = null;

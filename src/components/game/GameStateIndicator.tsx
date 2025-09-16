@@ -15,7 +15,7 @@ export const GameStateIndicator: React.FC<GameStateIndicatorProps> = ({
   currentState,
   className = '',
 }) => {
-  const getStateInfo = (state: GameStateEnum) => {
+  const getStateInfo = (state: GameStateEnum): { label: string; icon: string; color: string } => {
     switch (state) {
       case GameStateEnum.MENU:
         return {

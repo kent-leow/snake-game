@@ -36,7 +36,7 @@ export const FloatingScoreAnimation: React.FC<ScoreAnimationProps> = ({
     let currentTimeout: NodeJS.Timeout;
     let phaseIndex = 0;
 
-    const nextPhase = () => {
+    const nextPhase = (): void => {
       if (phaseIndex < phases.length) {
         const { phase, duration } = phases[phaseIndex];
         setAnimationPhase(phase);
@@ -55,7 +55,7 @@ export const FloatingScoreAnimation: React.FC<ScoreAnimationProps> = ({
 
     nextPhase();
 
-    return () => {
+    return (): void => {
       if (currentTimeout) {
         clearTimeout(currentTimeout);
       }

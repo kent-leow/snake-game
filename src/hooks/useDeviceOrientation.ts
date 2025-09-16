@@ -43,7 +43,7 @@ export const useDeviceOrientation = (): DeviceOrientationState => {
     updateOrientation();
 
     // Listen for orientation changes
-    const handleOrientationChange = () => {
+    const handleOrientationChange = (): void => {
       // Use timeout to allow for layout changes to complete
       setTimeout(updateOrientation, 100);
     };
@@ -51,7 +51,7 @@ export const useDeviceOrientation = (): DeviceOrientationState => {
     window.addEventListener('orientationchange', handleOrientationChange);
     window.addEventListener('resize', handleOrientationChange);
 
-    return () => {
+    return (): void => {
       window.removeEventListener('orientationchange', handleOrientationChange);
       window.removeEventListener('resize', handleOrientationChange);
     };

@@ -189,8 +189,9 @@ export const useScore = ({
 
   // Cleanup on unmount
   useEffect(() => {
-    return () => {
-      scoringSystemRef.current.clearSubscribers();
+    const scoringSystem = scoringSystemRef.current;
+    return (): void => {
+      scoringSystem.clearSubscribers();
     };
   }, []);
 
@@ -214,16 +215,20 @@ export const useScore = ({
 /**
  * Hook for simplified food scoring (commonly used pattern)
  */
-export const useFoodScore = (onScoreChange?: (score: number) => void) => {
+export const useFoodScore = (onScoreChange?: (score: number) => void): {
+  score: number;
+  addFoodPoints: (foodValue?: number) => number;
+  resetScore: () => void;
+} => {
   const options: UseScoreOptions = {};
   
   if (onScoreChange) {
-    options.onScoreChange = (score) => onScoreChange(score);
+    options.onScoreChange = (score): void => onScoreChange(score);
   }
   
   const { score, addFoodScore, resetScore } = useScore(options);
 
-  const addFoodPoints = useCallback((foodValue: number = 10) => {
+  const addFoodPoints = useCallback((foodValue: number = 10): number => {
     return addFoodScore(foodValue);
   }, [addFoodScore]);
 

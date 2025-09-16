@@ -49,12 +49,12 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
     }
   };
 
-  const handleRestart = () => {
+  const handleRestart = (): void => {
     setIsAnimating(false);
     setTimeout(onRestart, 150); // Small delay for animation
   };
 
-  const handleMainMenu = () => {
+  const handleMainMenu = (): void => {
     setIsAnimating(false);
     setTimeout(onMainMenu, 150);
   };

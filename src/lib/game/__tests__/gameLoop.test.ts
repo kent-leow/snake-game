@@ -9,8 +9,20 @@ const mockPerformanceNow = jest.fn();
 global.performance = { now: mockPerformanceNow } as any;
 
 // Mock requestAnimationFrame and cancelAnimationFrame
-const mockRequestAnimationFrame = jest.fn();
-const mockCancelAnimationFrame = jest.fn();
+let rafCallbacks: Array<FrameRequestCallback> = [];
+const mockRequestAnimationFrame = jest.fn((callback: FrameRequestCallback) => {
+  rafCallbacks.push(callback);
+  // Execute callback after a short delay to simulate RAF behavior
+  setTimeout(() => {
+    callback(performance.now());
+  }, 1);
+  return rafCallbacks.length; // Return mock ID
+});
+const mockCancelAnimationFrame = jest.fn((id: number) => {
+  if (rafCallbacks[id - 1]) {
+    rafCallbacks[id - 1] = () => {}; // Clear callback
+  }
+});
 global.requestAnimationFrame = mockRequestAnimationFrame;
 global.cancelAnimationFrame = mockCancelAnimationFrame;
 
@@ -22,15 +34,21 @@ describe('GameLoop', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    rafCallbacks = []; // Reset RAF callbacks
     updateCallback = jest.fn();
     renderCallback = jest.fn();
     performanceCallback = jest.fn();
     
-    // Reset mock implementation
-    mockPerformanceNow.mockReturnValue(0);
+    // Reset mock implementation with increasing timestamps
+    let mockTime = 0;
+    mockPerformanceNow.mockImplementation(() => {
+      mockTime += 16; // Increment by 16ms each call
+      return mockTime;
+    });
+    
     mockRequestAnimationFrame.mockImplementation((callback) => {
       // Immediately execute callback for testing
-      setTimeout(callback, 16); // Simulate 60 FPS
+      setTimeout(callback, 1); // Very short delay for tests
       return 1;
     });
 
@@ -128,14 +146,16 @@ describe('GameLoop', () => {
   });
 
   describe('Callback execution', () => {
-    test('should call update and render callbacks when active', (done) => {
+    test('should call update and render callbacks when active', async () => {
       gameLoop.start();
       
-      setTimeout(() => {
-        expect(updateCallback).toHaveBeenCalled();
-        expect(renderCallback).toHaveBeenCalled();
-        done();
-      }, 50);
+      // Wait for multiple animation frames to ensure callbacks are called
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      expect(updateCallback).toHaveBeenCalled();
+      expect(renderCallback).toHaveBeenCalled();
+      
+      gameLoop.stop();
     });
 
     test('should not call callbacks when paused', (done) => {
@@ -152,18 +172,20 @@ describe('GameLoop', () => {
       }, 50);
     });
 
-    test('should call performance callback when enabled', (done) => {
+    test('should call performance callback when enabled', async () => {
       gameLoop.start();
       
-      setTimeout(() => {
-        // Performance callback might be called with some delay
-        expect(performanceCallback).toHaveBeenCalledWith(
-          expect.objectContaining({
-            fps: expect.any(Number),
-          })
-        );
-        done();
-      }, 1100); // Wait longer than performance update interval
+      // Wait for enough time for performance monitoring to trigger
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Performance callback might be called with some delay
+      expect(performanceCallback).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fps: expect.any(Number),
+        })
+      );
+      
+      gameLoop.stop();
     });
   });
 });
@@ -173,6 +195,7 @@ describe('FrameRateLimiter', () => {
 
   beforeEach(() => {
     limiter = new FrameRateLimiter(60);
+    // Reset performance now to start fresh
     mockPerformanceNow.mockReturnValue(0);
   });
 
@@ -181,15 +204,22 @@ describe('FrameRateLimiter', () => {
   });
 
   test('should determine when to render', () => {
-    mockPerformanceNow.mockReturnValue(0);
-    expect(limiter.shouldRender(0)).toBe(true);
+    // Create a fresh limiter instance for this test
+    const testLimiter = new FrameRateLimiter(60);
     
-    limiter.markFrame(0);
+    // Reset to ensure clean state
+    mockPerformanceNow.mockClear();
+    mockPerformanceNow.mockReturnValue(0);
+    
+    // First call should return true (no previous frame)
+    expect(testLimiter.shouldRender(0)).toBe(true);
+    
+    testLimiter.markFrame(0);
     mockPerformanceNow.mockReturnValue(10);
-    expect(limiter.shouldRender(10)).toBe(false);
+    expect(testLimiter.shouldRender(10)).toBe(false);
     
     mockPerformanceNow.mockReturnValue(20);
-    expect(limiter.shouldRender(20)).toBe(true);
+    expect(testLimiter.shouldRender(20)).toBe(true);
   });
 
   test('should update target FPS', () => {

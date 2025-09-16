@@ -86,7 +86,7 @@ export const useKeyboardInput = ({
     // Use keydown for more responsive input
     window.addEventListener('keydown', handleKeyPress);
 
-    return () => {
+    return (): void => {
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, [handleKeyPress, enabled]);

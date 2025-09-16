@@ -14,9 +14,16 @@ jest.mock('@/lib/game/stateTransitions');
 // Create mock implementations
 const mockGameStateManager = {
   getCurrentState: jest.fn().mockReturnValue(GameStateEnum.MENU),
+  getGameData: jest.fn().mockReturnValue({ 
+    score: 0, 
+    isRunning: false, 
+    isPaused: false,
+    snake: { segments: [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }] },
+    gameStats: { foodConsumed: 0 }
+  }),
+  getGameDuration: jest.fn().mockReturnValue(0),
   setState: jest.fn(),
-  subscribe: jest.fn().mockReturnValue(jest.fn()), // Return unsubscribe function
-  getStatistics: jest.fn().mockReturnValue({ totalPlayTime: 0 }),
+  reset: jest.fn(),
   destroy: jest.fn(),
   isValidTransition: jest.fn().mockReturnValue(true),
   canPause: jest.fn().mockReturnValue(false),
@@ -39,8 +46,8 @@ const mockStateTransitionManager = {
 };
 
 // Mock the constructors
-(GameStateManager as jest.MockedClass<typeof GameStateManager>).mockImplementation(() => mockGameStateManager as any);
-(StateTransitionManager as jest.MockedClass<typeof StateTransitionManager>).mockImplementation(() => mockStateTransitionManager as any);
+(GameStateManager as jest.MockedClass<typeof GameStateManager>).mockImplementation(() => mockGameStateManager as unknown as GameStateManager);
+(StateTransitionManager as jest.MockedClass<typeof StateTransitionManager>).mockImplementation(() => mockStateTransitionManager as unknown as StateTransitionManager);
 
 describe('useGameState Hook', () => {
   beforeEach(() => {

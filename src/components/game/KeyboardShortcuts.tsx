@@ -15,7 +15,7 @@ export const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({
   currentState,
   className = '',
 }) => {
-  const getShortcuts = (state: GameStateEnum) => {
+  const getShortcuts = (state: GameStateEnum): Array<{ key: string; action: string }> => {
     const shortcuts = [];
 
     if (state === GameStateEnum.PLAYING) {

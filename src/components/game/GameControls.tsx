@@ -45,7 +45,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
 
   useKeyboardShortcuts(keyboardShortcutOptions);
 
-  const getControlButtons = () => {
+  const getControlButtons = (): React.JSX.Element | null => {
     switch (currentState) {
       case GameStateEnum.MENU:
         return (

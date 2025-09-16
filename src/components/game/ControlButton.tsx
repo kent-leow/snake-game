@@ -28,7 +28,7 @@ export const ControlButton: React.FC<ControlButtonProps> = ({
 }) => {
   const [isPressed, setIsPressed] = useState(false);
 
-  const handleClick = (event: React.MouseEvent) => {
+  const handleClick = (event: React.MouseEvent): void => {
     if (disabled) return;
 
     event.stopPropagation(); // Prevent event bubbling
@@ -36,10 +36,10 @@ export const ControlButton: React.FC<ControlButtonProps> = ({
     onClick();
 
     // Visual feedback
-    setTimeout(() => setIsPressed(false), 150);
+    setTimeout((): void => setIsPressed(false), 150);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
+  const handleKeyDown = (event: React.KeyboardEvent): void => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       event.stopPropagation();

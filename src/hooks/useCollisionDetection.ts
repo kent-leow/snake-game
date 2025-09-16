@@ -24,6 +24,16 @@ interface UseCollisionDetectionReturn {
 }
 
 /**
+ * Collision checker return type
+ */
+interface UseCollisionCheckerReturn {
+  checkCollisions: () => CollisionResult | null;
+  checkBoundaryCollision: () => boolean;
+  checkSelfCollision: () => boolean;
+  detector: CollisionDetector | null;
+}
+
+/**
  * React hook for collision detection
  * Provides collision detection functionality for React components
  */
@@ -87,7 +97,7 @@ export const useCollisionChecker = (
   canvasHeight: number,
   gridSize: number,
   enabled: boolean = true
-) => {
+): UseCollisionCheckerReturn => {
   const detectorRef = useRef<CollisionDetector | null>(null);
 
   useEffect(() => {

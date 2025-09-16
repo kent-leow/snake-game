@@ -110,7 +110,7 @@ export const useCanvasPerformance = ({
     }
 
     // Cleanup
-    return () => {
+    return (): void => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }

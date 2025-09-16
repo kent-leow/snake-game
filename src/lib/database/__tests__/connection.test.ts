@@ -35,13 +35,13 @@ describe('Database Connection', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Reset global cache completely
-    (global as any).mongoose = undefined;
+    (global as Record<string, unknown>).mongoose = undefined;
   });
 
   afterEach(async () => {
     await disconnectFromDatabase();
     // Clean up global state after each test
-    (global as any).mongoose = undefined;
+    (global as Record<string, unknown>).mongoose = undefined;
   });
 
   describe('connectToDatabase', () => {

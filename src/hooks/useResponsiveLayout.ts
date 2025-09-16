@@ -49,7 +49,7 @@ export const useResponsiveLayout = (): ResponsiveLayoutState => {
     window.addEventListener('resize', debouncedUpdate);
     window.addEventListener('orientationchange', debouncedUpdate);
 
-    return () => {
+    return (): void => {
       window.removeEventListener('resize', debouncedUpdate);
       window.removeEventListener('orientationchange', debouncedUpdate);
     };
@@ -61,7 +61,7 @@ export const useResponsiveLayout = (): ResponsiveLayoutState => {
 /**
  * Debounce utility function for performance optimization
  */
-function debounce<T extends (...args: any[]) => any>(
+function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {

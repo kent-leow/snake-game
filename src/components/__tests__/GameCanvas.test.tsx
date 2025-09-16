@@ -83,12 +83,12 @@ const mockContext = {
 } as unknown as CanvasRenderingContext2D;
 
 // Mock HTMLCanvasElement
-HTMLCanvasElement.prototype.getContext = jest.fn((contextId: string) => {
+HTMLCanvasElement.prototype.getContext = jest.fn((contextId: string): CanvasRenderingContext2D | null => {
   if (contextId === '2d') {
     return mockContext;
   }
   return null;
-});
+}) as HTMLCanvasElement['getContext'];
 
 // Mock window.devicePixelRatio
 Object.defineProperty(window, 'devicePixelRatio', {

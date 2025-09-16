@@ -188,7 +188,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
 
     // Cleanup function
-    return () => {
+    return (): void => {
       renderLoopRef.current?.destroy();
       rendererRef.current?.destroy();
       performanceMonitorRef.current?.destroy();
@@ -209,7 +209,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     // Create a simple subscription to game state changes
     // This is a basic implementation - you might want to use a more sophisticated approach
-    const checkGameState = () => {
+    const checkGameState = (): void => {
       const gameState = gameEngine.getGameState();
       
       if (gameState.isRunning && !renderLoopRef.current?.isActive()) {
@@ -222,26 +222,26 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     // Check game state periodically
     const interval = setInterval(checkGameState, 100);
     
-    return () => clearInterval(interval);
+    return (): void => clearInterval(interval);
   }, [gameEngine]);
 
   /**
    * Handle window resize
    */
   useEffect(() => {
-    const handleResize = () => {
+    const handleResize = (): void => {
       responsiveCanvasRef.current?.resize();
     };
 
     // Debounce resize events
     let resizeTimeout: NodeJS.Timeout;
-    const debouncedResize = () => {
+    const debouncedResize = (): void => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(handleResize, 100);
     };
 
     window.addEventListener('resize', debouncedResize);
-    return () => {
+    return (): void => {
       window.removeEventListener('resize', debouncedResize);
       clearTimeout(resizeTimeout);
     };

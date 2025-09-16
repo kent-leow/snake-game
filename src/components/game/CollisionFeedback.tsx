@@ -24,12 +24,12 @@ export const CollisionFeedback: React.FC<CollisionFeedbackProps> = ({
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setTimeout((): void => {
       setIsVisible(false);
       onAnimationComplete();
     }, 500); // Animation duration
 
-    return () => clearTimeout(timer);
+    return (): void => clearTimeout(timer);
   }, [onAnimationComplete]);
 
   if (!position || !isVisible) return null;

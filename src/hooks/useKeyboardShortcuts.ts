@@ -19,11 +19,11 @@ export const useKeyboardShortcuts = ({
   onRestart,
   onMenu,
   enabled,
-}: KeyboardShortcutsOptions) => {
+}: KeyboardShortcutsOptions): void => {
   useEffect(() => {
     if (!enabled) return;
 
-    const handleKeyPress = (event: KeyboardEvent) => {
+    const handleKeyPress = (event: KeyboardEvent): void => {
       // Prevent shortcuts when typing in input fields
       if (
         event.target instanceof HTMLInputElement ||
@@ -56,7 +56,7 @@ export const useKeyboardShortcuts = ({
     };
 
     window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    return (): void => window.removeEventListener('keydown', handleKeyPress);
   }, [onPause, onResume, onRestart, onMenu, enabled]);
 };
 

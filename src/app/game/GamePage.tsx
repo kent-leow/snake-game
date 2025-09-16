@@ -24,7 +24,7 @@ export function GamePage(): React.JSX.Element {
   
   // Update canvas size based on viewport
   useEffect(() => {
-    const updateCanvasSize = () => {
+    const updateCanvasSize = (): void => {
       const maxAvailableWidth = window.innerWidth - 600; // Reserve space for side panels
       const maxAvailableHeight = window.innerHeight - 200; // Reserve space for header and padding
       
@@ -48,17 +48,17 @@ export function GamePage(): React.JSX.Element {
 
   const actualSize = canvasSize;
 
-  const handleGameReady = useCallback(() => {
+  const handleGameReady = useCallback((): void => {
     setIsGameReady(true);
   }, []);
 
-  const handleScoreChange = useCallback((newScore: number) => {
+  const handleScoreChange = useCallback((newScore: number): void => {
     setScore(newScore);
   }, []);
 
   // Utility function to focus the game canvas
-  const focusCanvas = useCallback(() => {
-    setTimeout(() => {
+  const focusCanvas = useCallback((): void => {
+    setTimeout((): void => {
       const canvas = document.querySelector('.game-canvas') as HTMLCanvasElement;
       if (canvas) {
         canvas.focus();
@@ -162,7 +162,7 @@ export function GamePage(): React.JSX.Element {
     gameEngineRef.current = new GameEngine(config, callbacks);
     handleGameReady();
 
-    return () => {
+    return (): void => {
       if (gameEngineRef.current) {
         gameEngineRef.current.stop();
       }

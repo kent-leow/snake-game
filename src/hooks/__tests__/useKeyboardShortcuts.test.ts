@@ -19,10 +19,10 @@ describe('useKeyboardShortcuts', () => {
 
   afterEach(() => {
     // Clean up any event listeners
-    const listeners = (global as any).__eventListeners || {};
+    const listeners = (global as Record<string, unknown>).__eventListeners as Record<string, EventListener[]> || {};
     Object.keys(listeners).forEach(event => {
       if (listeners[event]) {
-        listeners[event].forEach((listener: any) => {
+        listeners[event].forEach((listener: EventListener) => {
           window.removeEventListener(event, listener);
         });
       }

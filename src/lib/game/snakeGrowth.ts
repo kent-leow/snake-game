@@ -52,6 +52,7 @@ export class SnakeGrowthManager {
     
     if (actualGrowth > 0) {
       this.pendingGrowth += actualGrowth;
+      this.snake.isGrowing = true;
     }
   }
 
