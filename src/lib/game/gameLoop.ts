@@ -261,7 +261,7 @@ export const createGameLoop = (
  * Frame rate limiting utility for manual control
  */
 export class FrameRateLimiter {
-  private lastFrameTime = 0;
+  private lastFrameTime = -1; // Use -1 to indicate no previous frame
   private targetFrameTime: number;
 
   constructor(targetFPS: number) {
@@ -272,6 +272,8 @@ export class FrameRateLimiter {
    * Check if enough time has passed for the next frame
    */
   public shouldRender(currentTime: number): boolean {
+    // Always render the first frame
+    if (this.lastFrameTime === -1) return true;
     return currentTime - this.lastFrameTime >= this.targetFrameTime;
   }
 
@@ -286,6 +288,7 @@ export class FrameRateLimiter {
    * Get time until next frame should be rendered
    */
   public getTimeToNextFrame(currentTime: number): number {
+    if (this.lastFrameTime === -1) return this.targetFrameTime;
     return Math.max(0, this.targetFrameTime - (currentTime - this.lastFrameTime));
   }
 

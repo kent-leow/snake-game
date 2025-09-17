@@ -39,16 +39,14 @@ describe('GameLoop', () => {
     renderCallback = jest.fn();
     performanceCallback = jest.fn();
     
-    // Reset mock implementation with increasing timestamps
+    // Setup consistent timing
     let mockTime = 0;
-    mockPerformanceNow.mockImplementation(() => {
-      mockTime += 16; // Increment by 16ms each call
-      return mockTime;
-    });
+    mockPerformanceNow.mockImplementation(() => mockTime);
     
     mockRequestAnimationFrame.mockImplementation((callback) => {
-      // Immediately execute callback for testing
-      setTimeout(callback, 1); // Very short delay for tests
+      // Advance time by 16ms and execute callback
+      mockTime += 16;
+      setTimeout(() => callback(mockTime), 1);
       return 1;
     });
 
