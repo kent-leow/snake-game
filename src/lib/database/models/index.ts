@@ -1,6 +1,5 @@
 // Database models exports
-// This file will export all database models as they are created
+// This file exports all database models
 
-export // Game-related models will be exported here
-// Example: GameScore, Player, GameSession
- {};
+// Game-related models
+export { default as Score } from '../../../models/Score';

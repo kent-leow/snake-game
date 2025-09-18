@@ -68,29 +68,34 @@ Default configuration:
 
 ## Database Schema
 
-The initialization script (`scripts/init-db.js`) creates:
+The database uses a comprehensive score tracking schema designed for the Snake game.
 
-### Collections
+### Score Schema
 
-1. **`game_scores`** - Player scores and game results
-   - `playerName` (string, required)
-   - `score` (integer, required, min: 0)
-   - `timestamp` (date, required)
-   - `gameMode` (enum: classic, speed, challenge)
-   - `difficulty` (enum: easy, medium, hard)
+See [Database Score Schema Documentation](./DATABASE_SCORE_SCHEMA.md) for complete details.
 
-2. **`game_sessions`** - Game session tracking
-   - `sessionId` (string, required, unique)
-   - `startTime` (date, required)
-   - `endTime` (date, optional)
-   - `playerName` (string, optional)
+**Quick Overview:**
+- **Score Model**: Comprehensive game score tracking with validation
+- **Game Metrics**: Detailed statistics (food consumed, combos, speed levels)
+- **Combo Analytics**: Combo efficiency and performance tracking
+- **Metadata**: Optional browser and game version information
+- **Validation**: Extensive input validation and sanitization
 
-### Indexes
+### Legacy Collections (Migration Pending)
 
-Performance optimized indexes:
+The initialization script (`scripts/init-db.js`) creates legacy collections that will be migrated:
 
-- `game_scores`: score (desc), timestamp (desc), playerName + score (desc)
-- `game_sessions`: sessionId (unique), startTime (desc)
+1. **`game_scores`** - Legacy player scores (to be replaced by new Score model)
+2. **`game_sessions`** - Game session tracking (future enhancement)
+
+### Performance Indexes
+
+The new Score model includes optimized indexes for:
+- High score queries
+- Player-specific queries  
+- Recent score queries
+- Combo-based analytics
+- Leaderboard generation
 
 ## Connection Utility
 
