@@ -202,6 +202,7 @@ describe('GameCanvas Food Rendering Integration', () => {
 
   describe('Food Rendering Integration', () => {
     it('should pass multiple foods to renderer when available', () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const mockRenderer = require('@/lib/rendering').CanvasRenderer;
       
       render(

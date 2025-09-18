@@ -20,6 +20,10 @@ import { useResponsiveLayout } from '@/hooks';
 import { MobileUtils } from '@/lib/mobile';
 import type { GameEngine } from '@/lib/game/gameEngine';
 import type { Direction } from '@/lib/game/types';
+import type { ComboEvent, ComboState } from '@/types/Combo';
+import { ComboProgressIndicator, useComboProgressProps } from '@/components/ComboProgressIndicator';
+import { ComboFeedback } from '@/components/ComboFeedback';
+import { useSimpleComboAnimation } from '@/hooks/useComboAnimation';
 
 export interface GameCanvasProps {
   gameEngine: GameEngine;
@@ -30,6 +34,8 @@ export interface GameCanvasProps {
   targetFPS?: number;
   enableTouchControls?: boolean;
   onDirectionChange?: (direction: Direction) => void;
+  enableComboVisuals?: boolean;
+  comboPosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 }
 
 /**
@@ -44,6 +50,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   targetFPS = 60,
   enableTouchControls = true,
   onDirectionChange,
+  enableComboVisuals = true,
+  comboPosition = 'top-left',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,8 +63,26 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentFPS, setCurrentFPS] = useState(0);
+  const [comboState, setComboState] = useState<ComboState | null>(null);
 
   const { isMobile } = useResponsiveLayout();
+  
+  // Combo animation management
+  const {
+    currentEvent: comboEvent,
+    showEvent: showComboEvent,
+    hideEvent: hideComboEvent,
+  } = useSimpleComboAnimation();
+
+  // Convert combo state to progress props (always call hook, then filter result)
+  const allComboProgressProps = useComboProgressProps(comboState || {
+    currentSequence: [],
+    expectedNext: 1,
+    comboProgress: 0,
+    totalCombos: 0,
+    isComboActive: false,
+  });
+  const comboProgressProps = comboState ? allComboProgressProps : null;
 
   /**
    * Update game state and render
@@ -226,6 +252,34 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     
     return (): void => clearInterval(interval);
   }, [gameEngine]);
+
+  /**
+   * Handle combo state and events
+   */
+  useEffect(() => {
+    if (!gameEngine || !enableComboVisuals) return;
+
+    try {
+      const comboManager = gameEngine.getComboManager();
+      
+      // Subscribe to combo events
+      const unsubscribe = comboManager.subscribe((event: ComboEvent) => {
+        // Update combo state
+        setComboState(comboManager.getCurrentState());
+        
+        // Show combo animation
+        showComboEvent(event);
+      });
+
+      // Initialize combo state
+      setComboState(comboManager.getCurrentState());
+
+      return unsubscribe;
+    } catch (error) {
+      console.warn('Combo system not available:', error);
+      return undefined;
+    }
+  }, [gameEngine, enableComboVisuals, showComboEvent]);
 
   /**
    * Handle window resize
@@ -436,6 +490,30 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         >
           FPS: {currentFPS}
         </div>
+      )}
+
+      {/* Combo Progress Indicator */}
+      {enableComboVisuals && comboProgressProps && (
+        <div
+          className="combo-progress-overlay"
+          style={{
+            position: 'absolute',
+            [comboPosition.includes('top') ? 'top' : 'bottom']: '10px',
+            [comboPosition.includes('left') ? 'left' : 'right']: '10px',
+            pointerEvents: 'none',
+            zIndex: 100,
+          }}
+        >
+          <ComboProgressIndicator {...comboProgressProps} />
+        </div>
+      )}
+
+      {/* Combo Feedback Animations */}
+      {enableComboVisuals && (
+        <ComboFeedback
+          event={comboEvent}
+          onAnimationComplete={hideComboEvent}
+        />
       )}
     </div>
   );

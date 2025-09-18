@@ -1,0 +1,619 @@
+/**
+ * Combo-specific CSS Module
+ * Contains styling for combo progress indicator, feedback animations, and responsive design
+ */
+
+/* =============================================================================
+   Combo Progress Indicator Styles
+   ============================================================================= */
+
+.comboProgressIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  min-width: 280px;
+  user-select: none;
+}
+
+.comboProgressIndicator--active {
+  background: rgba(33, 150, 243, 0.1);
+  border-color: rgba(33, 150, 243, 0.3);
+  box-shadow: 0 0 12px rgba(33, 150, 243, 0.2);
+}
+
+.comboProgressIndicator--inactive {
+  opacity: 0.7;
+}
+
+/* =============================================================================
+   Combo Steps Styles
+   ============================================================================= */
+
+.comboSteps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.comboStep {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+}
+
+.comboStep--completed {
+  background: #4caf50;
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+.comboStep--current {
+  background: #2196f3;
+  color: white;
+  animation: comboPulse 1s infinite;
+  border-color: #64b5f6;
+}
+
+.comboStep--pending {
+  background: #666;
+  color: #ccc;
+}
+
+.comboStep--active.comboStep--pending {
+  opacity: 0.8;
+}
+
+.comboStep--inactive.comboStep--pending {
+  opacity: 0.5;
+}
+
+/* Arrow connector between steps */
+.comboArrow {
+  font-size: 12px;
+  font-weight: bold;
+  transition: color 0.3s ease;
+  color: #666;
+}
+
+.comboArrow--active {
+  color: #4caf50;
+}
+
+/* =============================================================================
+   Combo Status Styles
+   ============================================================================= */
+
+.comboStatus {
+  margin-left: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 80px;
+}
+
+.comboStatus__next {
+  color: #2196f3;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.comboStatus__progress {
+  color: #888;
+  font-size: 10px;
+}
+
+.comboStatus__total {
+  color: #ccc;
+  font-size: 12px;
+}
+
+.comboStatus__instruction {
+  color: #888;
+  font-size: 10px;
+}
+
+/* =============================================================================
+   Combo Feedback Animations
+   ============================================================================= */
+
+.comboFeedback {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1000;
+}
+
+.floatingText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  z-index: 1000;
+}
+
+.floatingText--started {
+  color: #2196f3;
+  text-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+  font-size: 20px;
+}
+
+.floatingText--progress {
+  color: #4caf50;
+  text-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
+  font-size: 18px;
+}
+
+.floatingText--completed {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  font-size: 24px;
+}
+
+.floatingText--broken {
+  color: #f44336;
+  text-shadow: 0 0 10px rgba(244, 67, 54, 0.4);
+  font-size: 16px;
+}
+
+.pointsAnimation {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+  pointer-events: none;
+  user-select: none;
+  font-family: 'Courier New', monospace;
+  z-index: 999;
+  transition: all 1100ms ease-out;
+}
+
+.sequenceVisualization {
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+  user-select: none;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  z-index: 998;
+}
+
+.sequenceNumber {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  transition: all 300ms ease-out;
+}
+
+.sequenceNumber--completed {
+  background: #4caf50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+}
+
+.sequenceNumber--broken {
+  background: #f44336;
+  box-shadow: 0 0 8px rgba(244, 67, 54, 0.4);
+}
+
+.sequenceNumber--progress {
+  background: #2196f3;
+  box-shadow: 0 0 8px rgba(33, 150, 243, 0.4);
+}
+
+.sequenceArrow {
+  color: #888;
+  transition: opacity 300ms ease-out;
+}
+
+/* =============================================================================
+   Animations
+   ============================================================================= */
+
+@keyframes comboPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes comboComplete {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5) translateY(20px);
+  }
+  25% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2) translateY(0);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1) translateY(-5px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1) translateY(-20px);
+  }
+}
+
+@keyframes comboBroken {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+}
+
+@keyframes comboProgress {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8) translateY(10px);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1) translateY(-10px);
+  }
+}
+
+@keyframes comboStarted {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  25% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+@keyframes pointsFloat {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(-30px);
+  }
+}
+
+@keyframes sequenceAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =============================================================================
+   Responsive Design
+   ============================================================================= */
+
+/* Tablet styles */
+@media (max-width: 768px) {
+  .comboProgressIndicator {
+    min-width: 240px;
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+
+  .comboStep {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .comboSteps {
+    gap: 4px;
+  }
+
+  .comboStatus {
+    margin-left: 8px;
+    min-width: 70px;
+  }
+
+  .floatingText--started {
+    font-size: 18px;
+  }
+
+  .floatingText--progress {
+    font-size: 16px;
+  }
+
+  .floatingText--completed {
+    font-size: 22px;
+  }
+
+  .floatingText--broken {
+    font-size: 14px;
+  }
+
+  .pointsAnimation {
+    font-size: 18px;
+  }
+
+  .sequenceVisualization {
+    font-size: 14px;
+  }
+
+  .sequenceNumber {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 480px) {
+  .comboProgressIndicator {
+    min-width: 200px;
+    padding: 8px 10px;
+    font-size: 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .comboStep {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  .comboSteps {
+    gap: 3px;
+  }
+
+  .comboArrow {
+    font-size: 10px;
+  }
+
+  .comboStatus {
+    margin-left: 0;
+    min-width: auto;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .floatingText--started {
+    font-size: 16px;
+  }
+
+  .floatingText--progress {
+    font-size: 14px;
+  }
+
+  .floatingText--completed {
+    font-size: 20px;
+  }
+
+  .floatingText--broken {
+    font-size: 12px;
+  }
+
+  .pointsAnimation {
+    font-size: 16px;
+  }
+
+  .sequenceVisualization {
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .sequenceNumber {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+}
+
+/* High DPI / Retina displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .comboStep,
+  .sequenceNumber {
+    border-width: 1px;
+  }
+
+  .floatingText--started,
+  .floatingText--progress,
+  .floatingText--completed,
+  .floatingText--broken {
+    text-shadow: 0 0 5px currentColor;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .comboStep,
+  .comboArrow,
+  .floatingText,
+  .pointsAnimation,
+  .sequenceNumber,
+  .sequenceArrow {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .comboStep--current {
+    animation: none;
+    background: #2196f3;
+    border-color: #64b5f6;
+  }
+
+  .comboProgressIndicator {
+    transition: background-color 0.1s ease;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .comboProgressIndicator {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .comboStep--pending {
+    background: #555;
+    color: #ddd;
+  }
+
+  .comboStatus__progress,
+  .comboStatus__instruction {
+    color: #aaa;
+  }
+}
+
+/* Light mode support */
+@media (prefers-color-scheme: light) {
+  .comboProgressIndicator {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #333;
+  }
+
+  .comboStep--pending {
+    background: #ddd;
+    color: #666;
+  }
+
+  .comboStatus__progress,
+  .comboStatus__instruction {
+    color: #666;
+  }
+
+  .comboStatus__total {
+    color: #333;
+  }
+}
+
+/* =============================================================================
+   Accessibility Enhancements
+   ============================================================================= */
+
+/* Focus indicators for keyboard navigation */
+.comboProgressIndicator:focus-within {
+  outline: 2px solid #2196f3;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .comboProgressIndicator {
+    border-width: 2px;
+    border-color: currentColor;
+  }
+
+  .comboStep {
+    border-width: 2px;
+  }
+
+  .comboStep--completed {
+    background: #00ff00;
+    color: #000;
+  }
+
+  .comboStep--current {
+    background: #0080ff;
+    color: #fff;
+    border-color: #fff;
+  }
+
+  .comboStep--pending {
+    background: #808080;
+    color: #fff;
+  }
+}
+
+/* Print styles */
+@media print {
+  .comboFeedback,
+  .floatingText,
+  .pointsAnimation,
+  .sequenceVisualization {
+    display: none !important;
+  }
+
+  .comboProgressIndicator {
+    background: white;
+    border: 1px solid black;
+    color: black;
+  }
+}

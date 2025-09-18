@@ -91,8 +91,9 @@ describe('MultipleFoodManager', () => {
 
       foods.forEach(food => {
         const config = manager.getConfig();
-        const expectedColor = config.colors[`food${food.number}` as 'food1' | 'food2' | 'food3' | 'food4' | 'food5'];
-        const expectedValue = config.values[`food${food.number}` as 'food1' | 'food2' | 'food3' | 'food4' | 'food5'];
+        const foodKey = `food${food.number}`;
+        const expectedColor = config.colors[foodKey as keyof typeof config.colors];
+        const expectedValue = config.values[foodKey as keyof typeof config.values];
         
         expect(food.color).toBe(expectedColor);
         expect(food.value).toBe(expectedValue);
