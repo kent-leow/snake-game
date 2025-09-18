@@ -6,6 +6,8 @@ import type { NumberedFood, FoodConsumptionResult } from './multipleFoodTypes';
 import { CollisionDetector, type CollisionResult } from './collisionDetection';
 import { ScoringSystem } from './scoring';
 import { GameOverManager, type GameOverState, type GameStatistics } from './gameOverState';
+import { ComboManager } from './ComboManager';
+import type { ComboEvent } from '@/types/Combo';
 
 /**
  * Game engine configuration interface
@@ -28,6 +30,7 @@ export interface GameEngineCallbacks {
   onGameOver?: (finalScore: number, snake: Snake, cause?: 'boundary' | 'self', collisionPosition?: Position) => void;
   onLevelUp?: (level: number, score: number) => void;
   onGameOverStateChange?: (state: GameOverState) => void;
+  onComboEvent?: (event: ComboEvent) => void;
 }
 
 /**
@@ -41,6 +44,7 @@ export class GameEngine {
   private collisionDetector: CollisionDetector;
   private scoringSystem: ScoringSystem;
   private gameOverManager: GameOverManager;
+  private comboManager: ComboManager;
   private currentFood: EnhancedFood | null = null;
   private useMultipleFood: boolean = false;
   private isRunning: boolean = false;
@@ -86,11 +90,16 @@ export class GameEngine {
 
     this.gameOverManager = new GameOverManager();
 
+    this.comboManager = new ComboManager();
+
     // Set up scoring system callbacks
     this.setupScoreCallbacks();
 
     // Set up game over callbacks
     this.setupGameOverCallbacks();
+
+    // Set up combo callbacks
+    this.setupComboCallbacks();
 
     // Spawn initial food
     this.spawnFood();
@@ -111,6 +120,15 @@ export class GameEngine {
   private setupGameOverCallbacks(): void {
     this.gameOverManager.subscribe((state) => {
       this.callbacks.onGameOverStateChange?.(state);
+    });
+  }
+
+  /**
+   * Set up combo manager callbacks
+   */
+  private setupComboCallbacks(): void {
+    this.comboManager.subscribe((event) => {
+      this.callbacks.onComboEvent?.(event);
     });
   }
 
@@ -249,12 +267,24 @@ export class GameEngine {
    * Handle multiple food consumption logic
    */
   private handleMultipleFoodConsumption(food: NumberedFood): void {
-    // Add score for food consumption
+    // Process combo first to determine bonus points
+    const comboResult = this.comboManager.processFood(food.number);
+    
+    // Add base score for food consumption
     this.scoringSystem.addScore({
       type: 'food',
       points: food.value,
       position: food.position,
     });
+
+    // Add combo bonus points if any
+    if (comboResult.pointsAwarded > 0) {
+      this.scoringSystem.addScore({
+        type: 'combo',
+        points: comboResult.pointsAwarded,
+        position: food.position,
+      });
+    }
 
     // Make snake grow
     this.snakeGame.addGrowth(1, 'food');
@@ -352,6 +382,7 @@ export class GameEngine {
     snakeLength: number;
     pendingGrowth: number;
     gameOverState: GameOverState;
+    comboState: ReturnType<ComboManager['getCurrentState']>;
   } {
     return {
       snake: this.snakeGame.getSnake(),
@@ -363,6 +394,7 @@ export class GameEngine {
       snakeLength: this.snakeGame.getLength(),
       pendingGrowth: this.snakeGame.getPendingGrowth(),
       gameOverState: this.gameOverManager.getGameOverState(),
+      comboState: this.comboManager.getCurrentState(),
     };
   }
 
@@ -402,6 +434,13 @@ export class GameEngine {
   }
 
   /**
+   * Get combo manager
+   */
+  public getComboManager(): ComboManager {
+    return this.comboManager;
+  }
+
+  /**
    * Get current score
    */
   public getScore(): number {
@@ -438,6 +477,7 @@ export class GameEngine {
     this.foodManager.reset();
     this.multipleFoodManager.reset();
     this.gameOverManager.resetGameOver();
+    this.comboManager.reset();
     this.currentFood = null;
     this.isRunning = false;
     this.gameStartTime = 0;
@@ -566,12 +606,14 @@ export class GameEngine {
   public exportData(): {
     score: ReturnType<ScoringSystem['exportData']>;
     growth: ReturnType<SnakeGame['getGrowthStatistics']>;
+    combo: ReturnType<ComboManager['exportData']>;
     config: GameEngineConfig;
     timestamp: number;
   } {
     return {
       score: this.scoringSystem.exportData(),
       growth: this.snakeGame.getGrowthStatistics(),
+      combo: this.comboManager.exportData(),
       config: this.config,
       timestamp: Date.now(),
     };
@@ -582,8 +624,12 @@ export class GameEngine {
    */
   public importData(data: {
     score: Parameters<ScoringSystem['importData']>[0];
+    combo?: Parameters<ComboManager['importData']>[0];
   }): void {
     this.scoringSystem.importData(data.score);
+    if (data.combo) {
+      this.comboManager.importData(data.combo);
+    }
   }
 
   /**
