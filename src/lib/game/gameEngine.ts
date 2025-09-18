@@ -1,13 +1,16 @@
-import type { Position, EnhancedFood, Snake } from './types';
+import type { Position, EnhancedFood, Snake, ScoreBreakdown, GameScore } from './types';
 import { SnakeGame } from './snake';
 import { FoodManager } from './food';
 import { MultipleFoodManager } from './MultipleFoodManager';
 import type { NumberedFood, FoodConsumptionResult } from './multipleFoodTypes';
 import { CollisionDetector, type CollisionResult } from './collisionDetection';
 import { ScoringSystem } from './scoring';
+import { ScoreManager } from './ScoreManager';
 import { GameOverManager, type GameOverState, type GameStatistics } from './gameOverState';
 import { ComboManager } from './ComboManager';
 import type { ComboEvent } from '@/types/Combo';
+import { SpeedManager } from '@/game/SpeedManager';
+import type { SpeedConfig } from '@/types/Speed';
 
 /**
  * Game engine configuration interface
@@ -18,6 +21,7 @@ export interface GameEngineConfig {
   gridSize: number;
   gameSpeed?: number; // Movement interval in milliseconds
   initialScore?: number;
+  speedConfig?: SpeedConfig; // Optional speed system configuration
 }
 
 /**
@@ -25,6 +29,7 @@ export interface GameEngineConfig {
  */
 export interface GameEngineCallbacks {
   onScoreChange?: (score: number, event: Parameters<ScoringSystem['subscribeToScoreChanges']>[0] extends (score: number, event: infer E) => void ? E : never) => void;
+  onScoreBreakdown?: (gameScore: GameScore, breakdown: ScoreBreakdown) => void;
   onFoodEaten?: (food: EnhancedFood, newLength: number) => void;
   onMultipleFoodEaten?: (result: FoodConsumptionResult, newLength: number) => void;
   onGameOver?: (finalScore: number, snake: Snake, cause?: 'boundary' | 'self', collisionPosition?: Position) => void;
@@ -43,8 +48,10 @@ export class GameEngine {
   private multipleFoodManager: MultipleFoodManager;
   private collisionDetector: CollisionDetector;
   private scoringSystem: ScoringSystem;
+  private scoreManager: ScoreManager; // New enhanced score manager
   private gameOverManager: GameOverManager;
   private comboManager: ComboManager;
+  private speedManager: SpeedManager; // Progressive speed management
   private currentFood: EnhancedFood | null = null;
   private useMultipleFood: boolean = false;
   private isRunning: boolean = false;
@@ -54,12 +61,10 @@ export class GameEngine {
   private foodConsumed: number = 0;
   private maxSnakeLength: number = 1;
   private lastMoveTime: number = 0;
-  private gameSpeed: number;
 
   constructor(config: GameEngineConfig, callbacks: GameEngineCallbacks = {}) {
     this.config = config;
     this.callbacks = callbacks;
-    this.gameSpeed = config.gameSpeed || 150; // Default to 150ms per move
 
     // Initialize game systems
     this.snakeGame = new SnakeGame(
@@ -88,18 +93,20 @@ export class GameEngine {
 
     this.scoringSystem = new ScoringSystem(config.initialScore || 0);
 
+    this.scoreManager = new ScoreManager(config.initialScore || 0);
+
     this.gameOverManager = new GameOverManager();
 
     this.comboManager = new ComboManager();
 
-    // Set up scoring system callbacks
+    // Initialize speed manager with optional config and auto-integrate with combo system
+    this.speedManager = new SpeedManager(config.speedConfig);
+    
+    // Set up system callbacks
     this.setupScoreCallbacks();
-
-    // Set up game over callbacks
     this.setupGameOverCallbacks();
-
-    // Set up combo callbacks
     this.setupComboCallbacks();
+    this.setupSpeedCallbacks();
 
     // Spawn initial food
     this.spawnFood();
@@ -129,6 +136,19 @@ export class GameEngine {
   private setupComboCallbacks(): void {
     this.comboManager.subscribe((event) => {
       this.callbacks.onComboEvent?.(event);
+      
+      // Forward combo events to speed manager for automatic speed adjustment
+      this.speedManager.handleComboEvent(event);
+    });
+  }
+
+  /**
+   * Set up speed manager callbacks
+   */
+  private setupSpeedCallbacks(): void {
+    this.speedManager.onSpeedChange((_event) => {
+      // Speed changes are automatically handled by the SpeedManager
+      // No need to store gameSpeed anymore since we use speedManager.getCurrentSpeed()
     });
   }
 
@@ -141,6 +161,9 @@ export class GameEngine {
     this.lastMoveTime = performance.now();
     this.foodConsumed = 0;
     this.maxSnakeLength = this.snakeGame.getLength();
+    
+    // Reset speed manager to initial state
+    this.speedManager.reset();
   }
 
   /**
@@ -173,8 +196,14 @@ export class GameEngine {
 
     const currentTime = performance.now();
     
-    // Only move the snake at the specified game speed interval
-    if (currentTime - this.lastMoveTime < this.gameSpeed) {
+    // Update speed manager (handles smooth transitions)
+    this.speedManager.update(currentTime - this.lastMoveTime);
+    
+    // Get current speed from speed manager
+    const currentSpeed = this.speedManager.getCurrentSpeed();
+    
+    // Only move the snake at the current speed interval
+    if (currentTime - this.lastMoveTime < currentSpeed) {
       return true; // Game is running but no update needed yet
     }
     
@@ -239,12 +268,15 @@ export class GameEngine {
    * Handle food consumption logic
    */
   private handleFoodConsumption(food: EnhancedFood): void {
-    // Add score for food consumption
+    // Add score for food consumption using both systems for compatibility
     this.scoringSystem.addScore({
       type: 'food',
       points: food.value,
       position: { x: food.x, y: food.y },
     });
+
+    // Also update the new ScoreManager (no combo for regular food)
+    const scoreBreakdown = this.scoreManager.addScore(food.value, 0);
 
     // Make snake grow
     this.snakeGame.addGrowth(1, 'food');
@@ -261,6 +293,9 @@ export class GameEngine {
     
     // Spawn new food immediately instead of using delay
     this.spawnFood();
+
+    // Notify score update
+    this.notifyScoreUpdate(scoreBreakdown);
   }
 
   /**
@@ -270,14 +305,20 @@ export class GameEngine {
     // Process combo first to determine bonus points
     const comboResult = this.comboManager.processFood(food.number);
     
-    // Add base score for food consumption
+    // Calculate points according to task specification
+    const basePoints = 10; // FOOD_BASE_POINTS as specified in task
+    const comboBonus = comboResult.pointsAwarded; // 0 or 5 as specified
+
+    // Update score with breakdown using new ScoreManager
+    const scoreBreakdown = this.scoreManager.addScore(basePoints, comboBonus);
+
+    // Also update legacy scoring system for backward compatibility
     this.scoringSystem.addScore({
       type: 'food',
-      points: food.value,
+      points: basePoints,
       position: food.position,
     });
 
-    // Add combo bonus points if any
     if (comboResult.pointsAwarded > 0) {
       this.scoringSystem.addScore({
         type: 'combo',
@@ -300,6 +341,19 @@ export class GameEngine {
       // Trigger callback with the consumption result
       this.callbacks.onMultipleFoodEaten?.(result, this.snakeGame.getLength());
     }
+
+    // Notify score update with breakdown (within 50ms requirement)
+    this.notifyScoreUpdate(scoreBreakdown);
+  }
+
+  /**
+   * Notify UI of score changes with detailed breakdown
+   */
+  private notifyScoreUpdate(scoreBreakdown: ScoreBreakdown): void {
+    const gameScore = this.scoreManager.getScoreBreakdown();
+    
+    // Call new enhanced callback for detailed breakdown
+    this.callbacks.onScoreBreakdown?.(gameScore, scoreBreakdown);
   }
 
   /**
@@ -441,10 +495,25 @@ export class GameEngine {
   }
 
   /**
+   * Get score manager (enhanced scoring with combo breakdown)
+   */
+  public getScoreManager(): ScoreManager {
+    return this.scoreManager;
+  }
+
+  /**
    * Get current score
    */
   public getScore(): number {
+    // Return score from original ScoringSystem for backward compatibility
     return this.scoringSystem.getCurrentScore();
+  }
+
+  /**
+   * Get enhanced score breakdown
+   */
+  public getScoreBreakdown(): GameScore {
+    return this.scoreManager.getScoreBreakdown();
   }
 
   /**
@@ -474,6 +543,7 @@ export class GameEngine {
   public reset(): void {
     this.snakeGame.reset();
     this.scoringSystem.resetScore();
+    this.scoreManager.reset(); // Reset new ScoreManager
     this.foodManager.reset();
     this.multipleFoodManager.reset();
     this.gameOverManager.resetGameOver();
@@ -682,5 +752,40 @@ export class GameEngine {
    */
   public validateMultipleFoodState(): ReturnType<MultipleFoodManager['validateState']> {
     return this.multipleFoodManager.validateState();
+  }
+
+  /**
+   * Get speed manager instance for external access
+   */
+  public getSpeedManager(): SpeedManager {
+    return this.speedManager;
+  }
+
+  /**
+   * Get current movement speed
+   */
+  public getCurrentSpeed(): number {
+    return this.speedManager.getCurrentSpeed();
+  }
+
+  /**
+   * Get current speed level (number of combos completed)
+   */
+  public getSpeedLevel(): number {
+    return this.speedManager.getSpeedLevel();
+  }
+
+  /**
+   * Get speed statistics
+   */
+  public getSpeedStatistics(): ReturnType<SpeedManager['getStatistics']> {
+    return this.speedManager.getStatistics();
+  }
+
+  /**
+   * Check if speed is at maximum level
+   */
+  public isAtMaxSpeed(): boolean {
+    return this.speedManager.isAtMaxSpeed();
   }
 }

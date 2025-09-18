@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { PageLayout, GameControls } from '@/components';
+import { PageLayout, GameControls, SpeedIndicator } from '@/components';
 import { GameCanvas } from '@/components/game/GameCanvas';
 import { GameStateIndicator } from '@/components/game/GameStateIndicator';
 import { MobileGameLayout } from '@/components/mobile';
-import { useGameState, useResponsiveLayout } from '@/hooks';
+import { useGameState, useResponsiveLayout, useSpeedData } from '@/hooks';
 import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '@/lib/game/gameEngine';
 import type { Direction } from '@/lib/game/types';
 
@@ -18,6 +18,9 @@ export function GamePage(): React.JSX.Element {
   // Game state management
   const { currentState, actions } = useGameState();
   const { isMobile } = useResponsiveLayout();
+  
+  // Speed data for UI indicator
+  const speedData = useSpeedData(gameEngineRef.current);
 
   // Calculate canvas dimensions
   const gridSize = 20;
@@ -208,7 +211,17 @@ export function GamePage(): React.JSX.Element {
                   <span className='text-gray-400'>Score: </span>
                   <span className='font-bold text-green-400'>{score}</span>
                 </div>
-                <GameStateIndicator currentState={currentState} />
+                <div className='flex items-center gap-2'>
+                  <SpeedIndicator
+                    speedLevel={speedData.speedLevel}
+                    currentSpeed={speedData.currentSpeed}
+                    baseSpeed={speedData.baseSpeed}
+                    isTransitioning={speedData.isTransitioning}
+                    showDetails={false}
+                    className='text-xs'
+                  />
+                  <GameStateIndicator currentState={currentState} />
+                </div>
               </div>
             </div>
             
@@ -255,6 +268,19 @@ export function GamePage(): React.JSX.Element {
                 <div className='text-xs text-gray-400 mt-1'>
                   {isGameReady ? 'Ready to play' : 'Loading...'}
                 </div>
+              </div>
+
+              {/* Speed Indicator */}
+              <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
+                <h3 className='text-base font-semibold mb-3 text-white'>Speed</h3>
+                <SpeedIndicator
+                  speedLevel={speedData.speedLevel}
+                  currentSpeed={speedData.currentSpeed}
+                  baseSpeed={speedData.baseSpeed}
+                  isTransitioning={speedData.isTransitioning}
+                  maxLevel={10}
+                  showDetails={true}
+                />
               </div>
             </div>
 

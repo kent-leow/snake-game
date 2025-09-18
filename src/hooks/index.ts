@@ -14,6 +14,7 @@ export {
 } from './useCollisionDetection';
 export { useGameOver } from './useGameOver';
 export { useKeyboardShortcuts } from './useKeyboardShortcuts';
+export { useSpeedData } from './useSpeedData';
 
 // Mobile-specific hooks
 export { useResponsiveLayout } from './useResponsiveLayout';

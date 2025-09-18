@@ -6,3 +6,4 @@ export { GameControls } from './game/GameControls';
 export { ControlButton } from './game/ControlButton';
 export { GameStateIndicator } from './game/GameStateIndicator';
 export { KeyboardShortcuts } from './game/KeyboardShortcuts';
+export { SpeedIndicator } from './game/SpeedIndicator';

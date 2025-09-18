@@ -80,6 +80,22 @@ export interface ScoreStatistics {
   longestCombo: number;
 }
 
+// Enhanced scoring types for combo integration
+export interface ScoreBreakdown {
+  basePoints: number;
+  comboBonus: number;
+  totalPoints: number;
+  timestamp: number;
+}
+
+export interface GameScore {
+  currentScore: number;
+  totalCombos: number;
+  basePointsEarned: number;
+  comboBonusEarned: number;
+  averageComboLength: number;
+}
+
 // Snake growth types
 export interface GrowthEvent {
   segments: number;
