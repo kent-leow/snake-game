@@ -1,18 +1,25 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { PageLayout, GameControls, SpeedIndicator } from '@/components';
+import { PageLayout, GameControls, SpeedIndicator, ScoreSubmissionModal } from '@/components';
 import { GameCanvas } from '@/components/game/GameCanvas';
 import { GameStateIndicator } from '@/components/game/GameStateIndicator';
 import { MobileGameLayout } from '@/components/mobile';
 import { useGameState, useResponsiveLayout, useSpeedData } from '@/hooks';
 import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '@/lib/game/gameEngine';
 import type { Direction } from '@/lib/game/types';
+import type { ScoreSubmissionData, ScoreSubmissionResult } from '@/services/ScoreService';
 
 export function GamePage(): React.JSX.Element {
   const [score, setScore] = useState(0);
   const [isGameReady, setIsGameReady] = useState(false);
   const [canvasSize, setCanvasSize] = useState(400); // Default size
+  const [showScoreModal, setShowScoreModal] = useState(false);
+  const [gameOverData, setGameOverData] = useState<{
+    score: number;
+    gameMetrics: ScoreSubmissionData['gameMetrics'];
+    comboStats: ScoreSubmissionData['comboStats'];
+  } | null>(null);
   const gameEngineRef = useRef<GameEngine | null>(null);
 
   // Game state management
@@ -58,6 +65,51 @@ export function GamePage(): React.JSX.Element {
   const handleScoreChange = useCallback((newScore: number): void => {
     setScore(newScore);
   }, []);
+
+  /**
+   * Handle game over and collect data for score submission
+   */
+  const handleGameOver = useCallback((finalScore: number, snake: any, cause?: 'boundary' | 'self', collisionPosition?: any) => {
+    if (!gameEngineRef.current) return;
+
+    // Get game statistics and data
+    const gameStats = gameEngineRef.current.getGameOverManager()?.getGameStatistics();
+    const comboStats = gameEngineRef.current.getComboManager().getStatistics();
+    const speedStats = gameEngineRef.current.getSpeedStatistics();
+    
+    // Calculate game duration in seconds
+    const gameTimeSeconds = gameStats?.duration || 0;
+    
+    // Prepare score submission data
+    const scoreData = {
+      score: finalScore,
+      gameMetrics: {
+        totalFood: gameStats?.foodConsumed || 0,
+        totalCombos: comboStats.totalCombos,
+        longestCombo: Math.max(...[1, 2, 3, 4, 5].map((_, idx) => 
+          comboStats.currentProgress >= idx + 1 ? idx + 1 : 0
+        )), // Simple approximation
+        maxSpeedLevel: speedStats.maxLevelReached,
+        gameTimeSeconds,
+        finalSnakeLength: gameStats?.maxSnakeLength || snake?.segments?.length || 3,
+      },
+      comboStats: {
+        totalComboPoints: comboStats.totalBonusPoints,
+        basePoints: finalScore - comboStats.totalBonusPoints,
+        comboEfficiency: comboStats.comboEfficiency,
+        averageComboLength: comboStats.totalCombos > 0 ? 
+          comboStats.totalFoodConsumed / comboStats.totalCombos : 0,
+      },
+    };
+
+    setGameOverData(scoreData);
+    setShowScoreModal(true);
+    
+    // Call the game state action
+    actions.endGame();
+    
+    console.log('Game over:', { finalScore, cause, collisionPosition, scoreData });
+  }, [actions]);
 
   // Utility function to focus the game canvas
   const focusCanvas = useCallback((): void => {
@@ -136,6 +188,21 @@ export function GamePage(): React.JSX.Element {
     focusCanvas();
   }, [focusCanvas]);
 
+  /**
+   * Handle score submission completion
+   */
+  const handleScoreSubmitted = useCallback((result: ScoreSubmissionResult) => {
+    console.log('Score submitted:', result);
+  }, []);
+
+  /**
+   * Handle score modal close
+   */
+  const handleScoreModalClose = useCallback(() => {
+    setShowScoreModal(false);
+    setGameOverData(null);
+  }, []);
+
   // Initialize game engine
   useEffect(() => {
     if (actualSize === 0) return; // Wait for canvas size calculation
@@ -155,10 +222,7 @@ export function GamePage(): React.JSX.Element {
       onFoodEaten: (food, newLength) => {
         console.log('Food eaten:', food, 'New length:', newLength);
       },
-      onGameOver: (finalScore, _snake, cause, collisionPosition) => {
-        console.log('Game over:', { finalScore, cause, collisionPosition });
-        actions.endGame();
-      },
+      onGameOver: handleGameOver,
     };
 
     gameEngineRef.current = new GameEngine(config, callbacks);
@@ -362,6 +426,17 @@ export function GamePage(): React.JSX.Element {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Score Submission Modal */}
+      {showScoreModal && gameOverData && (
+        <ScoreSubmissionModal
+          isOpen={showScoreModal}
+          scoreData={gameOverData}
+          onClose={handleScoreModalClose}
+          onSubmitted={handleScoreSubmitted}
+          autoSubmit={true}
+        />
       )}
     </PageLayout>
   );
