@@ -284,27 +284,32 @@ export function GamePage(): React.JSX.Element {
                 onDirectionChange={handleDirectionChange}
                 enableComboVisuals={true}
               />
-              <div className='mt-2 flex justify-between items-center text-sm'>
-                <div>
-                  <span className='text-gray-400'>Score: </span>
-                  <span className='font-bold text-green-400'>{score}</span>
-                </div>
-                <div className='flex items-center gap-2'>
-                  <SpeedIndicator
-                    speedLevel={speedData.speedLevel}
-                    currentSpeed={speedData.currentSpeed}
-                    baseSpeed={speedData.baseSpeed}
-                    isTransitioning={speedData.isTransitioning}
-                    showDetails={false}
-                    className='text-xs'
-                  />
-                  <GameStateIndicator currentState={currentState} />
-                </div>
-              </div>
               
-              {/* Combo Progress for Mobile */}
-              <div className='mt-2'>
-                <ComboProgressIndicator {...comboProgressProps} />
+              {/* Game Stats for Mobile */}
+              <div className='mt-2 space-y-2'>
+                <div className='flex justify-between items-center text-sm bg-gray-700 p-2 rounded'>
+                  <div>
+                    <span className='text-gray-400'>Score: </span>
+                    <span className='font-bold text-green-400'>{score}</span>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <SpeedIndicator
+                      speedLevel={speedData.speedLevel}
+                      currentSpeed={speedData.currentSpeed}
+                      baseSpeed={speedData.baseSpeed}
+                      isTransitioning={speedData.isTransitioning}
+                      showDetails={false}
+                      className='text-xs'
+                    />
+                    <GameStateIndicator currentState={currentState} />
+                  </div>
+                </div>
+                
+                {/* Combo Progress for Mobile - compact */}
+                <div className='bg-gray-700 p-2 rounded'>
+                  <div className='text-xs text-gray-300 mb-1'>Combo</div>
+                  <ComboProgressIndicator {...comboProgressProps} />
+                </div>
               </div>
             </div>
             
@@ -344,35 +349,36 @@ export function GamePage(): React.JSX.Element {
                 />
               </div>
 
-              {/* Score Display */}
-              <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
-                <h3 className='text-base font-semibold mb-2 text-white'>Score</h3>
-                <div className='text-2xl font-bold text-green-400'>{score}</div>
-                <div className='text-xs text-gray-400 mt-1'>
-                  {isGameReady ? 'Ready to play' : 'Loading...'}
-                </div>
-              </div>
-
-              {/* Game Stats & Speed */}
+              {/* Game Stats */}
               <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
                 <h3 className='text-base font-semibold mb-3 text-white'>Game Stats</h3>
-                <div className='space-y-4'>
-                  {/* Combo Progress */}
-                  <div>
-                    <div className='text-sm text-gray-300 mb-2'>Combo Progress</div>
+                <div className='space-y-3'>
+                  {/* Score - larger and prominent */}
+                  <div className='bg-gray-700 p-3 rounded border-l-4 border-green-400'>
+                    <div className='text-xs text-gray-300'>Score</div>
+                    <div className='text-2xl font-bold text-green-400'>{score}</div>
+                    <div className='text-xs text-gray-400'>
+                      {isGameReady ? 'Ready to play' : 'Loading...'}
+                    </div>
+                  </div>
+                  
+                  {/* Combo Progress - compact inline */}
+                  <div className='bg-gray-700 p-2 rounded'>
+                    <div className='text-xs text-gray-300 mb-1'>Combo</div>
                     <ComboProgressIndicator {...comboProgressProps} />
                   </div>
                   
-                  {/* Speed Indicator */}
-                  <div>
-                    <div className='text-sm text-gray-300 mb-2'>Speed</div>
+                  {/* Speed - compact */}
+                  <div className='bg-gray-700 p-2 rounded'>
+                    <div className='text-xs text-gray-300 mb-1'>Speed</div>
                     <SpeedIndicator
                       speedLevel={speedData.speedLevel}
                       currentSpeed={speedData.currentSpeed}
                       baseSpeed={speedData.baseSpeed}
                       isTransitioning={speedData.isTransitioning}
                       maxLevel={10}
-                      showDetails={true}
+                      showDetails={false}
+                      className='text-sm'
                     />
                   </div>
                 </div>

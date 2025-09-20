@@ -23,81 +23,6 @@ export interface ComboProgressProps {
 }
 
 /**
- * Individual step indicator in the combo sequence
- */
-interface ComboStepProps {
-  number: 1 | 2 | 3 | 4 | 5;
-  status: 'completed' | 'current' | 'pending';
-  isActive: boolean;
-}
-
-const ComboStep: React.FC<ComboStepProps> = ({ number, status, isActive }) => {
-  const getStepClassName = (): string => {
-    const base = 'combo-step';
-    const statusClass = `combo-step--${status}`;
-    const activeClass = isActive ? 'combo-step--active' : '';
-    
-    return [base, statusClass, activeClass].filter(Boolean).join(' ');
-  };
-
-  const getStepStyle = (): React.CSSProperties => {
-    const baseStyle: React.CSSProperties = {
-      width: '32px',
-      height: '32px',
-      borderRadius: '50%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontWeight: 'bold',
-      fontSize: '14px',
-      transition: 'all 0.3s ease',
-      border: '2px solid transparent',
-    };
-
-    switch (status) {
-      case 'completed':
-        return {
-          ...baseStyle,
-          background: '#4caf50',
-          color: 'white',
-          transform: 'scale(1.1)',
-          boxShadow: '0 0 8px rgba(76, 175, 80, 0.5)',
-        };
-      case 'current':
-        return {
-          ...baseStyle,
-          background: '#2196f3',
-          color: 'white',
-          border: '2px solid #64b5f6',
-        };
-      case 'pending':
-        return {
-          ...baseStyle,
-          background: '#666',
-          color: '#ccc',
-          opacity: isActive ? 0.8 : 0.5,
-        };
-      default:
-        return baseStyle;
-    }
-  };
-
-  return (
-    <div
-      className={getStepClassName()}
-      style={getStepStyle()}
-      role="progressbar"
-      aria-valuenow={status === 'completed' ? 100 : status === 'current' ? 50 : 0}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-label={`Step ${number}: ${status}`}
-    >
-      {number}
-    </div>
-  );
-};
-
-/**
  * Main ComboProgressIndicator component
  */
 export const ComboProgressIndicator: React.FC<ComboProgressProps> = ({
@@ -120,40 +45,29 @@ export const ComboProgressIndicator: React.FC<ComboProgressProps> = ({
     }
   };
 
-  /**
-   * Get container style based on active state
-   */
-  const getContainerStyle = (): React.CSSProperties => ({
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '12px 16px',
-    background: isActive 
-      ? 'rgba(33, 150, 243, 0.1)' 
-      : 'rgba(0, 0, 0, 0.8)',
-    border: isActive 
-      ? '1px solid rgba(33, 150, 243, 0.3)' 
-      : '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '8px',
-    color: 'white',
-    fontFamily: 'monospace',
-    fontSize: '12px',
-    transition: 'all 0.3s ease',
-    backdropFilter: 'blur(4px)',
-    minWidth: '280px',
-  });
-
-  /**
-   * Get progress percentage for accessibility
-   */
-  const getProgressPercentage = (): number => {
-    return Math.round((currentProgress / COMBO_SEQUENCE.length) * 100);
-  };
-
   return (
     <div
       className={`combo-progress-indicator ${className}`}
-      style={getContainerStyle()}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '6px',
+        padding: '6px 8px',
+        background: isActive 
+          ? 'rgba(33, 150, 243, 0.15)' 
+          : 'rgba(0, 0, 0, 0.6)',
+        border: isActive 
+          ? '1px solid rgba(33, 150, 243, 0.4)' 
+          : '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: '6px',
+        color: 'white',
+        fontFamily: 'monospace',
+        fontSize: '10px',
+        transition: 'all 0.3s ease',
+        backdropFilter: 'blur(4px)',
+        maxWidth: '100%',
+        overflow: 'hidden',
+      }}
       role="group"
       aria-label="Combo progress indicator"
     >
@@ -163,49 +77,81 @@ export const ComboProgressIndicator: React.FC<ComboProgressProps> = ({
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '6px',
+          gap: '2px',
+          justifyContent: 'center',
         }}
         role="progressbar"
-        aria-valuenow={getProgressPercentage()}
+        aria-valuenow={Math.round((currentProgress / COMBO_SEQUENCE.length) * 100)}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={`Combo progress: ${currentProgress} of ${COMBO_SEQUENCE.length} steps completed`}
       >
-        {COMBO_SEQUENCE.map((number, index) => (
-          <React.Fragment key={number}>
-            <ComboStep
-              number={number}
-              status={getStepStatus(index)}
-              isActive={isActive}
-            />
-            {/* Arrow connector between steps */}
-            {index < COMBO_SEQUENCE.length - 1 && (
+        {COMBO_SEQUENCE.map((number, index) => {
+          const status = getStepStatus(index);
+          return (
+            <React.Fragment key={number}>
               <div
-                className="combo-arrow"
                 style={{
-                  color: isActive && index < currentProgress ? '#4caf50' : '#666',
-                  fontSize: '12px',
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   fontWeight: 'bold',
-                  transition: 'color 0.3s ease',
+                  fontSize: '9px',
+                  transition: 'all 0.3s ease',
+                  border: '1px solid transparent',
+                  background: status === 'completed'
+                    ? '#4caf50'
+                    : status === 'current'
+                    ? '#2196f3'
+                    : '#666',
+                  color: status === 'completed' || status === 'current'
+                    ? 'white'
+                    : '#ccc',
+                  transform: status === 'completed' ? 'scale(1.1)' : 'scale(1)',
+                  boxShadow: status === 'completed' 
+                    ? '0 0 4px rgba(76, 175, 80, 0.6)'
+                    : status === 'current'
+                    ? '0 0 4px rgba(33, 150, 243, 0.6)'
+                    : 'none',
                 }}
-                aria-hidden="true"
+                role="progressbar"
+                aria-valuenow={status === 'completed' ? 100 : status === 'current' ? 50 : 0}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`Step ${number}: ${status}`}
               >
-                →
+                {number}
               </div>
-            )}
-          </React.Fragment>
-        ))}
+              {/* Arrow connector between steps */}
+              {index < COMBO_SEQUENCE.length - 1 && (
+                <div
+                  style={{
+                    color: isActive && index < currentProgress ? '#4caf50' : '#666',
+                    fontSize: '8px',
+                    fontWeight: 'bold',
+                    transition: 'color 0.3s ease',
+                  }}
+                  aria-hidden="true"
+                >
+                  →
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
 
-      {/* Status text */}
+      {/* Vertical status text */}
       <div
-        className="combo-status"
         style={{
-          marginLeft: '12px',
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',
-          minWidth: '80px',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '9px',
+          lineHeight: '1.2',
         }}
       >
         {isActive ? (
@@ -213,17 +159,17 @@ export const ComboProgressIndicator: React.FC<ComboProgressProps> = ({
             <div style={{ color: '#2196f3', fontWeight: 'bold' }}>
               Next: {expectedNext}
             </div>
-            <div style={{ color: '#888', fontSize: '10px' }}>
-              Progress: {currentProgress}/5
+            <div style={{ color: '#888' }}>
+              {currentProgress}/5
             </div>
           </>
         ) : (
           <>
             <div style={{ color: '#ccc' }}>
-              Combos: {totalCombos}
+              {totalCombos} combos
             </div>
-            <div style={{ color: '#888', fontSize: '10px' }}>
-              Start with 1
+            <div style={{ color: '#888' }}>
+              Start: 1
             </div>
           </>
         )}
