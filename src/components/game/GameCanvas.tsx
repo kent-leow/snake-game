@@ -21,7 +21,6 @@ import { SwipeGestureHandler } from '@/components/mobile';
 import type { GameEngine } from '@/lib/game/gameEngine';
 import type { Direction } from '@/lib/game/types';
 import type { ComboEvent, ComboState } from '@/types/Combo';
-import { ComboProgressIndicator, useComboProgressProps } from '@/components/ComboProgressIndicator';
 import { ComboFeedback } from '@/components/ComboFeedback';
 import { useSimpleComboAnimation } from '@/hooks/useComboAnimation';
 
@@ -71,16 +70,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
     showEvent: showComboEvent,
     hideEvent: hideComboEvent,
   } = useSimpleComboAnimation();
-
-  // Convert combo state to progress props (always call hook, then filter result)
-  const allComboProgressProps = useComboProgressProps(comboStateRef.current || {
-    currentSequence: [],
-    expectedNext: 1,
-    comboProgress: 0,
-    totalCombos: 0,
-    isComboActive: false,
-  });
-  const comboProgressProps = comboStateRef.current ? allComboProgressProps : null;
 
   /**
    * Update game state and render
@@ -479,27 +468,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
             }
           }}
         />
-      )}
-
-      {/* Combo Progress Indicator - moved below canvas */}
-      {enableComboVisuals && comboProgressProps && (
-        <div
-          className="combo-progress-external"
-          style={{
-            position: 'absolute',
-            bottom: '-80px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            pointerEvents: 'none',
-            zIndex: 100,
-            background: 'rgba(0, 0, 0, 0.7)',
-            padding: '8px',
-            borderRadius: '6px',
-            border: '1px solid #333',
-          }}
-        >
-          <ComboProgressIndicator {...comboProgressProps} />
-        </div>
       )}
 
       {/* Combo Feedback Animations - moved below canvas */}

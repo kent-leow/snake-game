@@ -9,6 +9,7 @@ import { useGameState, useResponsiveLayout, useSpeedData } from '@/hooks';
 import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '@/lib/game/gameEngine';
 import type { Direction } from '@/lib/game/types';
 import type { ScoreSubmissionData, ScoreSubmissionResult } from '@/services/ScoreService';
+import { ComboProgressIndicator, useComboProgressProps } from '@/components/ComboProgressIndicator';
 
 export function GamePage(): React.JSX.Element {
   const [score, setScore] = useState(0);
@@ -28,6 +29,17 @@ export function GamePage(): React.JSX.Element {
   
   // Speed data for UI indicator
   const speedData = useSpeedData(gameEngineRef.current);
+
+  // Combo progress data
+  const comboProgressProps = useComboProgressProps(
+    gameEngineRef.current?.getComboManager()?.getCurrentState() || {
+      currentSequence: [],
+      expectedNext: 1,
+      comboProgress: 0,
+      totalCombos: 0,
+      isComboActive: false,
+    }
+  );
 
   // Calculate canvas dimensions
   const gridSize = 20;
@@ -289,6 +301,11 @@ export function GamePage(): React.JSX.Element {
                   <GameStateIndicator currentState={currentState} />
                 </div>
               </div>
+              
+              {/* Combo Progress for Mobile */}
+              <div className='mt-2'>
+                <ComboProgressIndicator {...comboProgressProps} />
+              </div>
             </div>
             
             {/* Mobile Controls */}
@@ -336,17 +353,29 @@ export function GamePage(): React.JSX.Element {
                 </div>
               </div>
 
-              {/* Speed Indicator */}
+              {/* Game Stats & Speed */}
               <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
-                <h3 className='text-base font-semibold mb-3 text-white'>Speed</h3>
-                <SpeedIndicator
-                  speedLevel={speedData.speedLevel}
-                  currentSpeed={speedData.currentSpeed}
-                  baseSpeed={speedData.baseSpeed}
-                  isTransitioning={speedData.isTransitioning}
-                  maxLevel={10}
-                  showDetails={true}
-                />
+                <h3 className='text-base font-semibold mb-3 text-white'>Game Stats</h3>
+                <div className='space-y-4'>
+                  {/* Combo Progress */}
+                  <div>
+                    <div className='text-sm text-gray-300 mb-2'>Combo Progress</div>
+                    <ComboProgressIndicator {...comboProgressProps} />
+                  </div>
+                  
+                  {/* Speed Indicator */}
+                  <div>
+                    <div className='text-sm text-gray-300 mb-2'>Speed</div>
+                    <SpeedIndicator
+                      speedLevel={speedData.speedLevel}
+                      currentSpeed={speedData.currentSpeed}
+                      baseSpeed={speedData.baseSpeed}
+                      isTransitioning={speedData.isTransitioning}
+                      maxLevel={10}
+                      showDetails={true}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
