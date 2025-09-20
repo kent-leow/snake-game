@@ -14,7 +14,6 @@ import { ComboProgressIndicator, useComboProgressProps } from '@/components/Comb
 export function GamePage(): React.JSX.Element {
   const [score, setScore] = useState(0);
   const [isGameReady, setIsGameReady] = useState(false);
-  const [canvasSize, setCanvasSize] = useState(400); // Default size
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [gameOverData, setGameOverData] = useState<{
     score: number;
@@ -41,50 +40,11 @@ export function GamePage(): React.JSX.Element {
     }
   );
 
-  // Calculate canvas dimensions
+  // Calculate canvas dimensions - FIXED SIZE
   const gridSize = 20;
   
-  // Update canvas size based on viewport
-  useEffect(() => {
-    const updateCanvasSize = (): void => {
-      const maxAvailableWidth = window.innerWidth - 600; // Reserve space for side panels
-      const maxAvailableHeight = window.innerHeight - 200; // Reserve space for header and padding
-      
-      const availableSize = Math.min(
-        600, // Desired max size
-        maxAvailableWidth,
-        maxAvailableHeight
-      );
-      
-      // Ensure minimum size and proper cell alignment
-      const minSize = 300;
-      const cellSize = Math.floor(Math.max(availableSize, minSize) / gridSize);
-      const actualSize = cellSize * gridSize;
-      
-      // Only update if size actually changed to prevent unnecessary re-renders
-      if (actualSize !== canvasSize) {
-        setCanvasSize(actualSize);
-      }
-    };
-
-    updateCanvasSize();
-    
-    // Debounce resize events
-    let resizeTimeout: NodeJS.Timeout;
-    const debouncedResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(updateCanvasSize, 200);
-    };
-    
-    window.addEventListener('resize', debouncedResize);
-    
-    return () => {
-      window.removeEventListener('resize', debouncedResize);
-      clearTimeout(resizeTimeout);
-    };
-  }, [canvasSize]);
-
-  const actualSize = canvasSize;
+  // Use a fixed canvas size to prevent constant resizing
+  const actualSize = isMobile ? 320 : 500; // Fixed size: 320px for mobile, 500px for desktop
 
   const handleGameReady = useCallback((): void => {
     setIsGameReady(true);
@@ -233,8 +193,6 @@ export function GamePage(): React.JSX.Element {
 
   // Initialize game engine
   useEffect(() => {
-    if (actualSize === 0) return; // Wait for canvas size calculation
-    
     const config: GameEngineConfig = {
       canvasWidth: actualSize,
       canvasHeight: actualSize, // Make it square to match renderer

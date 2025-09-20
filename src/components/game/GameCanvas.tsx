@@ -140,13 +140,13 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       const performanceMonitor = new PerformanceMonitor(enablePerformanceMonitoring);
       performanceMonitorRef.current = performanceMonitor;
 
-      // Initialize responsive canvas
+      // Initialize responsive canvas with fixed size to prevent resizing conflicts
       const responsiveCanvas = new ResponsiveCanvas(
         canvasRef.current,
         containerRef.current,
         {
-          minSize: 300,
-          maxSize: 600,
+          minSize: gameConfig.canvasWidth || 300,
+          maxSize: gameConfig.canvasWidth || 600,
           maintainAspectRatio: true,
         }
       );
@@ -175,22 +175,15 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       );
       renderLoopRef.current = renderLoop;
 
-      // Set up responsive canvas resize handler
-      responsiveCanvas.onResize((dimensions) => {
-        const newConfig = {
-          ...gameConfig,
-          gridSize: Math.min(gameConfig.gridSize, Math.floor(dimensions.width / 15)),
-        };
-        renderer.resize(newConfig);
-      });
+      // Set canvas to fixed size - no dynamic resizing
+      if (gameConfig.canvasWidth && gameConfig.canvasHeight) {
+        renderer.resize(gameConfig);
+      }
 
       // Mobile optimizations
       if (isMobile && canvasRef.current) {
         MobileUtils.optimizeCanvasForMobile(canvasRef.current);
       }
-
-      // Initial resize
-      responsiveCanvas.resize();
 
       // Start render loop
       renderLoop.start();
@@ -256,26 +249,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       return undefined;
     }
   }, [gameEngine, enableComboVisuals, showComboEvent]);
-
-  /**
-   * Handle window resize
-   */
-  useEffect(() => {
-    let resizeTimeout: NodeJS.Timeout;
-    
-    const handleResize = (): void => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        responsiveCanvasRef.current?.resize();
-      }, 150); // Debounce to prevent excessive resizing
-    };
-
-    window.addEventListener('resize', handleResize);
-    return (): void => {
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(resizeTimeout);
-    };
-  }, []);
 
   /**
    * Handle canvas click for focus

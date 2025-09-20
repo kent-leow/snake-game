@@ -43,7 +43,11 @@ export class ResponsiveCanvas {
       maintainAspectRatio: options.maintainAspectRatio ?? true,
     };
 
-    this.setupResizeObserver();
+    // Only set up responsive behavior if min and max sizes are different
+    // If they're the same, we want a fixed size canvas
+    if (this.options.minSize !== this.options.maxSize) {
+      this.setupResizeObserver();
+    }
   }
 
   /**
