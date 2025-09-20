@@ -17,6 +17,7 @@ import {
 } from '@/lib/rendering';
 import { useResponsiveLayout } from '@/hooks';
 import { MobileUtils } from '@/lib/mobile';
+import { SwipeGestureHandler } from '@/components/mobile';
 import type { GameEngine } from '@/lib/game/gameEngine';
 import type { Direction } from '@/lib/game/types';
 import type { ComboEvent, ComboState } from '@/types/Combo';
@@ -232,22 +233,13 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
   useEffect(() => {
     if (!gameEngine || !renderLoopRef.current) return;
 
-    // Create a simple subscription to game state changes
-    // This is a basic implementation - you might want to use a more sophisticated approach
-    const checkGameState = (): void => {
-      const gameState = gameEngine.getGameState();
-      
-      if (gameState.isRunning && !renderLoopRef.current?.isActive()) {
-        renderLoopRef.current?.resume();
-      } else if (!gameState.isRunning && renderLoopRef.current?.isActive()) {
-        renderLoopRef.current?.pause();
-      }
-    };
+    // Keep render loop running at all times for smooth rendering
+    // The render function will handle paused state appropriately
+    if (!renderLoopRef.current.isActive()) {
+      renderLoopRef.current.resume();
+    }
 
-    // Check game state periodically
-    const interval = setInterval(checkGameState, 100);
-    
-    return (): void => clearInterval(interval);
+    // No need to pause/resume render loop - keep it running for smooth visuals
   }, [gameEngine]);
 
   /**
@@ -351,47 +343,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
     }
   }, [onDirectionChange, gameEngine]);
 
-  /**
-   * Handle touch events directly on canvas for mobile
-   */
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (!isMobile || !enableTouchControls || !isInitialized) return;
-
-    // Store touch start position in a ref to avoid state changes
-    if (e.touches.length === 1) {
-      const touch = e.touches[0];
-      touchStartRef.current = { x: touch.clientX, y: touch.clientY };
-    }
-  }, [isMobile, enableTouchControls, isInitialized]);
-
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (!isMobile || !enableTouchControls || !isInitialized || !touchStartRef.current || e.changedTouches.length !== 1) return;
-
-    const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - touchStartRef.current.x;
-    const deltaY = touch.clientY - touchStartRef.current.y;
-
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-    if (distance >= 50) { // sensitivity
-      const absDeltaX = Math.abs(deltaX);
-      const absDeltaY = Math.abs(deltaY);
-
-      if (absDeltaX > absDeltaY) {
-        // Horizontal swipe
-        handleSwipeDirection(deltaX > 0 ? 'RIGHT' : 'LEFT');
-      } else {
-        // Vertical swipe
-        handleSwipeDirection(deltaY > 0 ? 'DOWN' : 'UP');
-      }
-    }
-
-    touchStartRef.current = null;
-  }, [isMobile, enableTouchControls, isInitialized, handleSwipeDirection]);
-
-  // Ref to store touch start position without causing re-renders
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-
   return (
     <div
       ref={containerRef}
@@ -406,31 +357,36 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       }}
     >
       {isMobile && enableTouchControls ? (
-        <canvas
-          ref={canvasRef}
-          className="game-canvas"
-          tabIndex={0}
-          role="img"
-          aria-label="Snake game canvas"
-          onClick={handleCanvasClick}
-          onKeyDown={handleKeyDown}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          style={{
-            border: '2px solid #333',
-            borderRadius: '8px',
-            background: '#1a1a1a',
-            outline: 'none',
-            cursor: 'pointer',
-            touchAction: 'none',
-          }}
-          onFocus={() => {
-            // Focus handled by CSS
-          }}
-          onBlur={() => {
-            // Blur handled by CSS
-          }}
-        />
+        <SwipeGestureHandler
+          onSwipe={handleSwipeDirection}
+          sensitivity={50}
+          disabled={!isInitialized}
+          className="game-canvas-swipe-wrapper"
+        >
+          <canvas
+            ref={canvasRef}
+            className="game-canvas"
+            tabIndex={0}
+            role="img"
+            aria-label="Snake game canvas"
+            onClick={handleCanvasClick}
+            onKeyDown={handleKeyDown}
+            style={{
+              border: '2px solid #333',
+              borderRadius: '8px',
+              background: '#1a1a1a',
+              outline: 'none',
+              cursor: 'pointer',
+              touchAction: 'none',
+            }}
+            onFocus={() => {
+              // Focus handled by CSS
+            }}
+            onBlur={() => {
+              // Blur handled by CSS
+            }}
+          />
+        </SwipeGestureHandler>
       ) : (
         <canvas
           ref={canvasRef}

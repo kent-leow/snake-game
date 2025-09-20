@@ -47,9 +47,15 @@ export class CanvasRenderer {
   private backgroundColor: string = '#1a1a1a';
   private foodRenderer: FoodRenderer | null = null;
   
-  // Double buffering
-  private offscreenCanvas: HTMLCanvasElement;
-  private offscreenCtx: CanvasRenderingContext2D;
+  // Layered rendering for performance
+  private backgroundCanvas!: HTMLCanvasElement;
+  private backgroundCtx!: CanvasRenderingContext2D;
+  private dynamicCanvas!: HTMLCanvasElement;
+  private dynamicCtx!: CanvasRenderingContext2D;
+  
+  // Track what needs to be redrawn
+  private needsBackgroundRedraw: boolean = true;
+  private lastGameElements: GameElements | null = null;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -59,24 +65,46 @@ export class CanvasRenderer {
     this.renderContext = this.initializeRenderContext(canvas, gameConfig);
     this.performanceMonitor = performanceMonitor || null;
     
-    // Set up double buffering
-    this.offscreenCanvas = document.createElement('canvas');
-    this.offscreenCanvas.width = this.renderContext.width * this.renderContext.pixelRatio;
-    this.offscreenCanvas.height = this.renderContext.height * this.renderContext.pixelRatio;
-    const ctx = this.offscreenCanvas.getContext('2d');
-    if (!ctx) {
-      throw new Error('Failed to get offscreen 2D context');
-    }
-    this.offscreenCtx = ctx;
-    this.offscreenCtx.scale(this.renderContext.pixelRatio, this.renderContext.pixelRatio);
+    // Initialize layered rendering system
+    this.initializeLayeredRendering();
     
     this.setupCanvasOptimizations();
     
-    // Initialize food renderer with offscreen context
+    // Initialize food renderer with dynamic context
     this.foodRenderer = new FoodRenderer(
-      this.offscreenCtx,
+      this.dynamicCtx,
       this.renderContext.gridSize
     );
+  }
+
+  /**
+   * Initialize layered rendering with background and dynamic canvases
+   */
+  private initializeLayeredRendering(): void {
+    // Background canvas for static elements (grid, food, UI)
+    this.backgroundCanvas = document.createElement('canvas');
+    this.backgroundCanvas.width = this.renderContext.width * this.renderContext.pixelRatio;
+    this.backgroundCanvas.height = this.renderContext.height * this.renderContext.pixelRatio;
+    const bgCtx = this.backgroundCanvas.getContext('2d');
+    if (!bgCtx) {
+      throw new Error('Failed to get background 2D context');
+    }
+    this.backgroundCtx = bgCtx;
+    this.backgroundCtx.scale(this.renderContext.pixelRatio, this.renderContext.pixelRatio);
+    
+    // Dynamic canvas for moving elements (snake)
+    this.dynamicCanvas = document.createElement('canvas');
+    this.dynamicCanvas.width = this.renderContext.width * this.renderContext.pixelRatio;
+    this.dynamicCanvas.height = this.renderContext.height * this.renderContext.pixelRatio;
+    const dynCtx = this.dynamicCanvas.getContext('2d');
+    if (!dynCtx) {
+      throw new Error('Failed to get dynamic 2D context');
+    }
+    this.dynamicCtx = dynCtx;
+    this.dynamicCtx.scale(this.renderContext.pixelRatio, this.renderContext.pixelRatio);
+    
+    CanvasUtils.applyCanvasOptimizations(this.backgroundCtx);
+    CanvasUtils.applyCanvasOptimizations(this.dynamicCtx);
   }
 
   /**
@@ -110,38 +138,32 @@ export class CanvasRenderer {
    */
   private setupCanvasOptimizations(): void {
     CanvasUtils.applyCanvasOptimizations(this.renderContext.ctx);
-    CanvasUtils.applyCanvasOptimizations(this.offscreenCtx);
+    CanvasUtils.applyCanvasOptimizations(this.backgroundCtx);
+    CanvasUtils.applyCanvasOptimizations(this.dynamicCtx);
   }
 
   /**
-   * Main render method - draws all game elements
+   * Main render method - draws all game elements with layered optimization
    */
   public render(gameElements: GameElements, interpolation: number = 1.0): void {
     try {
       const startTime = performance.now();
 
-      // Render to offscreen canvas first to eliminate flickering
-      this.clearOffscreenCanvas();
-      this.drawGridOffscreen();
+      // Check if background needs to be redrawn
+      const backgroundChanged = this.hasBackgroundChanged(gameElements);
       
-      // Render foods based on mode
-      if (gameElements.useMultipleFood && gameElements.multipleFoods) {
-        this.drawMultipleFoodsOffscreen(gameElements.multipleFoods);
-      } else if (gameElements.food) {
-        this.drawFoodOffscreen(gameElements.food);
-      }
-      
-      this.drawSnakeOffscreen(gameElements.snake, interpolation);
-      this.drawUIOffscreen(gameElements.score, gameElements.gameState);
-      
-      // Draw performance overlay if enabled (on offscreen canvas)
-      if (this.performanceMonitor?.isEnabled()) {
-        this.drawPerformanceOverlayOffscreen();
+      if (backgroundChanged || this.needsBackgroundRedraw) {
+        this.renderBackground(gameElements);
+        this.needsBackgroundRedraw = false;
       }
 
-      // Copy offscreen canvas to main canvas in one operation (eliminates flickering)
-      this.renderContext.ctx.drawImage(this.offscreenCanvas, 0, 0);
+      // Always redraw dynamic elements (snake)
+      this.renderDynamic(gameElements, interpolation);
 
+      // Composite layers to main canvas
+      this.compositeToMainCanvas();
+
+      this.lastGameElements = { ...gameElements };
       this.lastRenderTime = performance.now() - startTime;
     } catch (error) {
       console.error('Rendering error:', error);
@@ -150,19 +172,76 @@ export class CanvasRenderer {
   }
 
   /**
-   * Clear offscreen canvas with background color
+   * Check if background elements have changed
    */
-  private clearOffscreenCanvas(): void {
-    CanvasUtils.clearCanvas(this.offscreenCtx, this.renderContext.width, this.renderContext.height, this.backgroundColor);
+  private hasBackgroundChanged(gameElements: GameElements): boolean {
+    if (!this.lastGameElements) return true;
+
+    // Check if score or game state changed
+    const uiChanged = 
+      gameElements.score !== this.lastGameElements.score ||
+      gameElements.gameState !== this.lastGameElements.gameState;
+
+    return uiChanged;
   }
 
   /**
-   * Draw game grid on offscreen canvas
+   * Render static background elements
    */
-  private drawGridOffscreen(): void {
-    const { width, height, cellSize } = this.renderContext;
-    const ctx = this.offscreenCtx;
+  private renderBackground(gameElements: GameElements): void {
+    // Clear background canvas
+    CanvasUtils.clearCanvas(this.backgroundCtx, this.renderContext.width, this.renderContext.height, this.backgroundColor);
+    
+    // Draw grid
+    this.drawGrid(this.backgroundCtx);
+    
+    // Draw UI
+    this.drawUI(this.backgroundCtx, gameElements.score, gameElements.gameState);
+  }
 
+  /**
+   * Render dynamic elements (snake)
+   */
+  private renderDynamic(gameElements: GameElements, interpolation: number): void {
+    // Clear dynamic canvas (transparent)
+    this.dynamicCtx.clearRect(0, 0, this.renderContext.width, this.renderContext.height);
+    
+    // Draw food (animated)
+    if (gameElements.useMultipleFood && gameElements.multipleFoods) {
+      this.drawMultipleFoods(this.dynamicCtx, gameElements.multipleFoods);
+    } else if (gameElements.food) {
+      this.drawFood(this.dynamicCtx, gameElements.food);
+    }
+    
+    // Draw snake
+    this.drawSnake(this.dynamicCtx, gameElements.snake, interpolation);
+    
+    // Draw performance overlay if enabled (on dynamic layer since it changes frequently)
+    if (this.performanceMonitor?.isEnabled()) {
+      this.drawPerformanceOverlay(this.dynamicCtx);
+    }
+  }
+
+  /**
+   * Composite background and dynamic layers to main canvas
+   */
+  private compositeToMainCanvas(): void {
+    // Always clear main canvas
+    CanvasUtils.clearCanvas(this.renderContext.ctx, this.renderContext.width, this.renderContext.height, this.backgroundColor);
+    
+    // Always draw background layer
+    this.renderContext.ctx.drawImage(this.backgroundCanvas, 0, 0);
+    
+    // Always draw dynamic layer on top
+    this.renderContext.ctx.drawImage(this.dynamicCanvas, 0, 0);
+  }
+
+  /**
+   * Draw game grid
+   */
+  private drawGrid(ctx: CanvasRenderingContext2D): void {
+    const { width, height, cellSize } = this.renderContext;
+    
     ctx.strokeStyle = this.gridColor;
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -183,12 +262,11 @@ export class CanvasRenderer {
   }
 
   /**
-   * Draw snake with enhanced visuals on offscreen canvas
+   * Draw snake with enhanced visuals
    */
-  private drawSnakeOffscreen(snake: Snake, _interpolation: number): void {
+  private drawSnake(ctx: CanvasRenderingContext2D, snake: Snake, _interpolation: number): void {
     const { cellSize } = this.renderContext;
-    const ctx = this.offscreenCtx;
-
+    
     snake.segments.forEach((segment, index) => {
       // Snake segments are already in pixel coordinates, not grid coordinates
       const x = segment.x;
@@ -217,14 +295,11 @@ export class CanvasRenderer {
     });
   }
 
-
-
   /**
-   * Draw food with animated effects on offscreen canvas
+   * Draw food with animated effects
    */
-  private drawFoodOffscreen(food: EnhancedFood): void {
+  private drawFood(ctx: CanvasRenderingContext2D, food: EnhancedFood): void {
     const { cellSize } = this.renderContext;
-    const ctx = this.offscreenCtx;
     // Food positions are already in pixel coordinates, not grid coordinates
     const x = food.x;
     const y = food.y;
@@ -280,12 +355,10 @@ export class CanvasRenderer {
     }
   }
 
-
-
   /**
-   * Draw multiple numbered food blocks on offscreen canvas
+   * Draw multiple numbered food blocks
    */
-  private drawMultipleFoodsOffscreen(foods: NumberedFood[]): void {
+  private drawMultipleFoods(ctx: CanvasRenderingContext2D, foods: NumberedFood[]): void {
     if (!this.foodRenderer) {
       console.warn('FoodRenderer not initialized');
       return;
@@ -294,19 +367,16 @@ export class CanvasRenderer {
     // Calculate delta time for animation (simplified)
     const deltaTime = 16; // Assume 60fps
     
-    // The food renderer is already initialized with offscreen context
-    // No need to switch contexts
+    // Temporarily switch context for background rendering
+    this.foodRenderer.updateContext(ctx);
     this.foodRenderer.renderMultipleFoods(foods, deltaTime);
+    this.foodRenderer.updateContext(this.dynamicCtx);
   }
 
-
-
   /**
-   * Draw UI elements (score, game state) on offscreen canvas
+   * Draw UI elements (score, game state)
    */
-  private drawUIOffscreen(score: number, gameState: string): void {
-    const ctx = this.offscreenCtx;
-
+  private drawUI(ctx: CanvasRenderingContext2D, score: number, gameState: string): void {
     // Score display
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 20px monospace';
@@ -314,20 +384,17 @@ export class CanvasRenderer {
 
     // Game state overlay
     if (gameState === 'paused') {
-      this.drawOverlayOffscreen('PAUSED', 'Press SPACE to resume');
+      this.drawOverlay(ctx, 'PAUSED', 'Press SPACE to resume');
     } else if (gameState === 'game-over') {
-      this.drawOverlayOffscreen('GAME OVER', `Final Score: ${score}`);
+      this.drawOverlay(ctx, 'GAME OVER', `Final Score: ${score}`);
     }
   }
 
-
-
   /**
-   * Draw text overlay for game states on offscreen canvas
+   * Draw text overlay for game states
    */
-  private drawOverlayOffscreen(title: string, subtitle: string): void {
+  private drawOverlay(ctx: CanvasRenderingContext2D, title: string, subtitle: string): void {
     const { width, height } = this.renderContext;
-    const ctx = this.offscreenCtx;
 
     // Semi-transparent background
     ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
@@ -348,13 +415,12 @@ export class CanvasRenderer {
   }
 
   /**
-   * Draw performance overlay on offscreen canvas
+   * Draw performance overlay
    */
-  private drawPerformanceOverlayOffscreen(): void {
+  private drawPerformanceOverlay(ctx: CanvasRenderingContext2D): void {
     if (!this.performanceMonitor) return;
 
     const { width } = this.renderContext;
-    const ctx = this.offscreenCtx;
     const metrics = this.performanceMonitor.getMetrics();
 
     ctx.fillStyle = '#888888';
@@ -382,18 +448,27 @@ export class CanvasRenderer {
       newConfig
     );
     
-    // Resize offscreen canvas
-    this.offscreenCanvas.width = this.renderContext.width * this.renderContext.pixelRatio;
-    this.offscreenCanvas.height = this.renderContext.height * this.renderContext.pixelRatio;
+    // Resize background canvas
+    this.backgroundCanvas.width = this.renderContext.width * this.renderContext.pixelRatio;
+    this.backgroundCanvas.height = this.renderContext.height * this.renderContext.pixelRatio;
+    this.backgroundCtx.scale(this.renderContext.pixelRatio, this.renderContext.pixelRatio);
     
-    this.offscreenCtx.scale(this.renderContext.pixelRatio, this.renderContext.pixelRatio);
-    this.setupCanvasOptimizations();
+    // Resize dynamic canvas
+    this.dynamicCanvas.width = this.renderContext.width * this.renderContext.pixelRatio;
+    this.dynamicCanvas.height = this.renderContext.height * this.renderContext.pixelRatio;
+    this.dynamicCtx.scale(this.renderContext.pixelRatio, this.renderContext.pixelRatio);
     
-    // Update food renderer with new grid size and offscreen context
+    CanvasUtils.applyCanvasOptimizations(this.backgroundCtx);
+    CanvasUtils.applyCanvasOptimizations(this.dynamicCtx);
+    
+    // Update food renderer with new grid size and dynamic context
     if (this.foodRenderer) {
       this.foodRenderer.updateGridSize(this.renderContext.gridSize);
-      this.foodRenderer.updateContext(this.offscreenCtx);
+      this.foodRenderer.updateContext(this.dynamicCtx);
     }
+    
+    // Force background redraw on next render
+    this.needsBackgroundRedraw = true;
   }
 
   /**

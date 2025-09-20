@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useRef, useCallback } from 'react';
 import type { Direction } from '@/lib/game/types';
 
 interface SwipeGestureHandlerProps {
@@ -22,30 +22,30 @@ export const SwipeGestureHandler: React.FC<SwipeGestureHandlerProps> = React.mem
   disabled = false,
   className = '',
 }) => {
-  const [startTouch, setStartTouch] = useState<{ x: number; y: number } | null>(null);
-  const [isTracking, setIsTracking] = useState(false);
+  const startTouchRef = useRef<{ x: number; y: number } | null>(null);
+  const isTrackingRef = useRef(false);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (disabled || e.touches.length !== 1) return;
 
     const touch = e.touches[0];
-    setStartTouch({ x: touch.clientX, y: touch.clientY });
-    setIsTracking(true);
+    startTouchRef.current = { x: touch.clientX, y: touch.clientY };
+    isTrackingRef.current = true;
   }, [disabled]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!isTracking || !startTouch || e.touches.length !== 1) return;
+    if (!isTrackingRef.current || !startTouchRef.current || e.touches.length !== 1) return;
 
     // Prevent scrolling during swipe
     e.preventDefault();
-  }, [isTracking, startTouch]);
+  }, []);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (!isTracking || !startTouch || e.changedTouches.length !== 1) return;
+    if (!isTrackingRef.current || !startTouchRef.current || e.changedTouches.length !== 1) return;
 
     const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - startTouch.x;
-    const deltaY = touch.clientY - startTouch.y;
+    const deltaX = touch.clientX - startTouchRef.current.x;
+    const deltaY = touch.clientY - startTouchRef.current.y;
 
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
@@ -62,13 +62,13 @@ export const SwipeGestureHandler: React.FC<SwipeGestureHandlerProps> = React.mem
       }
     }
 
-    setStartTouch(null);
-    setIsTracking(false);
-  }, [isTracking, startTouch, sensitivity, onSwipe]);
+    startTouchRef.current = null;
+    isTrackingRef.current = false;
+  }, [sensitivity, onSwipe]);
 
   const handleTouchCancel = useCallback(() => {
-    setStartTouch(null);
-    setIsTracking(false);
+    startTouchRef.current = null;
+    isTrackingRef.current = false;
   }, []);
 
   return (
@@ -83,5 +83,7 @@ export const SwipeGestureHandler: React.FC<SwipeGestureHandlerProps> = React.mem
     </div>
   );
 });
+
+SwipeGestureHandler.displayName = 'SwipeGestureHandler';
 
 export default SwipeGestureHandler;
