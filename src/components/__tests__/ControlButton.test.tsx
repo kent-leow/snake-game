@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ControlButton } from '../game/ControlButton';
 
@@ -174,7 +174,7 @@ describe('ControlButton', () => {
   });
 
   describe('Visual Feedback', () => {
-    it('should apply pressed class temporarily when clicked', () => {
+    it('should apply pressed class temporarily when clicked', async () => {
       jest.useFakeTimers();
       
       render(<ControlButton onClick={mockOnClick}>Test Button</ControlButton>);
@@ -182,17 +182,20 @@ describe('ControlButton', () => {
       const button = screen.getByRole('button');
       
       // Click the button - this should set pressed state
-      fireEvent.click(button);
+      act(() => {
+        fireEvent.click(button);
+      });
       
       // Should have pressed class immediately after click
       expect(button).toHaveClass('control-button--pressed');
       
       // Fast forward past the 150ms timeout
-      jest.advanceTimersByTime(151);
+      act(() => {
+        jest.advanceTimersByTime(151);
+      });
       
       // After timeout, pressed class should be removed
-      // Note: We can't test this with fake timers due to React's async nature
-      // In a real browser, this would work correctly
+      expect(button).not.toHaveClass('control-button--pressed');
       
       jest.useRealTimers();
     });

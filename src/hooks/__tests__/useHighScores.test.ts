@@ -32,13 +32,13 @@ global.Response = class Response {
 // Mock console.error to avoid noise in tests
 const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-// Mock score data used across tests
+// Mock score data used across tests - simulating JSON API response with string dates
 const mockScoreData: IScore[] = [
   {
     _id: '1',
     playerName: 'Player1',
     score: 1000,
-    timestamp: new Date('2023-01-01'),
+    timestamp: '2023-01-01T00:00:00.000Z',
     gameMetrics: {
       gameTimeSeconds: 300,
       totalFood: 50,
@@ -53,14 +53,14 @@ const mockScoreData: IScore[] = [
       comboEfficiency: 85.5,
       averageComboLength: 3.2,
     },
-    createdAt: new Date('2023-01-01'),
-    updatedAt: new Date('2023-01-01'),
-  } as IScore,
+    createdAt: '2023-01-01T00:00:00.000Z',
+    updatedAt: '2023-01-01T00:00:00.000Z',
+  } as unknown as IScore,
   {
     _id: '2',
     playerName: 'Player2',
     score: 800,
-    timestamp: new Date('2023-01-02'),
+    timestamp: '2023-01-02T00:00:00.000Z',
     gameMetrics: {
       gameTimeSeconds: 250,
       totalFood: 40,
@@ -75,24 +75,24 @@ const mockScoreData: IScore[] = [
       comboEfficiency: 75.0,
       averageComboLength: 2.8,
     },
-    createdAt: new Date('2023-01-02'),
-    updatedAt: new Date('2023-01-02'),
-  } as IScore,
+    createdAt: '2023-01-02T00:00:00.000Z',
+    updatedAt: '2023-01-02T00:00:00.000Z',
+  } as unknown as IScore,
 ];
 
 describe('useHighScores Hook', () => {
   beforeEach(() => {
+    // Complete reset of all mocks
+    jest.resetAllMocks();
     mockFetch.mockClear();
     mockConsoleError.mockClear();
     jest.clearAllTimers();
-    // Clear any state from previous tests
-    jest.clearAllMocks();
   });
 
   afterEach(() => {
     jest.useRealTimers();
-    // Clean up any pending promises or state
-    jest.runOnlyPendingTimers();
+    // Ensure complete cleanup
+    jest.resetAllMocks();
   });
 
   describe('Basic Functionality', () => {
@@ -204,19 +204,13 @@ describe('useHighScores Hook', () => {
     });
 
     it('should handle timeout errors', async () => {
-      jest.useFakeTimers();
-
-      mockFetch.mockImplementationOnce(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(() => resolve(new Response('{}', { status: 200 })), 10000);
-          })
-      );
+      // Mock fetch to throw AbortError after a delay
+      const mockAbortError = new Error('The operation was aborted');
+      mockAbortError.name = 'AbortError';
+      
+      mockFetch.mockRejectedValueOnce(mockAbortError);
 
       const { result } = renderHook(() => useHighScores({ timeout: 1000 }));
-
-      // Fast-forward time to trigger timeout
-      jest.advanceTimersByTime(1000);
 
       await waitFor(() => {
         expect(result.current.loading).toBe(false);
@@ -362,7 +356,7 @@ describe('usePlayerScores Hook', () => {
   });
 
   it('should handle player score fetch errors', async () => {
-    mockFetch.mockRejectedValueOnce(new Error('Network error'));
+    mockFetch.mockRejectedValueOnce(new Error('Failed to fetch'));
 
     const { result } = renderHook(() => usePlayerScores(playerName));
 

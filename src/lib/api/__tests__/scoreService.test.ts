@@ -21,6 +21,11 @@ describe('ScoreService', () => {
     scoreService = new ScoreService();
     jest.clearAllMocks();
     
+    // Clear rate limit cache
+    if ((global as any).rateLimitCache) {
+      (global as any).rateLimitCache = {};
+    }
+    
     // Mock successful database connection
     mockConnectToDatabase.mockResolvedValue({} as any);
   });
@@ -304,12 +309,14 @@ describe('ScoreService', () => {
     });
 
     it('should block submissions when rate limit exceeded', async () => {
+      const testClientId = 'rate-limit-test-client';
+      
       // Simulate multiple rapid submissions
       for (let i = 0; i < 5; i++) {
-        await ScoreService.isRateLimited('test-client');
+        await ScoreService.isRateLimited(testClientId);
       }
 
-      const isLimited = await ScoreService.isRateLimited('test-client');
+      const isLimited = await ScoreService.isRateLimited(testClientId);
       expect(isLimited).toBe(true);
     });
 

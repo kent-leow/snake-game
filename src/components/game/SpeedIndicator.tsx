@@ -29,10 +29,12 @@ export interface SpeedIndicatorProps {
 const useSpeedAnimation = (speedLevel: number): { showChange: boolean; isIncreasing: boolean } => {
   const [previousLevel, setPreviousLevel] = useState(speedLevel);
   const [showChange, setShowChange] = useState(false);
+  const [isIncreasing, setIsIncreasing] = useState(false);
 
   useEffect(() => {
     if (speedLevel !== previousLevel) {
       setShowChange(true);
+      setIsIncreasing(speedLevel > previousLevel);
       setPreviousLevel(speedLevel);
 
       const timer = setTimeout((): void => {
@@ -45,7 +47,7 @@ const useSpeedAnimation = (speedLevel: number): { showChange: boolean; isIncreas
 
   return { 
     showChange, 
-    isIncreasing: speedLevel > previousLevel 
+    isIncreasing
   };
 };
 
@@ -65,10 +67,10 @@ export const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({
   const { showChange, isIncreasing } = useSpeedAnimation(speedLevel);
   
   // Calculate speed percentage for progress bar
-  const speedPercentage = Math.min(
+  const speedPercentage = Math.max(0, Math.min(
     ((baseSpeed - currentSpeed) / baseSpeed) * 100, 
     100
-  );
+  ));
   
   // Calculate speed multiplier for display
   const speedMultiplier = Math.round((baseSpeed / currentSpeed) * 100);

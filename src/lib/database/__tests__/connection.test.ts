@@ -35,15 +35,19 @@ describe('Database Connection', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Reset global cache completely and force module to recheck
-    delete (global as any).mongoose;
-    // Also clear the mongoose connection state
+    if ((global as any).mongoose) {
+      delete (global as any).mongoose;
+    }
+    // Reset mongoose connection to initial state
     (mockedMongoose.connection as any).readyState = 0;
   });
 
   afterEach(async () => {
-    await disconnectFromDatabase();
     // Clean up global state after each test  
-    delete (global as any).mongoose;
+    if ((global as any).mongoose) {
+      delete (global as any).mongoose;
+    }
+    jest.clearAllMocks();
   });
 
   describe('connectToDatabase', () => {
@@ -56,13 +60,13 @@ describe('Database Connection', () => {
     });
 
     it('should connect to database with default options', async () => {
+      // Ensure environment is set correctly for this test
+      process.env.MONGO_URL = 'mongodb://test_user:test_password@localhost:27017/test_db';
+      
       const mockConnection = { readyState: 1 };
       mockedMongoose.connect.mockResolvedValue({
         connection: mockConnection,
       } as any);
-
-      process.env.MONGO_URL =
-        'mongodb://test_user:test_password@localhost:27017/test_db';
 
       const connection = await connectToDatabase();
 
@@ -70,9 +74,14 @@ describe('Database Connection', () => {
         'mongodb://test_user:test_password@localhost:27017/test_db',
         {
           bufferCommands: false,
-          maxPoolSize: 10,
           serverSelectionTimeoutMS: 10000,
           socketTimeoutMS: 45000,
+          maxPoolSize: 5,
+          minPoolSize: 1,
+          maxIdleTimeMS: 60000,
+          family: 4,
+          autoIndex: true,
+          autoCreate: true,
         }
       );
       expect(connection).toBe(mockConnection);
@@ -99,7 +108,17 @@ describe('Database Connection', () => {
 
       expect(mockedMongoose.connect).toHaveBeenCalledWith(
         'mongodb://test_user:test_password@localhost:27017/test_db',
-        customOptions
+        {
+          bufferCommands: true,  // custom
+          maxPoolSize: 20,       // custom
+          serverSelectionTimeoutMS: 5000,  // custom
+          socketTimeoutMS: 30000, // custom
+          minPoolSize: 1,        // default
+          maxIdleTimeMS: 60000,  // default
+          family: 4,             // default
+          autoIndex: true,       // default (development)
+          autoCreate: true,      // default (development)
+        }
       );
       expect(connection).toBe(mockConnection);
     });

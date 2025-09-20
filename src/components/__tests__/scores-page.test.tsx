@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ScoresPage from '../../app/scores/page';
 
@@ -13,11 +13,21 @@ jest.mock('@/components', () => ({
 }));
 
 jest.mock('@/components/HighScoreTable', () => ({
-  HighScoreTable: ({ scores, loading, error }: any) => (
+  HighScoreTable: ({ scores, loading, error, onRetry }: any) => (
     <div data-testid="high-score-table">
       {loading && <div>Loading...</div>}
-      {error && <div>Error: {error}</div>}
-      {!loading && !error && (
+      {error && (
+        <div>
+          Error: {error}
+          {onRetry && (
+            <button onClick={onRetry}>Try Again</button>
+          )}
+        </div>
+      )}
+      {!loading && !error && scores && scores.length === 0 && (
+        <div>No High Scores Yet</div>
+      )}
+      {!loading && !error && scores && scores.length > 0 && (
         <div>
           Scores loaded: {scores.length}
           {scores.map((score: any, index: number) => (
@@ -333,17 +343,17 @@ describe('ScoresPage', () => {
       expect(screen.getByText('Loading...')).toBeInTheDocument();
     });
 
-    it('resets error state when making new request', async () => {
+    it('resets error state when retrying after error', async () => {
       // First request fails
       mockFetch.mockRejectedValueOnce(new Error('First error'));
 
-      const { rerender } = render(<ScoresPage />);
+      render(<ScoresPage />);
 
       await waitFor(() => {
         expect(screen.getByText('Error: First error')).toBeInTheDocument();
       });
 
-      // Mock successful response for rerender
+      // Mock successful response for retry
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -352,12 +362,20 @@ describe('ScoresPage', () => {
         }),
       });
 
-      // Force re-render
-      rerender(<ScoresPage />);
+      // Click retry button (this triggers the refetch)
+      const retryButton = screen.getByText('Try Again');
+      
+      act(() => {
+        retryButton.click();
+      });
 
-      // Should clear the error and show loading
+      // Should clear the error and show loading, then show no data message
       await waitFor(() => {
         expect(screen.queryByText('Error: First error')).not.toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText(/No high scores available yet/)).toBeInTheDocument();
       });
     });
   });

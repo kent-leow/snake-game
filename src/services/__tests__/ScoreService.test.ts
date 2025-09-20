@@ -116,7 +116,8 @@ describe('ScoreService', () => {
         screenResolution: '1920x1080',
         gameVersion: '1.0.0',
       });
-      expect(requestBody.timestamp).toBeInstanceOf(Date);
+      expect(typeof requestBody.timestamp).toBe('string');
+      expect(new Date(requestBody.timestamp).toISOString()).toBe(requestBody.timestamp);
     });
 
     it('should handle HTTP errors gracefully', async () => {
@@ -196,12 +197,19 @@ describe('ScoreService', () => {
       localStorageMock.getItem.mockImplementation(() => {
         throw new Error('localStorage error');
       });
+      localStorageMock.setItem.mockImplementation(() => {
+        throw new Error('localStorage error');
+      });
 
       const result = await scoreService.submitScore(mockScoreData);
 
       expect(result.success).toBe(false);
       expect(result.saved).toBe('failed');
       expect(result.error).toBe('Failed to save score locally');
+      
+      // Reset mocks for subsequent tests
+      localStorageMock.getItem.mockReturnValue(null);
+      localStorageMock.setItem.mockImplementation(() => {});
     });
   });
 

@@ -57,7 +57,13 @@ export const useScoreSubmission = (options: UseScoreSubmissionOptions = {}): Use
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastResult, setLastResult] = useState<ScoreSubmissionResult | null>(null);
   const [pendingCount, setPendingCount] = useState(0);
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline, setIsOnline] = useState(() => {
+    // Initialize with actual navigator.onLine value
+    if (typeof navigator !== 'undefined') {
+      return navigator.onLine;
+    }
+    return true; // fallback for SSR
+  });
   const [error, setError] = useState<string | null>(null);
 
   // Service instance

@@ -58,7 +58,7 @@ describe('ScoreEntry', () => {
       );
 
       const tableRow = container.firstChild as HTMLElement;
-      expect(tableRow).toHaveClass('grid', 'grid-cols-6', 'gap-4');
+      expect(tableRow).toHaveClass('tableRow');
     });
 
     it('highlights current player in table layout', () => {
@@ -72,7 +72,8 @@ describe('ScoreEntry', () => {
       );
 
       const tableRow = container.firstChild as HTMLElement;
-      expect(tableRow).toHaveClass('bg-green-900/30', 'border-l-4', 'border-green-400');
+      expect(tableRow).toHaveClass('tableRow');
+      expect(tableRow).toHaveClass('currentPlayer');
       expect(screen.getByText('YOU')).toBeInTheDocument();
     });
 
@@ -87,7 +88,8 @@ describe('ScoreEntry', () => {
       );
 
       const tableRow = container.firstChild as HTMLElement;
-      expect(tableRow).not.toHaveClass('bg-green-900/30');
+      expect(tableRow).toHaveClass('tableRow');
+      expect(tableRow).not.toHaveClass('currentPlayer');
       expect(screen.queryByText('YOU')).not.toBeInTheDocument();
     });
   });
@@ -136,7 +138,8 @@ describe('ScoreEntry', () => {
       );
 
       const cardContainer = container.firstChild as HTMLElement;
-      expect(cardContainer).toHaveClass('border-2', 'border-green-400');
+      expect(cardContainer).toHaveClass('scoreCard');
+      expect(cardContainer).toHaveClass('currentPlayer');
       expect(screen.getByText('YOU')).toBeInTheDocument();
     });
 
@@ -151,8 +154,8 @@ describe('ScoreEntry', () => {
       );
 
       const cardContainer = container.firstChild as HTMLElement;
-      expect(cardContainer).toHaveClass('border', 'border-gray-700');
-      expect(cardContainer).not.toHaveClass('border-2', 'border-green-400');
+      expect(cardContainer).toHaveClass('scoreCard');
+      expect(cardContainer).not.toHaveClass('currentPlayer');
       expect(screen.queryByText('YOU')).not.toBeInTheDocument();
     });
   });
@@ -168,7 +171,8 @@ describe('ScoreEntry', () => {
       );
 
       const rankElement = screen.getByText('🥇');
-      expect(rankElement).toHaveClass('text-yellow-400');
+      expect(rankElement).toHaveClass('rankBadge');
+      expect(rankElement).toHaveClass('rankGold');
     });
 
     it('displays second place icon and color', () => {
@@ -181,7 +185,8 @@ describe('ScoreEntry', () => {
       );
 
       const rankElement = screen.getByText('🥈');
-      expect(rankElement).toHaveClass('text-gray-300');
+      expect(rankElement).toHaveClass('rankBadge');
+      expect(rankElement).toHaveClass('rankSilver');
     });
 
     it('displays third place icon and color', () => {
@@ -194,7 +199,8 @@ describe('ScoreEntry', () => {
       );
 
       const rankElement = screen.getByText('🥉');
-      expect(rankElement).toHaveClass('text-amber-600');
+      expect(rankElement).toHaveClass('rankBadge');
+      expect(rankElement).toHaveClass('rankBronze');
     });
 
     it('displays rank number for positions below 3', () => {
@@ -207,7 +213,8 @@ describe('ScoreEntry', () => {
       );
 
       const rankElement = screen.getByText('#4');
-      expect(rankElement).toHaveClass('text-gray-400');
+      expect(rankElement).toHaveClass('rankBadge');
+      expect(rankElement).toHaveClass('rankDefault');
     });
   });
 
@@ -440,7 +447,7 @@ describe('ScoreEntry', () => {
         />
       );
 
-      const statsGrid = document.querySelector('.grid.grid-cols-3.gap-4');
+      const statsGrid = document.querySelector('[class*="cardMetrics"]');
       expect(statsGrid).toBeInTheDocument();
     });
   });

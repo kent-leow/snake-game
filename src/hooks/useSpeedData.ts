@@ -54,19 +54,29 @@ export function useSpeedData(gameEngine: GameEngine | null): SpeedData {
     // Initial update
     updateSpeedData();
 
-    // Subscribe to speed changes
-    const speedManager = gameEngine.getSpeedManager();
-    const unsubscribe = speedManager.onSpeedChange(() => {
-      updateSpeedData();
-    });
+    try {
+      // Subscribe to speed changes
+      const speedManager = gameEngine.getSpeedManager();
+      const unsubscribe = speedManager.onSpeedChange(() => {
+        updateSpeedData();
+      });
 
-    // Update on game state changes (optional, for safety)
-    const interval = setInterval(updateSpeedData, 100);
+      // Update on game state changes (optional, for safety)
+      const interval = setInterval(updateSpeedData, 100);
 
-    return (): void => {
-      unsubscribe();
-      clearInterval(interval);
-    };
+      return (): void => {
+        unsubscribe();
+        clearInterval(interval);
+      };
+    } catch (error) {
+      console.warn('Failed to setup speed data subscriptions:', error);
+      
+      // Still set up interval as fallback
+      const interval = setInterval(updateSpeedData, 100);
+      return (): void => {
+        clearInterval(interval);
+      };
+    }
   }, [gameEngine, updateSpeedData]);
 
   return speedData;

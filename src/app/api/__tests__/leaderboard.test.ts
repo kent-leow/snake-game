@@ -23,9 +23,9 @@ describe('/api/scores/leaderboard', () => {
   });
 
   const mockLeaderboard = [
-    { _id: '1', playerName: 'Player1', score: 5000, timestamp: new Date() },
-    { _id: '2', playerName: 'Player2', score: 4500, timestamp: new Date() },
-    { _id: '3', playerName: 'Player3', score: 4000, timestamp: new Date() },
+    { _id: '1', playerName: 'Player1', score: 5000, timestamp: '2025-09-20T18:42:23.073Z' },
+    { _id: '2', playerName: 'Player2', score: 4500, timestamp: '2025-09-20T18:42:23.073Z' },
+    { _id: '3', playerName: 'Player3', score: 4000, timestamp: '2025-09-20T18:42:23.073Z' },
   ];
 
   describe('GET /api/scores/leaderboard', () => {
