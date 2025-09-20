@@ -103,7 +103,7 @@ describe('HighScoreTable', () => {
       );
 
       const errorContainer = screen.getByText('❌ Error Loading Scores').closest('div')?.parentElement;
-      expect(errorContainer).toHaveClass('bg-red-900/20', 'border', 'border-red-500');
+      expect(errorContainer).toHaveClass('errorContainer');
     });
   });
 
@@ -209,7 +209,7 @@ describe('HighScoreTable', () => {
         />
       );
 
-      const tableContainer = document.querySelector('.hidden.md\\:block');
+      const tableContainer = document.querySelector('.scoreTable');
       expect(tableContainer).toBeInTheDocument();
     });
   });
@@ -228,9 +228,9 @@ describe('HighScoreTable', () => {
       const mobileHeaders = screen.getAllByText('🏆 Leaderboard');
       expect(mobileHeaders).toHaveLength(2); // One for desktop, one for mobile
       
-      // The mobile one should be in a container with md:hidden class
+      // The mobile one should be in a container with scoreCards class
       const mobileContainer = mobileHeaders[1].closest('div')?.parentElement;
-      expect(mobileContainer).toHaveClass('md:hidden');
+      expect(mobileContainer).toHaveClass('scoreCards');
     });
   });
 
@@ -315,7 +315,7 @@ describe('HighScoreTable', () => {
         />
       );
 
-      const statsContainer = document.querySelector('.grid.grid-cols-2.md\\:grid-cols-4');
+      const statsContainer = document.querySelector('.statsGrid');
       expect(statsContainer).toBeInTheDocument();
     });
   });

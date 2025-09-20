@@ -170,7 +170,10 @@ describe('ScoresPage', () => {
       render(<ScoresPage />);
 
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith('/api/scores?limit=10&sortBy=score&order=desc');
+        expect(mockFetch).toHaveBeenCalledWith('/api/scores?limit=10&sortBy=score&order=desc', {
+          headers: { 'Content-Type': 'application/json' },
+          signal: expect.any(AbortSignal),
+        });
       });
     });
 
@@ -232,7 +235,7 @@ describe('ScoresPage', () => {
       render(<ScoresPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Error: Failed to fetch scores: 500')).toBeInTheDocument();
+        expect(screen.getByText('Error: Server error occurred')).toBeInTheDocument();
       });
     });
 
@@ -263,7 +266,7 @@ describe('ScoresPage', () => {
       render(<ScoresPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Error: Failed to fetch scores')).toBeInTheDocument();
+        expect(screen.getByText('Error: Server error occurred')).toBeInTheDocument();
       });
     });
 
@@ -296,7 +299,10 @@ describe('ScoresPage', () => {
       render(<ScoresPage />);
 
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith('/api/scores?limit=10&sortBy=score&order=desc');
+        expect(mockFetch).toHaveBeenCalledWith('/api/scores?limit=10&sortBy=score&order=desc', {
+          headers: { 'Content-Type': 'application/json' },
+          signal: expect.any(AbortSignal),
+        });
       });
     });
 
@@ -369,7 +375,7 @@ describe('ScoresPage', () => {
       render(<ScoresPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Scores loaded: 0')).toBeInTheDocument();
+        expect(screen.getByText('Error: No high scores available yet')).toBeInTheDocument();
       });
     });
 
@@ -385,7 +391,7 @@ describe('ScoresPage', () => {
       render(<ScoresPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Scores loaded: 0')).toBeInTheDocument();
+        expect(screen.getByText('Error: No high scores available yet')).toBeInTheDocument();
       });
     });
 
@@ -400,7 +406,7 @@ describe('ScoresPage', () => {
       render(<ScoresPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Scores loaded: 0')).toBeInTheDocument();
+        expect(screen.getByText('Error: No high scores available yet')).toBeInTheDocument();
       });
     });
   });

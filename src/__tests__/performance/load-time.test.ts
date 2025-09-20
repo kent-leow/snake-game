@@ -335,3 +335,4 @@ describe('Performance Thresholds Validation', () => {
     expect(result.responseTime).toBeGreaterThan(2000); // Exceeds 2 second threshold
   });
 });
+});

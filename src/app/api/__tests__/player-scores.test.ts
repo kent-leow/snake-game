@@ -33,15 +33,20 @@ describe('/api/scores/player/[name]', () => {
       MockScoreService.prototype.getPlayerScores.mockResolvedValue(mockPlayerScores);
 
       const request = new NextRequest('http://localhost:3000/api/scores/player/TestPlayer');
-      const response = await GET(request, { params: { name: 'TestPlayer' } });
+  const response = await GET(request, { params: Promise.resolve({ name: 'TestPlayer' }) });
       const data = await response.json();
 
       expect(response.status).toBe(200);
+      // Convert timestamps to ISO strings for comparison
+      const expectedScores = mockPlayerScores.map(score => ({
+        ...score,
+        timestamp: score.timestamp.toISOString(),
+      }));
       expect(data).toEqual({
         success: true,
         data: {
           playerName: 'TestPlayer',
-          scores: mockPlayerScores,
+          scores: expectedScores,
           bestScore: 1000,
           totalGames: 3,
           averageScore: 900, // (1000 + 900 + 800) / 3 = 900
@@ -56,7 +61,7 @@ describe('/api/scores/player/[name]', () => {
 
       const encodedName = encodeURIComponent('Player Name');
       const request = new NextRequest(`http://localhost:3000/api/scores/player/${encodedName}`);
-      const response = await GET(request, { params: { name: encodedName } });
+  const response = await GET(request, { params: Promise.resolve({ name: encodedName }) });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -68,7 +73,7 @@ describe('/api/scores/player/[name]', () => {
       MockScoreService.prototype.getPlayerScores.mockResolvedValue(mockPlayerScores.slice(0, 2));
 
       const request = new NextRequest('http://localhost:3000/api/scores/player/TestPlayer?limit=2');
-      const response = await GET(request, { params: { name: 'TestPlayer' } });
+  const response = await GET(request, { params: Promise.resolve({ name: 'TestPlayer' }) });
       const data = await response.json();
 
       expect(MockScoreService.prototype.getPlayerScores).toHaveBeenCalledWith('TestPlayer', 2);
@@ -77,7 +82,7 @@ describe('/api/scores/player/[name]', () => {
 
     it('should validate limit parameter', async () => {
       const request = new NextRequest('http://localhost:3000/api/scores/player/TestPlayer?limit=100');
-      const response = await GET(request, { params: { name: 'TestPlayer' } });
+  const response = await GET(request, { params: Promise.resolve({ name: 'TestPlayer' }) });
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -87,7 +92,7 @@ describe('/api/scores/player/[name]', () => {
 
     it('should validate limit parameter lower bound', async () => {
       const request = new NextRequest('http://localhost:3000/api/scores/player/TestPlayer?limit=0');
-      const response = await GET(request, { params: { name: 'TestPlayer' } });
+  const response = await GET(request, { params: Promise.resolve({ name: 'TestPlayer' }) });
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -96,7 +101,7 @@ describe('/api/scores/player/[name]', () => {
 
     it('should handle empty player name', async () => {
       const request = new NextRequest('http://localhost:3000/api/scores/player/');
-      const response = await GET(request, { params: { name: '' } });
+  const response = await GET(request, { params: Promise.resolve({ name: '' }) });
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -106,7 +111,7 @@ describe('/api/scores/player/[name]', () => {
 
     it('should handle missing player name', async () => {
       const request = new NextRequest('http://localhost:3000/api/scores/player/test');
-      const response = await GET(request, { params: { name: undefined as any } });
+  const response = await GET(request, { params: Promise.resolve({ name: undefined as any }) });
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -117,7 +122,7 @@ describe('/api/scores/player/[name]', () => {
       MockScoreService.prototype.getPlayerScores.mockResolvedValue([]);
 
       const request = new NextRequest('http://localhost:3000/api/scores/player/NewPlayer');
-      const response = await GET(request, { params: { name: 'NewPlayer' } });
+  const response = await GET(request, { params: Promise.resolve({ name: 'NewPlayer' }) });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -134,7 +139,7 @@ describe('/api/scores/player/[name]', () => {
       MockScoreService.prototype.getPlayerScores.mockRejectedValue(new Error('Database error'));
 
       const request = new NextRequest('http://localhost:3000/api/scores/player/TestPlayer');
-      const response = await GET(request, { params: { name: 'TestPlayer' } });
+  const response = await GET(request, { params: Promise.resolve({ name: 'TestPlayer' }) });
       const data = await response.json();
 
       expect(response.status).toBe(500);
@@ -148,7 +153,7 @@ describe('/api/scores/player/[name]', () => {
       );
 
       const request = new NextRequest('http://localhost:3000/api/scores/player/TestPlayer');
-      const response = await GET(request, { params: { name: 'TestPlayer' } });
+  const response = await GET(request, { params: Promise.resolve({ name: 'TestPlayer' }) });
       const data = await response.json();
 
       expect(response.status).toBe(400);

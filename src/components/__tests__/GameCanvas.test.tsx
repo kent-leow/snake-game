@@ -32,6 +32,18 @@ const createMockGameEngine = () => ({
       statistics: null 
     }
   })),
+  getComboManager: jest.fn(() => ({
+    getComboStats: jest.fn(() => ({
+      totalComboPoints: 0,
+      basePoints: 0,
+      comboEfficiency: 0,
+      averageComboLength: 0,
+    })),
+    resetCombo: jest.fn(),
+    startCombo: jest.fn(),
+    endCombo: jest.fn(),
+    subscribe: jest.fn(() => jest.fn()), // Mock subscribe with unsubscribe function
+  })),
   start: jest.fn(),
   stop: jest.fn(),
   pause: jest.fn(),

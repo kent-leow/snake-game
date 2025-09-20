@@ -72,8 +72,9 @@ describe('MongoDB Connection and Initialization', () => {
 
     it('should handle missing MONGO_URL environment variable', async () => {
       delete process.env.MONGO_URL;
-      
       await expect(initializeDatabase()).rejects.toThrow(/MONGO_URL environment variable is required/);
+      // Restore for other tests
+      process.env.MONGO_URL = 'mongodb://localhost:27017/snake_game_test';
     });
   });
 

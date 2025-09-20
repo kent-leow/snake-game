@@ -13,9 +13,12 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
+    // CSS and asset file mappings should come first
     '\\.module\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.(png|jpg|jpeg|gif|webp|svg)$': 'jest-transform-stub',
+    // Path alias mapping comes last
+    '^@/(.*)$': '<rootDir>/src/$1',
   },
   transform: {
     '^.+\\.(ts|tsx)$': [
