@@ -108,8 +108,8 @@ export class GameEngine {
     this.setupComboCallbacks();
     this.setupSpeedCallbacks();
 
-    // Spawn initial food
-    this.spawnFood();
+    // Enable multiple food system by default
+    this.enableMultipleFood();
   }
 
   /**

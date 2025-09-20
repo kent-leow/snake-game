@@ -25,13 +25,13 @@ describe('GameEngine - Multiple Food Integration', () => {
   });
 
   describe('multiple food mode activation', () => {
-    it('should start in single food mode by default', () => {
-      expect(gameEngine.isMultipleFoodEnabled()).toBe(false);
+    it('should start in multiple food mode by default', () => {
+      expect(gameEngine.isMultipleFoodEnabled()).toBe(true);
       
       const gameState = gameEngine.getGameState();
-      expect(gameState.useMultipleFood).toBe(false);
-      expect(gameState.multipleFoods).toHaveLength(0);
-      expect(gameState.food).toBeTruthy(); // Should have single food
+      expect(gameState.useMultipleFood).toBe(true);
+      expect(gameState.multipleFoods).toHaveLength(5);
+      expect(gameState.food).toBeNull(); // No single food in multiple mode
     });
 
     it('should enable multiple food mode', () => {
@@ -233,16 +233,16 @@ describe('GameEngine - Multiple Food Integration', () => {
       expect(gameEngine.getMultipleFoods()).toHaveLength(5);
     });
 
-    it('should maintain single food state through reset', () => {
-      // Start with single food mode
-      expect(gameEngine.isMultipleFoodEnabled()).toBe(false);
+    it('should maintain multiple food state through reset', () => {
+      // Start with multiple food mode (default)
+      expect(gameEngine.isMultipleFoodEnabled()).toBe(true);
       
       // Reset game
       gameEngine.reset();
       
-      // Should maintain single food mode
-      expect(gameEngine.isMultipleFoodEnabled()).toBe(false);
-      expect(gameEngine.getGameState().food).toBeTruthy();
+      // Should maintain multiple food mode
+      expect(gameEngine.isMultipleFoodEnabled()).toBe(true);
+      expect(gameEngine.getMultipleFoods()).toHaveLength(5);
     });
 
     it('should provide correct game state information', () => {
@@ -357,6 +357,9 @@ describe('GameEngine - Multiple Food Integration', () => {
     });
 
     it('should handle multiple food operations when disabled', () => {
+      // Disable multiple food mode first
+      gameEngine.disableMultipleFood();
+      
       // Multiple food operations should work gracefully when disabled
       expect(gameEngine.getMultipleFoods()).toHaveLength(0);
       

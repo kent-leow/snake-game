@@ -46,6 +46,10 @@ export class CanvasRenderer {
   private gridColor: string = '#333333';
   private backgroundColor: string = '#1a1a1a';
   private foodRenderer: FoodRenderer | null = null;
+  
+  // Double buffering
+  private offscreenCanvas: HTMLCanvasElement;
+  private offscreenCtx: CanvasRenderingContext2D;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -54,11 +58,23 @@ export class CanvasRenderer {
   ) {
     this.renderContext = this.initializeRenderContext(canvas, gameConfig);
     this.performanceMonitor = performanceMonitor || null;
+    
+    // Set up double buffering
+    this.offscreenCanvas = document.createElement('canvas');
+    this.offscreenCanvas.width = this.renderContext.width * this.renderContext.pixelRatio;
+    this.offscreenCanvas.height = this.renderContext.height * this.renderContext.pixelRatio;
+    const ctx = this.offscreenCanvas.getContext('2d');
+    if (!ctx) {
+      throw new Error('Failed to get offscreen 2D context');
+    }
+    this.offscreenCtx = ctx;
+    this.offscreenCtx.scale(this.renderContext.pixelRatio, this.renderContext.pixelRatio);
+    
     this.setupCanvasOptimizations();
     
-    // Initialize food renderer
+    // Initialize food renderer with offscreen context
     this.foodRenderer = new FoodRenderer(
-      this.renderContext.ctx,
+      this.offscreenCtx,
       this.renderContext.gridSize
     );
   }
@@ -94,6 +110,7 @@ export class CanvasRenderer {
    */
   private setupCanvasOptimizations(): void {
     CanvasUtils.applyCanvasOptimizations(this.renderContext.ctx);
+    CanvasUtils.applyCanvasOptimizations(this.offscreenCtx);
   }
 
   /**
@@ -103,23 +120,27 @@ export class CanvasRenderer {
     try {
       const startTime = performance.now();
 
-      this.clearCanvas();
-      this.drawGrid();
+      // Render to offscreen canvas first to eliminate flickering
+      this.clearOffscreenCanvas();
+      this.drawGridOffscreen();
       
       // Render foods based on mode
       if (gameElements.useMultipleFood && gameElements.multipleFoods) {
-        this.drawMultipleFoods(gameElements.multipleFoods);
+        this.drawMultipleFoodsOffscreen(gameElements.multipleFoods);
       } else if (gameElements.food) {
-        this.drawFood(gameElements.food);
+        this.drawFoodOffscreen(gameElements.food);
       }
       
-      this.drawSnake(gameElements.snake, interpolation);
-      this.drawUI(gameElements.score, gameElements.gameState);
+      this.drawSnakeOffscreen(gameElements.snake, interpolation);
+      this.drawUIOffscreen(gameElements.score, gameElements.gameState);
       
-      // Draw performance overlay if enabled
+      // Draw performance overlay if enabled (on offscreen canvas)
       if (this.performanceMonitor?.isEnabled()) {
-        this.drawPerformanceOverlay();
+        this.drawPerformanceOverlayOffscreen();
       }
+
+      // Copy offscreen canvas to main canvas in one operation (eliminates flickering)
+      this.renderContext.ctx.drawImage(this.offscreenCanvas, 0, 0);
 
       this.lastRenderTime = performance.now() - startTime;
     } catch (error) {
@@ -129,18 +150,18 @@ export class CanvasRenderer {
   }
 
   /**
-   * Clear canvas with background color
+   * Clear offscreen canvas with background color
    */
-  private clearCanvas(): void {
-    const { ctx, width, height } = this.renderContext;
-    CanvasUtils.clearCanvas(ctx, width, height, this.backgroundColor);
+  private clearOffscreenCanvas(): void {
+    CanvasUtils.clearCanvas(this.offscreenCtx, this.renderContext.width, this.renderContext.height, this.backgroundColor);
   }
 
   /**
-   * Draw game grid
+   * Draw game grid on offscreen canvas
    */
-  private drawGrid(): void {
-    const { ctx, width, height, cellSize } = this.renderContext;
+  private drawGridOffscreen(): void {
+    const { width, height, cellSize } = this.renderContext;
+    const ctx = this.offscreenCtx;
 
     ctx.strokeStyle = this.gridColor;
     ctx.lineWidth = 1;
@@ -162,10 +183,11 @@ export class CanvasRenderer {
   }
 
   /**
-   * Draw snake with enhanced visuals
+   * Draw snake with enhanced visuals on offscreen canvas
    */
-  private drawSnake(snake: Snake, _interpolation: number): void {
-    const { ctx, cellSize } = this.renderContext;
+  private drawSnakeOffscreen(snake: Snake, _interpolation: number): void {
+    const { cellSize } = this.renderContext;
+    const ctx = this.offscreenCtx;
 
     snake.segments.forEach((segment, index) => {
       // Snake segments are already in pixel coordinates, not grid coordinates
@@ -195,11 +217,14 @@ export class CanvasRenderer {
     });
   }
 
+
+
   /**
-   * Draw food with animated effects
+   * Draw food with animated effects on offscreen canvas
    */
-  private drawFood(food: EnhancedFood): void {
-    const { ctx, cellSize } = this.renderContext;
+  private drawFoodOffscreen(food: EnhancedFood): void {
+    const { cellSize } = this.renderContext;
+    const ctx = this.offscreenCtx;
     // Food positions are already in pixel coordinates, not grid coordinates
     const x = food.x;
     const y = food.y;
@@ -255,10 +280,12 @@ export class CanvasRenderer {
     }
   }
 
+
+
   /**
-   * Draw multiple numbered food blocks
+   * Draw multiple numbered food blocks on offscreen canvas
    */
-  private drawMultipleFoods(foods: NumberedFood[]): void {
+  private drawMultipleFoodsOffscreen(foods: NumberedFood[]): void {
     if (!this.foodRenderer) {
       console.warn('FoodRenderer not initialized');
       return;
@@ -267,33 +294,40 @@ export class CanvasRenderer {
     // Calculate delta time for animation (simplified)
     const deltaTime = 16; // Assume 60fps
     
+    // The food renderer is already initialized with offscreen context
+    // No need to switch contexts
     this.foodRenderer.renderMultipleFoods(foods, deltaTime);
   }
 
+
+
   /**
-   * Draw UI elements (score, game state)
+   * Draw UI elements (score, game state) on offscreen canvas
    */
-  private drawUI(score: number, gameState: string): void {
-    const { ctx } = this.renderContext;
+  private drawUIOffscreen(score: number, gameState: string): void {
+    const ctx = this.offscreenCtx;
 
     // Score display
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 20px monospace';
-    ctx.fillText(`Score: ${score}`, 10, 10);
+    ctx.fillText(`Score: ${score}`, 10, 30);
 
     // Game state overlay
     if (gameState === 'paused') {
-      this.drawOverlay('PAUSED', 'Press SPACE to resume');
+      this.drawOverlayOffscreen('PAUSED', 'Press SPACE to resume');
     } else if (gameState === 'game-over') {
-      this.drawOverlay('GAME OVER', `Final Score: ${score}`);
+      this.drawOverlayOffscreen('GAME OVER', `Final Score: ${score}`);
     }
   }
 
+
+
   /**
-   * Draw text overlay for game states
+   * Draw text overlay for game states on offscreen canvas
    */
-  private drawOverlay(title: string, subtitle: string): void {
-    const { ctx, width, height } = this.renderContext;
+  private drawOverlayOffscreen(title: string, subtitle: string): void {
+    const { width, height } = this.renderContext;
+    const ctx = this.offscreenCtx;
 
     // Semi-transparent background
     ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
@@ -314,12 +348,13 @@ export class CanvasRenderer {
   }
 
   /**
-   * Draw performance overlay
+   * Draw performance overlay on offscreen canvas
    */
-  private drawPerformanceOverlay(): void {
+  private drawPerformanceOverlayOffscreen(): void {
     if (!this.performanceMonitor) return;
 
-    const { ctx, width } = this.renderContext;
+    const { width } = this.renderContext;
+    const ctx = this.offscreenCtx;
     const metrics = this.performanceMonitor.getMetrics();
 
     ctx.fillStyle = '#888888';
@@ -336,6 +371,8 @@ export class CanvasRenderer {
     });
   }
 
+
+
   /**
    * Resize canvas and update render context
    */
@@ -344,12 +381,18 @@ export class CanvasRenderer {
       this.renderContext.canvas,
       newConfig
     );
+    
+    // Resize offscreen canvas
+    this.offscreenCanvas.width = this.renderContext.width * this.renderContext.pixelRatio;
+    this.offscreenCanvas.height = this.renderContext.height * this.renderContext.pixelRatio;
+    
+    this.offscreenCtx.scale(this.renderContext.pixelRatio, this.renderContext.pixelRatio);
     this.setupCanvasOptimizations();
     
-    // Update food renderer with new grid size
+    // Update food renderer with new grid size and offscreen context
     if (this.foodRenderer) {
       this.foodRenderer.updateGridSize(this.renderContext.gridSize);
-      this.foodRenderer.updateContext(this.renderContext.ctx);
+      this.foodRenderer.updateContext(this.offscreenCtx);
     }
   }
 

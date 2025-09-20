@@ -35,13 +35,12 @@ export interface GameCanvasProps {
   enableTouchControls?: boolean;
   onDirectionChange?: (direction: Direction) => void;
   enableComboVisuals?: boolean;
-  comboPosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 }
 
 /**
  * Main game canvas component with integrated rendering system
  */
-export const GameCanvas: React.FC<GameCanvasProps> = ({
+export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
   gameEngine,
   gameConfig,
   onPerformanceUpdate,
@@ -51,7 +50,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   enableTouchControls = true,
   onDirectionChange,
   enableComboVisuals = true,
-  comboPosition = 'top-left',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -387,17 +385,12 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
               background: '#1a1a1a',
               outline: 'none',
               cursor: 'pointer',
-              transition: 'border-color 0.2s ease',
             }}
             onFocus={() => {
-              if (canvasRef.current) {
-                canvasRef.current.style.borderColor = '#4ade80';
-              }
+              // Focus handled by CSS
             }}
             onBlur={() => {
-              if (canvasRef.current) {
-                canvasRef.current.style.borderColor = '#333';
-              }
+              // Blur handled by CSS
             }}
           />
         </SwipeGestureHandler>
@@ -416,17 +409,12 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             background: '#1a1a1a',
             outline: 'none',
             cursor: 'pointer',
-            transition: 'border-color 0.2s ease',
           }}
           onFocus={() => {
-            if (canvasRef.current) {
-              canvasRef.current.style.borderColor = '#4ade80';
-            }
+            // Focus handled by CSS
           }}
           onBlur={() => {
-            if (canvasRef.current) {
-              canvasRef.current.style.borderColor = '#333';
-            }
+            // Blur handled by CSS
           }}
         />
       )}
@@ -492,31 +480,47 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         </div>
       )}
 
-      {/* Combo Progress Indicator */}
+      {/* Combo Progress Indicator - moved below canvas */}
       {enableComboVisuals && comboProgressProps && (
         <div
-          className="combo-progress-overlay"
+          className="combo-progress-external"
           style={{
             position: 'absolute',
-            [comboPosition.includes('top') ? 'top' : 'bottom']: '10px',
-            [comboPosition.includes('left') ? 'left' : 'right']: '10px',
+            bottom: '-80px',
+            left: '50%',
+            transform: 'translateX(-50%)',
             pointerEvents: 'none',
             zIndex: 100,
+            background: 'rgba(0, 0, 0, 0.7)',
+            padding: '8px',
+            borderRadius: '6px',
+            border: '1px solid #333',
           }}
         >
           <ComboProgressIndicator {...comboProgressProps} />
         </div>
       )}
 
-      {/* Combo Feedback Animations */}
+      {/* Combo Feedback Animations - moved below canvas */}
       {enableComboVisuals && (
-        <ComboFeedback
-          event={comboEvent}
-          onAnimationComplete={hideComboEvent}
-        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-60px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            pointerEvents: 'none',
+            zIndex: 101,
+          }}
+        >
+          <ComboFeedback
+            event={comboEvent}
+            onAnimationComplete={hideComboEvent}
+          />
+        </div>
       )}
     </div>
   );
-};
+});
 
 export default GameCanvas;

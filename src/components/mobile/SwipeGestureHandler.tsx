@@ -15,7 +15,7 @@ interface SwipeGestureHandlerProps {
  * Swipe gesture recognition component for mobile touch navigation
  * Detects swipe gestures and converts them to direction changes
  */
-export const SwipeGestureHandler: React.FC<SwipeGestureHandlerProps> = ({
+export const SwipeGestureHandler: React.FC<SwipeGestureHandlerProps> = React.memo(({
   onSwipe,
   children,
   sensitivity = 50,
@@ -82,6 +82,6 @@ export const SwipeGestureHandler: React.FC<SwipeGestureHandlerProps> = ({
       {children}
     </div>
   );
-};
+});
 
 export default SwipeGestureHandler;

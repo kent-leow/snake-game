@@ -226,6 +226,7 @@ export function GamePage(): React.JSX.Element {
     };
 
     gameEngineRef.current = new GameEngine(config, callbacks);
+    
     handleGameReady();
 
     return (): void => {
@@ -269,6 +270,7 @@ export function GamePage(): React.JSX.Element {
                 targetFPS={60}
                 enableTouchControls={true}
                 onDirectionChange={handleDirectionChange}
+                enableComboVisuals={true}
               />
               <div className='mt-2 flex justify-between items-center text-sm'>
                 <div>
@@ -364,6 +366,7 @@ export function GamePage(): React.JSX.Element {
                   targetFPS={60}
                   enableTouchControls={false}
                   onDirectionChange={handleDirectionChange}
+                  enableComboVisuals={true}
                 />
               </div>
             </div>

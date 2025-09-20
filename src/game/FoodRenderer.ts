@@ -69,7 +69,7 @@ export class FoodRenderer {
       borderColor: FOOD_STYLE.borderColor,
       textColor: FOOD_STYLE.textColor,
       enableShadow: true,
-      enableAnimation: true,
+      enableAnimation: false, // Disable animation for debugging
       colorScheme: 'default',
       ...options,
     };
@@ -218,9 +218,31 @@ export class FoodRenderer {
     const { position } = food;
     const color = this.config.colors[food.number];
     
-    this.renderBackground(position, color);
-    this.renderBorder(position, color);
-    this.renderNumber(position, food.number);
+    // Draw a very visible colored square
+    this.context.fillStyle = color;
+    this.context.fillRect(position.x, position.y, this.gridSize, this.gridSize);
+    
+    // Draw a black border
+    this.context.strokeStyle = '#000000';
+    this.context.lineWidth = 2;
+    this.context.strokeRect(position.x, position.y, this.gridSize, this.gridSize);
+    
+    // Draw the number in white, large text with black outline
+    const centerX = position.x + this.gridSize / 2;
+    const centerY = position.y + this.gridSize / 2;
+    const fontSize = Math.floor(this.gridSize * 0.8);
+    this.context.font = `bold ${fontSize}px Arial`;
+    this.context.textAlign = 'center';
+    this.context.textBaseline = 'middle';
+    
+    // Draw black outline
+    this.context.strokeStyle = '#000000';
+    this.context.lineWidth = 2;
+    this.context.strokeText(food.number.toString(), centerX, centerY);
+    
+    // Draw white text
+    this.context.fillStyle = '#FFFFFF';
+    this.context.fillText(food.number.toString(), centerX, centerY);
   }
 
   /**
@@ -266,22 +288,17 @@ export class FoodRenderer {
       );
     }
 
-    // Draw main background
+    // Draw main background - make it more visible for debugging
     this.context.fillStyle = color;
     this.context.fillRect(position.x, position.y, size, size);
-  }
-
-  /**
-   * Render static border
-   */
-  private renderBorder(position: Position, foodColor: string, size: number = this.gridSize): void {
-    if (this.config.borderWidth <= 0) return;
-
-    const borderColor = getBorderColor(foodColor);
-    this.context.strokeStyle = borderColor;
-    this.context.lineWidth = this.config.borderWidth;
+    
+    // Add a border to make it more visible
+    this.context.strokeStyle = '#000000';
+    this.context.lineWidth = 2;
     this.context.strokeRect(position.x, position.y, size, size);
   }
+
+
 
   /**
    * Render animated border with glow effect
