@@ -311,9 +311,11 @@ describe('ScoreService', () => {
     it('should block submissions when rate limit exceeded', async () => {
       const testClientId = 'rate-limit-test-client';
       
-      // Simulate multiple rapid submissions
+      // Simulate multiple rapid submissions with slight delays to ensure unique timestamps
       for (let i = 0; i < 5; i++) {
         await ScoreService.isRateLimited(testClientId);
+        // Add tiny delay to ensure different timestamps
+        await new Promise(resolve => setTimeout(resolve, 1));
       }
 
       const isLimited = await ScoreService.isRateLimited(testClientId);
