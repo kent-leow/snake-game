@@ -13,6 +13,11 @@
   width: 100%;
   max-width: 100%;
   overflow: hidden;
+  /* Prevent zoom and scaling issues */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
 }
 
 /* Main game canvas */
@@ -39,6 +44,16 @@
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  
+  /* Prevent scaling and transform issues */
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: auto;
+  
+  /* Fixed sizing to prevent zoom issues */
+  object-fit: contain;
+  object-position: center;
 }
 
 .game-canvas:focus {

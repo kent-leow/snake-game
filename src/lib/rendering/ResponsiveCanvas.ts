@@ -56,10 +56,14 @@ export class ResponsiveCanvas {
       return;
     }
 
+    let resizeTimeout: NodeJS.Timeout;
     this.resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        this.handleContainerResize(entry.contentRect);
-      }
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        for (const entry of entries) {
+          this.handleContainerResize(entry.contentRect);
+        }
+      }, 100); // Debounce resize events
     });
 
     this.resizeObserver.observe(this.container);
@@ -137,20 +141,41 @@ export class ResponsiveCanvas {
    * Apply calculated dimensions to canvas
    */
   private applyDimensions(dimensions: CanvasDimensions): void {
-    // Set canvas display size
+    // Set canvas display size (CSS pixels)
     this.canvas.style.width = `${dimensions.width}px`;
     this.canvas.style.height = `${dimensions.height}px`;
 
-    // Set actual canvas resolution for high-DPI displays
+    // Set actual canvas resolution (device pixels)
     const pixelRatio = window.devicePixelRatio || 1;
-    this.canvas.width = dimensions.width * pixelRatio;
-    this.canvas.height = dimensions.height * pixelRatio;
+    const newWidth = dimensions.width * pixelRatio;
+    const newHeight = dimensions.height * pixelRatio;
+    
+    // Only update canvas dimensions if they actually changed
+    if (this.canvas.width !== newWidth || this.canvas.height !== newHeight) {
+      this.canvas.width = newWidth;
+      this.canvas.height = newHeight;
+      
+      // Scale context to match device pixel ratio
+      const ctx = this.canvas.getContext('2d');
+      if (ctx) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+        ctx.scale(pixelRatio, pixelRatio);
+      }
+    }
 
-    // Apply additional responsive styles
-    this.canvas.style.maxWidth = '100%';
-    this.canvas.style.maxHeight = '100%';
-    this.canvas.style.display = 'block';
-    this.canvas.style.margin = '0 auto';
+    // Apply additional responsive styles only if needed
+    if (this.canvas.style.maxWidth !== '100%') {
+      this.canvas.style.maxWidth = '100%';
+    }
+    if (this.canvas.style.maxHeight !== '100%') {
+      this.canvas.style.maxHeight = '100%';
+    }
+    if (this.canvas.style.display !== 'block') {
+      this.canvas.style.display = 'block';
+    }
+    if (this.canvas.style.margin !== '0 auto') {
+      this.canvas.style.margin = '0 auto';
+    }
   }
 
   /**

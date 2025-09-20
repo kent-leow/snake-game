@@ -51,22 +51,38 @@ export function GamePage(): React.JSX.Element {
       const maxAvailableHeight = window.innerHeight - 200; // Reserve space for header and padding
       
       const availableSize = Math.min(
-        800, // Desired max width
-        600, // Desired max height
+        600, // Desired max size
         maxAvailableWidth,
-        maxAvailableHeight,
-        500 // Maximum canvas size for optimal experience
+        maxAvailableHeight
       );
-      const cellSize = Math.floor(availableSize / gridSize);
+      
+      // Ensure minimum size and proper cell alignment
+      const minSize = 300;
+      const cellSize = Math.floor(Math.max(availableSize, minSize) / gridSize);
       const actualSize = cellSize * gridSize;
-      setCanvasSize(actualSize);
+      
+      // Only update if size actually changed to prevent unnecessary re-renders
+      if (actualSize !== canvasSize) {
+        setCanvasSize(actualSize);
+      }
     };
 
     updateCanvasSize();
-    window.addEventListener('resize', updateCanvasSize);
     
-    return () => window.removeEventListener('resize', updateCanvasSize);
-  }, []);
+    // Debounce resize events
+    let resizeTimeout: NodeJS.Timeout;
+    const debouncedResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(updateCanvasSize, 200);
+    };
+    
+    window.addEventListener('resize', debouncedResize);
+    
+    return () => {
+      window.removeEventListener('resize', debouncedResize);
+      clearTimeout(resizeTimeout);
+    };
+  }, [canvasSize]);
 
   const actualSize = canvasSize;
 

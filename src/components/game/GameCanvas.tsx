@@ -222,13 +222,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
   useEffect(() => {
     if (!gameEngine || !renderLoopRef.current) return;
 
-    // Keep render loop running at all times for smooth rendering
-    // The render function will handle paused state appropriately
+    // The render loop should always run for smooth visuals
+    // Game state changes are handled in the render function
     if (!renderLoopRef.current.isActive()) {
-      renderLoopRef.current.resume();
+      renderLoopRef.current.start();
     }
-
-    // No need to pause/resume render loop - keep it running for smooth visuals
   }, [gameEngine]);
 
   /**
@@ -263,20 +261,18 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
    * Handle window resize
    */
   useEffect(() => {
-    const handleResize = (): void => {
-      responsiveCanvasRef.current?.resize();
-    };
-
-    // Debounce resize events
     let resizeTimeout: NodeJS.Timeout;
-    const debouncedResize = (): void => {
+    
+    const handleResize = (): void => {
       clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(handleResize, 100);
+      resizeTimeout = setTimeout(() => {
+        responsiveCanvasRef.current?.resize();
+      }, 150); // Debounce to prevent excessive resizing
     };
 
-    window.addEventListener('resize', debouncedResize);
+    window.addEventListener('resize', handleResize);
     return (): void => {
-      window.removeEventListener('resize', debouncedResize);
+      window.removeEventListener('resize', handleResize);
       clearTimeout(resizeTimeout);
     };
   }, []);
@@ -457,17 +453,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
             borderRadius: '4px',
             pointerEvents: 'none',
           }}
-          ref={(el) => {
-            if (el) {
-              // Update FPS display without causing re-renders
-              const updateFPS = () => {
-                el.textContent = `FPS: ${fpsRef.current}`;
-                requestAnimationFrame(updateFPS);
-              };
-              updateFPS();
-            }
-          }}
-        />
+        >
+          FPS: {fpsRef.current}
+        </div>
       )}
 
       {/* Combo Feedback Animations - moved below canvas */}
