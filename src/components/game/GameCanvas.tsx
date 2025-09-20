@@ -15,7 +15,6 @@ import {
   type GameElements,
   type PerformanceMetrics 
 } from '@/lib/rendering';
-import { SwipeGestureHandler } from '@/components/mobile';
 import { useResponsiveLayout } from '@/hooks';
 import { MobileUtils } from '@/lib/mobile';
 import type { GameEngine } from '@/lib/game/gameEngine';
@@ -60,8 +59,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
   
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentFPS, setCurrentFPS] = useState(0);
-  const [comboState, setComboState] = useState<ComboState | null>(null);
+  const fpsRef = useRef(0);
+  const comboStateRef = useRef<ComboState | null>(null);
 
   const { isMobile } = useResponsiveLayout();
   
@@ -73,14 +72,14 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
   } = useSimpleComboAnimation();
 
   // Convert combo state to progress props (always call hook, then filter result)
-  const allComboProgressProps = useComboProgressProps(comboState || {
+  const allComboProgressProps = useComboProgressProps(comboStateRef.current || {
     currentSequence: [],
     expectedNext: 1,
     comboProgress: 0,
     totalCombos: 0,
     isComboActive: false,
   });
-  const comboProgressProps = comboState ? allComboProgressProps : null;
+  const comboProgressProps = comboStateRef.current ? allComboProgressProps : null;
 
   /**
    * Update game state and render
@@ -132,7 +131,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
    * Handle performance updates
    */
   const handlePerformanceUpdate = useCallback((fps: number) => {
-    setCurrentFPS(fps);
+    fpsRef.current = fps;
     
     if (performanceMonitorRef.current && onPerformanceUpdate) {
       const metrics = performanceMonitorRef.current.getMetrics();
@@ -262,15 +261,15 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       
       // Subscribe to combo events
       const unsubscribe = comboManager.subscribe((event: ComboEvent) => {
-        // Update combo state
-        setComboState(comboManager.getCurrentState());
+        // Update combo state ref (no re-render)
+        comboStateRef.current = comboManager.getCurrentState();
         
         // Show combo animation
         showComboEvent(event);
       });
 
-      // Initialize combo state
-      setComboState(comboManager.getCurrentState());
+      // Initialize combo state ref
+      comboStateRef.current = comboManager.getCurrentState();
 
       return unsubscribe;
     } catch (error) {
@@ -352,6 +351,47 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
     }
   }, [onDirectionChange, gameEngine]);
 
+  /**
+   * Handle touch events directly on canvas for mobile
+   */
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!isMobile || !enableTouchControls || !isInitialized) return;
+
+    // Store touch start position in a ref to avoid state changes
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    }
+  }, [isMobile, enableTouchControls, isInitialized]);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!isMobile || !enableTouchControls || !isInitialized || !touchStartRef.current || e.changedTouches.length !== 1) return;
+
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    if (distance >= 50) { // sensitivity
+      const absDeltaX = Math.abs(deltaX);
+      const absDeltaY = Math.abs(deltaY);
+
+      if (absDeltaX > absDeltaY) {
+        // Horizontal swipe
+        handleSwipeDirection(deltaX > 0 ? 'RIGHT' : 'LEFT');
+      } else {
+        // Vertical swipe
+        handleSwipeDirection(deltaY > 0 ? 'DOWN' : 'UP');
+      }
+    }
+
+    touchStartRef.current = null;
+  }, [isMobile, enableTouchControls, isInitialized, handleSwipeDirection]);
+
+  // Ref to store touch start position without causing re-renders
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
   return (
     <div
       ref={containerRef}
@@ -366,34 +406,31 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       }}
     >
       {isMobile && enableTouchControls ? (
-        <SwipeGestureHandler
-          onSwipe={handleSwipeDirection}
-          sensitivity={50}
-          disabled={!isInitialized}
-        >
-          <canvas
-            ref={canvasRef}
-            className="game-canvas"
-            tabIndex={0}
-            role="img"
-            aria-label="Snake game canvas"
-            onClick={handleCanvasClick}
-            onKeyDown={handleKeyDown}
-            style={{
-              border: '2px solid #333',
-              borderRadius: '8px',
-              background: '#1a1a1a',
-              outline: 'none',
-              cursor: 'pointer',
-            }}
-            onFocus={() => {
-              // Focus handled by CSS
-            }}
-            onBlur={() => {
-              // Blur handled by CSS
-            }}
-          />
-        </SwipeGestureHandler>
+        <canvas
+          ref={canvasRef}
+          className="game-canvas"
+          tabIndex={0}
+          role="img"
+          aria-label="Snake game canvas"
+          onClick={handleCanvasClick}
+          onKeyDown={handleKeyDown}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          style={{
+            border: '2px solid #333',
+            borderRadius: '8px',
+            background: '#1a1a1a',
+            outline: 'none',
+            cursor: 'pointer',
+            touchAction: 'none',
+          }}
+          onFocus={() => {
+            // Focus handled by CSS
+          }}
+          onBlur={() => {
+            // Blur handled by CSS
+          }}
+        />
       ) : (
         <canvas
           ref={canvasRef}
@@ -475,9 +512,17 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
             borderRadius: '4px',
             pointerEvents: 'none',
           }}
-        >
-          FPS: {currentFPS}
-        </div>
+          ref={(el) => {
+            if (el) {
+              // Update FPS display without causing re-renders
+              const updateFPS = () => {
+                el.textContent = `FPS: ${fpsRef.current}`;
+                requestAnimationFrame(updateFPS);
+              };
+              updateFPS();
+            }
+          }}
+        />
       )}
 
       {/* Combo Progress Indicator - moved below canvas */}
@@ -522,5 +567,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
     </div>
   );
 });
+
+GameCanvas.displayName = 'GameCanvas';
 
 export default GameCanvas;
