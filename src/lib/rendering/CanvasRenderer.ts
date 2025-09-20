@@ -81,7 +81,7 @@ export class CanvasRenderer {
    * Initialize layered rendering with background and dynamic canvases
    */
   private initializeLayeredRendering(): void {
-    // Background canvas for static elements (grid, food, UI)
+    // Background canvas for static elements (grid, UI)
     this.backgroundCanvas = document.createElement('canvas');
     this.backgroundCanvas.width = this.renderContext.width * this.renderContext.pixelRatio;
     this.backgroundCanvas.height = this.renderContext.height * this.renderContext.pixelRatio;
@@ -92,7 +92,7 @@ export class CanvasRenderer {
     this.backgroundCtx = bgCtx;
     this.backgroundCtx.scale(this.renderContext.pixelRatio, this.renderContext.pixelRatio);
     
-    // Dynamic canvas for moving elements (snake)
+    // Dynamic canvas for moving elements (food, snake, performance overlay)
     this.dynamicCanvas = document.createElement('canvas');
     this.dynamicCanvas.width = this.renderContext.width * this.renderContext.pixelRatio;
     this.dynamicCanvas.height = this.renderContext.height * this.renderContext.pixelRatio;
@@ -157,10 +157,10 @@ export class CanvasRenderer {
         this.needsBackgroundRedraw = false;
       }
 
-      // Always redraw dynamic elements (snake)
+      // Always redraw dynamic elements (food, snake, performance overlay)
       this.renderDynamic(gameElements, interpolation);
 
-      // Composite layers to main canvas
+      // Always composite layers to main canvas
       this.compositeToMainCanvas();
 
       this.lastGameElements = { ...gameElements };
@@ -200,7 +200,7 @@ export class CanvasRenderer {
   }
 
   /**
-   * Render dynamic elements (snake)
+   * Render dynamic elements (food, snake, performance overlay)
    */
   private renderDynamic(gameElements: GameElements, interpolation: number): void {
     // Clear dynamic canvas (transparent)
