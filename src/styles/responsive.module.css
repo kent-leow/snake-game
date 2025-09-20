@@ -1,0 +1,447 @@
+/**
+ * Responsive Utility Classes
+ * Mobile-first approach with progressive enhancement
+ */
+
+/* =============================================================================
+   Container and Layout Classes
+   ============================================================================= */
+
+.scoreContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.scoreGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scoreTable {
+  display: none;
+  width: 100%;
+  background-color: #1f2937; /* gray-800 */
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.scoreCards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* =============================================================================
+   Card Layout (Mobile Default)
+   ============================================================================= */
+
+.scoreCard {
+  background-color: #1f2937; /* gray-800 */
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid #374151; /* gray-700 */
+  transition: all 0.2s ease-in-out;
+}
+
+.scoreCard:hover {
+  background-color: #374151; /* gray-700 */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.scoreCard.currentPlayer {
+  border: 2px solid #10b981; /* green-500 */
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.cardPlayerInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cardScoreInfo {
+  text-align: right;
+}
+
+.cardMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #374151; /* gray-700 */
+}
+
+.cardMetric {
+  text-align: center;
+}
+
+/* =============================================================================
+   Table Layout Classes (Hidden by default)
+   ============================================================================= */
+
+.tableHeader {
+  background-color: #374151; /* gray-700 */
+  padding: 1rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1.5fr 1fr 1fr 1.5fr;
+  gap: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #d1d5db; /* gray-300 */
+  border-bottom: 1px solid #4b5563; /* gray-600 */
+}
+
+.tableRow {
+  padding: 1rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1.5fr 1fr 1fr 1.5fr;
+  gap: 1rem;
+  border-bottom: 1px solid #4b5563; /* gray-600 */
+  transition: background-color 0.2s ease-in-out;
+}
+
+.tableRow:hover {
+  background-color: #374151; /* gray-700 */
+}
+
+.tableRow.currentPlayer {
+  background-color: rgba(16, 185, 129, 0.15);
+  border-left: 4px solid #10b981; /* green-500 */
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+/* =============================================================================
+   Statistics Summary
+   ============================================================================= */
+
+.statsContainer {
+  margin-top: 1.5rem;
+  background-color: #1f2937; /* gray-800 */
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  text-align: center;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: #9ca3af; /* gray-400 */
+}
+
+/* =============================================================================
+   Typography and Visual Elements
+   ============================================================================= */
+
+.rankBadge {
+  font-weight: bold;
+  font-size: 1.125rem;
+}
+
+.rankGold {
+  color: #fbbf24; /* yellow-400 */
+}
+
+.rankSilver {
+  color: #d1d5db; /* gray-300 */
+}
+
+.rankBronze {
+  color: #d97706; /* amber-600 */
+}
+
+.rankDefault {
+  color: #9ca3af; /* gray-400 */
+}
+
+.playerName {
+  font-weight: 500;
+  color: #f9fafb; /* gray-50 */
+}
+
+.currentPlayerBadge {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  background-color: #059669; /* green-600 */
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.scoreValue {
+  font-weight: bold;
+  color: #10b981; /* green-400 */
+}
+
+.metricValue {
+  font-weight: 500;
+}
+
+.comboValue {
+  color: #8b5cf6; /* purple-400 */
+}
+
+.timeValue {
+  color: #3b82f6; /* blue-400 */
+}
+
+.foodValue {
+  color: #fbbf24; /* yellow-400 */
+}
+
+.dateValue {
+  color: #9ca3af; /* gray-400 */
+  font-size: 0.875rem;
+}
+
+/* =============================================================================
+   Loading and Error States
+   ============================================================================= */
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  border-radius: 50%;
+  height: 3rem;
+  width: 3rem;
+  border: 2px solid transparent;
+  border-bottom-color: #10b981; /* green-400 */
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.errorContainer {
+  background-color: rgba(127, 29, 29, 0.2); /* red-900/20 */
+  border: 1px solid #ef4444; /* red-500 */
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.emptyContainer {
+  background-color: #1f2937; /* gray-800 */
+  border-radius: 0.5rem;
+  padding: 3rem;
+  text-align: center;
+}
+
+/* =============================================================================
+   Tablet Responsive Styles (768px - 1023px)
+   ============================================================================= */
+
+@media (min-width: 768px) {
+  .scoreContainer {
+    gap: 1.5rem;
+  }
+
+  .scoreCards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .cardMetrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .statValue {
+    font-size: 1.75rem;
+  }
+
+  /* Hide table on tablet, keep cards */
+  .scoreTable {
+    display: none;
+  }
+}
+
+/* =============================================================================
+   Desktop Responsive Styles (1024px+)
+   ============================================================================= */
+
+@media (min-width: 1024px) {
+  .scoreContainer {
+    gap: 2rem;
+  }
+
+  /* Show table layout on desktop */
+  .scoreTable {
+    display: block;
+  }
+
+  /* Hide card layout on desktop */
+  .scoreCards {
+    display: none;
+  }
+
+  .tableHeader {
+    padding: 1rem 1.5rem;
+    grid-template-columns: 0.8fr 2fr 1.5fr 1.2fr 1.2fr 1.5fr;
+  }
+
+  .tableRow {
+    padding: 1rem 1.5rem;
+    grid-template-columns: 0.8fr 2fr 1.5fr 1.2fr 1.2fr 1.5fr;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+
+  .statValue {
+    font-size: 2rem;
+  }
+}
+
+/* =============================================================================
+   Large Desktop Responsive Styles (1280px+)
+   ============================================================================= */
+
+@media (min-width: 1280px) {
+  .tableHeader {
+    grid-template-columns: 0.7fr 2fr 1.5fr 1.2fr 1.2fr 1.5fr;
+    gap: 1.5rem;
+  }
+
+  .tableRow {
+    grid-template-columns: 0.7fr 2fr 1.5fr 1.2fr 1.2fr 1.5fr;
+    gap: 1.5rem;
+  }
+
+  .statsContainer {
+    padding: 1.5rem;
+  }
+
+  .statsGrid {
+    gap: 2.5rem;
+  }
+}
+
+/* =============================================================================
+   Print Styles
+   ============================================================================= */
+
+@media print {
+  .scoreContainer {
+    color: black;
+    background: white;
+  }
+
+  .scoreCard,
+  .scoreTable {
+    border: 1px solid #ccc;
+    background: white;
+  }
+
+  .spinner,
+  .currentPlayerBadge {
+    display: none;
+  }
+}
+
+/* =============================================================================
+   Accessibility and Motion Preferences
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .scoreCard,
+  .tableRow,
+  .spinner {
+    transition: none;
+    animation: none;
+  }
+
+  .scoreCard:hover {
+    transform: none;
+  }
+}
+
+/* =============================================================================
+   High Contrast Mode Support
+   ============================================================================= */
+
+@media (prefers-contrast: high) {
+  .scoreCard {
+    border: 2px solid #fff;
+  }
+
+  .scoreCard.currentPlayer {
+    border: 3px solid #10b981;
+  }
+
+  .tableRow {
+    border-bottom: 2px solid #fff;
+  }
+}
+
+/* =============================================================================
+   Touch-Friendly Improvements
+   ============================================================================= */
+
+@media (hover: none) and (pointer: coarse) {
+  .scoreCard {
+    padding: 1.25rem;
+  }
+
+  .cardHeader {
+    margin-bottom: 1rem;
+  }
+
+  .cardMetrics {
+    gap: 1.25rem;
+    padding-top: 1rem;
+  }
+
+  .currentPlayerBadge {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+}

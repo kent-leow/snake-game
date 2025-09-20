@@ -20,3 +20,4 @@ export { useSpeedData } from './useSpeedData';
 export { useResponsiveLayout } from './useResponsiveLayout';
 export { useDeviceOrientation } from './useDeviceOrientation';
 export { useTouchControls } from './useTouchControls';
+export { useResponsive, useBreakpoint, useMinBreakpoint, useResponsiveClasses } from './useResponsive';

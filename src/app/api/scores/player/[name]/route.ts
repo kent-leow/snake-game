@@ -7,10 +7,10 @@ import { handleApiError } from '@/lib/api/errorHandler';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { name: string } }
+  { params }: { params: Promise<{ name: string }> }
 ) {
   try {
-    const { name } = params;
+    const { name } = await params;
     const searchParams = request.nextUrl.searchParams;
     const limit = parseInt(searchParams.get('limit') || '10', 10);
 

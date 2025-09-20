@@ -10,3 +10,5 @@ export { SpeedIndicator } from './game/SpeedIndicator';
 
 // Score components
 export { ScoreSubmissionModal } from './ScoreSubmissionModal';
+export { HighScoreTable } from './HighScoreTable';
+export { ScoreEntry } from './ScoreEntry';
