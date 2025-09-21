@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { TouchControls } from './TouchControls';
+import TouchControls from './TouchControls';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
 import type { GameStateType } from '@/lib/game/types';
 
