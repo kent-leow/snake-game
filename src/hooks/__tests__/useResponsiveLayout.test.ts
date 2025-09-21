@@ -131,8 +131,8 @@ describe('useResponsiveLayout', () => {
       window.innerHeight = 800;
       if (resizeCallback) {
         resizeCallback();
-        // Fast-forward timers to complete debounce
-        jest.advanceTimersByTime(100);
+        // Fast-forward timers to complete debounce (250ms)
+        jest.advanceTimersByTime(250);
       }
     });
 

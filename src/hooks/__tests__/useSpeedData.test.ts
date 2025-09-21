@@ -197,9 +197,9 @@ describe('useSpeedData', () => {
       // Initial call on mount
       expect(mockSpeedManager.getSpeedState).toHaveBeenCalledTimes(1);
 
-      // Fast forward timer
+      // Fast forward timer to match actual interval (500ms)
       act(() => {
-        jest.advanceTimersByTime(100);
+        jest.advanceTimersByTime(500);
       });
 
       // Should be called again due to interval

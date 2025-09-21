@@ -26,14 +26,14 @@ jest.mock('next/link', () => {
 describe('MainMenu', () => {
   it('renders the main title correctly', () => {
     render(<MainMenu />);
-    expect(screen.getByText('Snake Game')).toBeDefined();
+    expect(screen.getByText('SNAKE')).toBeDefined();
+    expect(screen.getByText('GAME')).toBeDefined();
   });
 
   it('renders the description text', () => {
     render(<MainMenu />);
-    expect(
-      screen.getByText('Classic Snake game built with Next.js and TypeScript')
-    ).toBeDefined();
+    expect(screen.getByText('Classic Snake game')).toBeDefined();
+    expect(screen.getByText('built with Next.js and TypeScript')).toBeDefined();
   });
 
   it('renders all navigation buttons with correct labels', () => {
