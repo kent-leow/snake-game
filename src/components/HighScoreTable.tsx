@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { ScoreEntry } from '@/components';
-import { HighScoreTableProps } from '@/types/HighScore';
-import { useResponsive } from '@/hooks';
+import { ScoreEntry } from '.';
+import { HighScoreTableProps } from '../types/HighScore';
+import { useResponsive } from '../hooks';
 
 export function HighScoreTable({
   scores,

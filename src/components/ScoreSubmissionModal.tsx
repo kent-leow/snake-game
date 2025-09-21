@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useScoreSubmission } from '@/hooks/useScoreSubmission';
-import { GameStorageUtils } from '@/utils/localStorage';
-import { Button } from '@/components/ui';
-import type { ScoreSubmissionData, ScoreSubmissionResult } from '@/services/ScoreService';
+import { useScoreSubmission } from '../hooks/useScoreSubmission';
+import { GameStorageUtils } from '../utils/localStorage';
+import { Button } from './ui';
+import type { ScoreSubmissionData, ScoreSubmissionResult } from '../services/ScoreService';
 
 /**
  * Props for the ScoreSubmissionModal component
