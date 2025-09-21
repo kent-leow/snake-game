@@ -309,27 +309,21 @@ export class GameEngine {
     // Process combo first to determine bonus points
     const comboResult = this.comboManager.processFood(food.number);
     
-    // Calculate points according to task specification
-    const basePoints = 10; // FOOD_BASE_POINTS as specified in task
-    const comboBonus = comboResult.pointsAwarded; // 0 or 5 as specified
+    // Calculate points using new formula: 10 base points + (combo × speed level)
+    const basePoints = 10; // FOOD_BASE_POINTS as specified
+    const currentComboProgress = comboResult.newState.comboProgress; // 0-5
+    const currentSpeedLevel = this.speedManager.getSpeedLevel(); // Number of completed combos
+    const bonusPoints = currentComboProgress * currentSpeedLevel;
 
     // Update score with breakdown using new ScoreManager
-    const scoreBreakdown = this.scoreManager.addScore(basePoints, comboBonus);
+    const scoreBreakdown = this.scoreManager.addScore(basePoints, bonusPoints);
 
     // Also update legacy scoring system for backward compatibility
     this.scoringSystem.addScore({
       type: 'food',
-      points: basePoints,
+      points: basePoints + bonusPoints, // Use total points to maintain consistency
       position: food.position,
     });
-
-    if (comboResult.pointsAwarded > 0) {
-      this.scoringSystem.addScore({
-        type: 'combo',
-        points: comboResult.pointsAwarded,
-        position: food.position,
-      });
-    }
 
     // Make snake grow
     this.snakeGame.addGrowth(1, 'food');
