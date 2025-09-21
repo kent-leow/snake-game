@@ -9,11 +9,9 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { 
   CanvasRenderer, 
   RenderLoop, 
-  PerformanceMonitor,
   ResponsiveCanvas,
   type GameConfig,
-  type GameElements,
-  type PerformanceMetrics 
+  type GameElements
 } from '@/lib/rendering';
 import { useResponsiveLayout } from '@/hooks';
 import { MobileUtils } from '@/lib/mobile';
@@ -21,15 +19,11 @@ import { SwipeGestureHandler } from '@/components/mobile';
 import type { GameEngine } from '@/lib/game/gameEngine';
 import type { Direction } from '@/lib/game/types';
 import type { ComboEvent, ComboState } from '@/types/Combo';
-import { ComboFeedback } from '@/components/ComboFeedback';
-import { useSimpleComboAnimation } from '@/hooks/useComboAnimation';
 
 export interface GameCanvasProps {
   gameEngine: GameEngine;
   gameConfig: GameConfig;
-  onPerformanceUpdate?: (metrics: PerformanceMetrics) => void;
   className?: string;
-  enablePerformanceMonitoring?: boolean;
   targetFPS?: number;
   enableTouchControls?: boolean;
   onDirectionChange?: (direction: Direction) => void;
@@ -42,9 +36,7 @@ export interface GameCanvasProps {
 export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
   gameEngine,
   gameConfig,
-  onPerformanceUpdate,
   className = '',
-  enablePerformanceMonitoring = process.env.NODE_ENV === 'development',
   targetFPS = 60,
   enableTouchControls = true,
   onDirectionChange,
@@ -54,22 +46,13 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<CanvasRenderer | null>(null);
   const renderLoopRef = useRef<RenderLoop | null>(null);
-  const performanceMonitorRef = useRef<PerformanceMonitor | null>(null);
   const responsiveCanvasRef = useRef<ResponsiveCanvas | null>(null);
   
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fpsRef = useRef(0);
   const comboStateRef = useRef<ComboState | null>(null);
 
   const { isMobile } = useResponsiveLayout();
-  
-  // Combo animation management
-  const {
-    currentEvent: comboEvent,
-    showEvent: showComboEvent,
-    hideEvent: hideComboEvent,
-  } = useSimpleComboAnimation();
 
   /**
    * Update game state and render
@@ -113,21 +96,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       rendererRef.current.render(gameElements, interpolation);
     } catch (error) {
       console.error('Render error:', error);
-      performanceMonitorRef.current?.recordError();
     }
   }, [gameEngine]);
 
-  /**
-   * Handle performance updates
-   */
-  const handlePerformanceUpdate = useCallback((fps: number) => {
-    fpsRef.current = fps;
-    
-    if (performanceMonitorRef.current && onPerformanceUpdate) {
-      const metrics = performanceMonitorRef.current.getMetrics();
-      onPerformanceUpdate(metrics);
-    }
-  }, [onPerformanceUpdate]);
+
 
   /**
    * Initialize canvas and rendering system
@@ -136,10 +108,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
     if (!canvasRef.current || !containerRef.current) return;
 
     try {
-      // Initialize performance monitor
-      const performanceMonitor = new PerformanceMonitor(enablePerformanceMonitoring);
-      performanceMonitorRef.current = performanceMonitor;
-
       // Initialize canvas with fixed dimensions - skip ResponsiveCanvas to avoid conflicts
       // ResponsiveCanvas interferes with the CanvasRenderer's dimension management
       responsiveCanvasRef.current = null;
@@ -147,8 +115,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       // Initialize renderer with proper fixed dimensions
       const renderer = new CanvasRenderer(
         canvasRef.current,
-        gameConfig,
-        performanceMonitor
+        gameConfig
       );
       rendererRef.current = renderer;
 
@@ -157,13 +124,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
         {
           onUpdate: handleUpdate,
           onRender: handleRender,
-          onPerformanceUpdate: handlePerformanceUpdate,
         },
         {
           targetFPS,
-          enablePerformanceMonitoring,
-        },
-        performanceMonitor
+        }
       );
       renderLoopRef.current = renderLoop;
 
@@ -191,15 +155,13 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
     return (): void => {
       renderLoopRef.current?.destroy();
       rendererRef.current?.destroy();
-      performanceMonitorRef.current?.destroy();
       // ResponsiveCanvas is disabled for fixed canvas sizes
       
       rendererRef.current = null;
       renderLoopRef.current = null;
-      performanceMonitorRef.current = null;
       responsiveCanvasRef.current = null;
     };
-  }, [gameConfig, enablePerformanceMonitoring, targetFPS, handleUpdate, handleRender, handlePerformanceUpdate, isMobile]);
+  }, [gameConfig, targetFPS, handleUpdate, handleRender, isMobile]);
 
   /**
    * Handle game engine state changes
@@ -224,12 +186,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       const comboManager = gameEngine.getComboManager();
       
       // Subscribe to combo events
-      const unsubscribe = comboManager.subscribe((event: ComboEvent) => {
+      const unsubscribe = comboManager.subscribe((_event: ComboEvent) => {
         // Update combo state ref (no re-render)
         comboStateRef.current = comboManager.getCurrentState();
         
-        // Show combo animation
-        showComboEvent(event);
+        // Combo animations removed per user request
       });
 
       // Initialize combo state ref
@@ -240,7 +201,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       console.warn('Combo system not available:', error);
       return undefined;
     }
-  }, [gameEngine, enableComboVisuals, showComboEvent]);
+  }, [gameEngine, enableComboVisuals]);
 
   /**
    * Handle canvas click for focus
@@ -402,45 +363,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
         </div>
       )}
 
-      {/* Performance overlay (development only) */}
-      {enablePerformanceMonitoring && isInitialized && (
-        <div 
-          className="performance-overlay"
-          style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            color: '#888',
-            fontSize: '12px',
-            fontFamily: 'monospace',
-            background: 'rgba(0, 0, 0, 0.5)',
-            padding: '4px 8px',
-            borderRadius: '4px',
-            pointerEvents: 'none',
-          }}
-        >
-          FPS: {fpsRef.current}
-        </div>
-      )}
 
-      {/* Combo Feedback Animations - moved below canvas */}
-      {enableComboVisuals && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-60px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            pointerEvents: 'none',
-            zIndex: 101,
-          }}
-        >
-          <ComboFeedback
-            event={comboEvent}
-            onAnimationComplete={hideComboEvent}
-          />
-        </div>
-      )}
+
+      {/* Combo Feedback Animations - removed per user request */}
     </div>
   );
 });

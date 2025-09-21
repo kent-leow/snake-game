@@ -2,18 +2,14 @@
  * Game render loop management with frame rate control
  */
 
-import type { PerformanceMonitor } from './PerformanceMonitor';
-
 export interface RenderLoopCallbacks {
   onUpdate: (deltaTime: number, interpolation: number) => void;
   onRender: (interpolation: number) => void;
-  onPerformanceUpdate?: (fps: number) => void;
 }
 
 export interface RenderLoopOptions {
   targetFPS?: number;
   maxDeltaTime?: number;
-  enablePerformanceMonitoring?: boolean;
 }
 
 /**
@@ -27,21 +23,17 @@ export class RenderLoop {
   private lastFrameTime: number = 0;
   private frameInterval: number;
   private accumulator: number = 0;
-  private performanceMonitor: PerformanceMonitor | null = null;
 
   constructor(
     callbacks: RenderLoopCallbacks,
-    options: RenderLoopOptions = {},
-    performanceMonitor?: PerformanceMonitor
+    options: RenderLoopOptions = {}
   ) {
     this.callbacks = callbacks;
     this.options = {
       targetFPS: options.targetFPS || 60,
       maxDeltaTime: options.maxDeltaTime || 100,
-      enablePerformanceMonitoring: options.enablePerformanceMonitoring ?? true,
     };
     this.frameInterval = 1000 / this.options.targetFPS;
-    this.performanceMonitor = performanceMonitor || null;
   }
 
   /**
@@ -88,8 +80,6 @@ export class RenderLoop {
     if (!this.isRunning) return;
 
     try {
-      this.performanceMonitor?.startFrame();
-
       const deltaTime = Math.min(
         currentTime - this.lastFrameTime,
         this.options.maxDeltaTime
@@ -107,19 +97,8 @@ export class RenderLoop {
       // Interpolated rendering
       const interpolation = this.accumulator / this.frameInterval;
       this.callbacks.onRender(interpolation);
-
-      this.performanceMonitor?.endFrame();
-
-      // Report performance if enabled
-      if (this.options.enablePerformanceMonitoring && this.performanceMonitor) {
-        const fps = this.performanceMonitor.getCurrentFPS();
-        if (fps > 0) {
-          this.callbacks.onPerformanceUpdate?.(fps);
-        }
-      }
     } catch (error) {
       console.error('Render loop error:', error);
-      this.performanceMonitor?.recordError();
     }
 
     this.animationFrameId = requestAnimationFrame(this.loop);
@@ -154,18 +133,12 @@ export class RenderLoop {
     this.callbacks = { ...this.callbacks, ...callbacks };
   }
 
-  /**
-   * Get performance metrics
-   */
-  public getPerformanceMetrics() {
-    return this.performanceMonitor?.getMetrics() || null;
-  }
+
 
   /**
    * Destroy the render loop and clean up resources
    */
   public destroy(): void {
     this.stop();
-    this.performanceMonitor = null;
   }
 }

@@ -14,7 +14,6 @@ import type { Snake, EnhancedFood } from '@/lib/game/types';
 import type { NumberedFood } from '@/lib/game/multipleFoodTypes';
 import { FoodRenderer } from '@/game/FoodRenderer';
 import { CanvasUtils, type CanvasDimensions } from './CanvasUtils';
-import type { PerformanceMonitor } from './PerformanceMonitor';
 
 export interface RenderContext {
   canvas: HTMLCanvasElement;
@@ -48,8 +47,6 @@ export interface GameConfig {
  */
 export class CanvasRenderer {
   private renderContext: RenderContext;
-  private performanceMonitor: PerformanceMonitor | null = null;
-  private lastRenderTime: number = 0;
   private gridColor: string = '#333333';
   private backgroundColor: string = '#1a1a1a';
   private foodRenderer: FoodRenderer | null = null;
@@ -66,11 +63,9 @@ export class CanvasRenderer {
 
   constructor(
     canvas: HTMLCanvasElement,
-    gameConfig: GameConfig,
-    performanceMonitor?: PerformanceMonitor
+    gameConfig: GameConfig
   ) {
     this.renderContext = this.initializeRenderContext(canvas, gameConfig);
-    this.performanceMonitor = performanceMonitor || null;
     
     // Initialize layered rendering system
     this.initializeLayeredRendering();
@@ -148,11 +143,9 @@ export class CanvasRenderer {
   /**
    * Main render method - draws all game elements with layered optimization
    */
-  public render(gameElements: GameElements, interpolation: number = 1.0): void {
+  public render(gameElements: GameElements, interpolation: number = 0): void {
     try {
-      const startTime = performance.now();
-
-      // Check if background needs to be redrawn
+      // Only redraw background if UI elements have changed
       const backgroundChanged = this.hasBackgroundChanged(gameElements);
       
       if (backgroundChanged || this.needsBackgroundRedraw) {
@@ -167,10 +160,8 @@ export class CanvasRenderer {
       this.compositeToMainCanvas();
 
       this.lastGameElements = { ...gameElements };
-      this.lastRenderTime = performance.now() - startTime;
     } catch (error) {
       console.error('Rendering error:', error);
-      this.performanceMonitor?.recordError();
     }
   }
 
@@ -203,7 +194,7 @@ export class CanvasRenderer {
   }
 
   /**
-   * Render dynamic elements (food, snake, performance overlay)
+   * Render dynamic elements (food, snake)
    */
   private renderDynamic(gameElements: GameElements, interpolation: number): void {
     // Clear dynamic canvas (transparent)
@@ -218,11 +209,6 @@ export class CanvasRenderer {
     
     // Draw snake
     this.drawSnake(this.dynamicCtx, gameElements.snake, interpolation);
-    
-    // Draw performance overlay if enabled (on dynamic layer since it changes frequently)
-    if (this.performanceMonitor?.isEnabled()) {
-      this.drawPerformanceOverlay(this.dynamicCtx);
-    }
   }
 
   /**
@@ -417,28 +403,7 @@ export class CanvasRenderer {
     ctx.textAlign = 'left';
   }
 
-  /**
-   * Draw performance overlay
-   */
-  private drawPerformanceOverlay(ctx: CanvasRenderingContext2D): void {
-    if (!this.performanceMonitor) return;
 
-    const { width } = this.renderContext;
-    const metrics = this.performanceMonitor.getMetrics();
-
-    ctx.fillStyle = '#888888';
-    ctx.font = '12px monospace';
-    
-    const lines = [
-      `FPS: ${metrics.fps}`,
-      `Frame: ${metrics.averageFrameTime.toFixed(1)}ms`,
-      `Render: ${this.lastRenderTime.toFixed(1)}ms`
-    ];
-
-    lines.forEach((line, index) => {
-      ctx.fillText(line, width - 120, 15 + index * 15);
-    });
-  }
 
 
 
@@ -517,13 +482,6 @@ export class CanvasRenderer {
   }
 
   /**
-   * Get performance metrics
-   */
-  public getPerformanceMetrics(): object | null {
-    return this.performanceMonitor?.getMetrics() || null;
-  }
-
-  /**
    * Set theme colors
    */
   public setTheme(colors: {
@@ -538,8 +496,6 @@ export class CanvasRenderer {
    * Destroy renderer and clean up resources
    */
   public destroy(): void {
-    this.performanceMonitor = null;
-    
     // Clean up food renderer
     if (this.foodRenderer) {
       this.foodRenderer.destroy();

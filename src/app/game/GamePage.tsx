@@ -266,7 +266,6 @@ export function GamePage(): React.JSX.Element {
                   canvasHeight: actualSize,
                 }}
                 className='flex-1'
-                enablePerformanceMonitoring={true}
                 targetFPS={60}
                 enableTouchControls={true}
                 onDirectionChange={handleDirectionChange}
@@ -387,7 +386,6 @@ export function GamePage(): React.JSX.Element {
                     canvasWidth: actualSize,
                     canvasHeight: actualSize,
                   }}
-                  enablePerformanceMonitoring={true}
                   targetFPS={60}
                   enableTouchControls={false}
                   onDirectionChange={handleDirectionChange}
