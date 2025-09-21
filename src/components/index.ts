@@ -14,3 +14,6 @@ export { ScoreEntry } from './ScoreEntry';
 export { ComboProgressIndicator, useComboProgressProps } from './ComboProgressIndicator';
 export { default as ComboFeedback } from './ComboFeedback';
 
+// Explicitly export PageLayout for easy access
+export { default as PageLayout } from './ui/PageLayout';
+
