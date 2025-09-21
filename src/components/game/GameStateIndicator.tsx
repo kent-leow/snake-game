@@ -11,7 +11,7 @@ interface GameStateIndicatorProps {
 /**
  * Visual game state indicator component
  */
-export const GameStateIndicator: React.FC<GameStateIndicatorProps> = ({
+export const GameStateIndicator: React.FC<GameStateIndicatorProps> = React.memo(({
   currentState,
   className = '',
 }) => {
@@ -64,6 +64,8 @@ export const GameStateIndicator: React.FC<GameStateIndicatorProps> = ({
       <span className="game-state-indicator__label">{stateInfo.label}</span>
     </div>
   );
-};
+});
+
+GameStateIndicator.displayName = 'GameStateIndicator';
 
 export default GameStateIndicator;

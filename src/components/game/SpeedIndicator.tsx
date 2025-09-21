@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '@/styles/speed-indicator.module.css';
 
 /**
@@ -55,7 +55,7 @@ const useSpeedAnimation = (speedLevel: number): { showChange: boolean; isIncreas
  * SpeedIndicator component that displays current speed level with visual feedback
  * Shows speed progression and provides animation feedback when speed changes occur
  */
-export const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({
+export const SpeedIndicator: React.FC<SpeedIndicatorProps> = React.memo(({
   speedLevel,
   currentSpeed,
   baseSpeed,
@@ -141,6 +141,8 @@ export const SpeedIndicator: React.FC<SpeedIndicatorProps> = ({
       )}
     </div>
   );
-};
+});
+
+SpeedIndicator.displayName = 'SpeedIndicator';
 
 export default SpeedIndicator;

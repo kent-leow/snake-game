@@ -31,21 +31,35 @@ export const useResponsiveLayout = (): ResponsiveLayoutState => {
     const isMobile = width <= 768;
     const isTablet = width > 768 && width <= 1024;
     const isDesktop = width > 1024;
+    const newScreenSize = isMobile ? 'small' : isTablet ? 'medium' : 'large';
+    const newOrientation = width > height ? 'landscape' : 'portrait';
 
-    setLayoutState({
-      isMobile,
-      isTablet,
-      isDesktop,
-      screenSize: isMobile ? 'small' : isTablet ? 'medium' : 'large',
-      orientation: width > height ? 'landscape' : 'portrait',
-      viewportSize: { width, height },
+    // Only update if there's a meaningful change to prevent unnecessary re-renders
+    setLayoutState(prevState => {
+      if (
+        prevState.isMobile !== isMobile ||
+        prevState.screenSize !== newScreenSize ||
+        prevState.orientation !== newOrientation ||
+        Math.abs(prevState.viewportSize.width - width) > 50 || // Only update if significant change
+        Math.abs(prevState.viewportSize.height - height) > 50
+      ) {
+        return {
+          isMobile,
+          isTablet,
+          isDesktop,
+          screenSize: newScreenSize,
+          orientation: newOrientation,
+          viewportSize: { width, height },
+        };
+      }
+      return prevState;
     });
   }, []);
 
   useEffect(() => {
     updateLayout();
 
-    const debouncedUpdate = debounce(updateLayout, 100);
+    const debouncedUpdate = debounce(updateLayout, 250); // Increased from 100ms to 250ms
     window.addEventListener('resize', debouncedUpdate);
     window.addEventListener('orientationchange', debouncedUpdate);
 

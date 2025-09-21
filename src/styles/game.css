@@ -53,6 +53,11 @@
   box-shadow: 
     0 0 20px rgba(0, 0, 0, 0.8),
     inset 0 0 20px rgba(57, 255, 20, 0.1);
+  /* Performance optimizations to prevent flickering */
+  will-change: auto;
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .game-canvas:focus {

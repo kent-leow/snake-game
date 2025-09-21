@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { PageLayout, GameControls, SpeedIndicator, ScoreSubmissionModal } from '@/components';
 import { GameCanvas } from '@/components/game/GameCanvas';
 import { GameStateIndicator } from '@/components/game/GameStateIndicator';
@@ -46,9 +46,21 @@ export function GamePage(): React.JSX.Element {
   // Calculate canvas dimensions - FIXED SIZE aligned to grid
   const gridSize = 20;
   
-  // Use canvas sizes that are perfectly divisible by gridSize to ensure no overflow
-  // Mobile: 320px (16px per cell) or Desktop: 500px (25px per cell)
-  const actualSize = isMobile ? 320 : 500; // Both perfectly divisible by 20
+  // Memoize canvas size to prevent flickering from frequent re-calculations
+  const [actualSize] = useState(() => {
+    // Use canvas sizes that are perfectly divisible by gridSize to ensure no overflow
+    // Mobile: 320px (16px per cell) or Desktop: 500px (25px per cell)
+    return typeof window !== 'undefined' && window.innerWidth <= 768 ? 320 : 500;
+  });
+
+  // Memoize game config to prevent unnecessary re-renders
+  const gameConfig = useMemo(() => ({
+    gridSize: gridSize,
+    gameSpeed: 150,
+    enableSound: true,
+    canvasWidth: actualSize,
+    canvasHeight: actualSize,
+  }), [gridSize, actualSize]);
 
   const handleGameReady = useCallback((): void => {
     setIsGameReady(true);
@@ -224,7 +236,7 @@ export function GamePage(): React.JSX.Element {
         gameEngineRef.current.stop();
       }
     };
-  }, [handleScoreChange, handleGameReady, actions, actualSize]);
+  }, [handleScoreChange, handleGameReady, actions]); // Removed actualSize dependency
 
   // Auto-start game immediately when ready
   useEffect(() => {
@@ -258,13 +270,7 @@ export function GamePage(): React.JSX.Element {
             <div className='bg-gray-800 p-3 rounded-lg shadow-lg flex-1 flex flex-col'>
               <GameCanvas
                 gameEngine={gameEngineRef.current}
-                gameConfig={{
-                  gridSize: gridSize,
-                  gameSpeed: 150,
-                  enableSound: true,
-                  canvasWidth: actualSize,
-                  canvasHeight: actualSize,
-                }}
+                gameConfig={gameConfig}
                 className='flex-1'
                 targetFPS={60}
                 enableTouchControls={true}
@@ -379,13 +385,7 @@ export function GamePage(): React.JSX.Element {
               <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
                 <GameCanvas
                   gameEngine={gameEngineRef.current}
-                  gameConfig={{
-                    gridSize: gridSize,
-                    gameSpeed: 150,
-                    enableSound: true,
-                    canvasWidth: actualSize,
-                    canvasHeight: actualSize,
-                  }}
+                  gameConfig={gameConfig}
                   targetFPS={60}
                   enableTouchControls={false}
                   onDirectionChange={handleDirectionChange}

@@ -61,8 +61,8 @@ export function useSpeedData(gameEngine: GameEngine | null): SpeedData {
         updateSpeedData();
       });
 
-      // Update on game state changes (optional, for safety)
-      const interval = setInterval(updateSpeedData, 100);
+      // Update on game state changes (optional, for safety) - reduced frequency
+      const interval = setInterval(updateSpeedData, 500); // Reduced from 100ms to 500ms
 
       return (): void => {
         unsubscribe();
@@ -71,8 +71,8 @@ export function useSpeedData(gameEngine: GameEngine | null): SpeedData {
     } catch (error) {
       console.warn('Failed to setup speed data subscriptions:', error);
       
-      // Still set up interval as fallback
-      const interval = setInterval(updateSpeedData, 100);
+      // Still set up interval as fallback - reduced frequency
+      const interval = setInterval(updateSpeedData, 500);
       return (): void => {
         clearInterval(interval);
       };

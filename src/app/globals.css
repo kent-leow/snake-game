@@ -107,6 +107,18 @@ body {
   box-sizing: border-box;
 }
 
+/* Prevent flickering and improve performance */
+.game-canvas,
+.game-board,
+.mobile-canvas {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
 /* Smooth scrolling with retro feel */
 html {
   scroll-behavior: smooth;

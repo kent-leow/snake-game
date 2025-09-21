@@ -5,7 +5,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { ComboState } from '@/types/Combo';
 import { COMBO_SEQUENCE } from '@/constants/ComboConfig';
 
@@ -25,7 +25,7 @@ export interface ComboProgressProps {
 /**
  * Main ComboProgressIndicator component
  */
-export const ComboProgressIndicator: React.FC<ComboProgressProps> = ({
+export const ComboProgressIndicator: React.FC<ComboProgressProps> = React.memo(({
   currentProgress,
   expectedNext,
   totalCombos,
@@ -176,18 +176,20 @@ export const ComboProgressIndicator: React.FC<ComboProgressProps> = ({
       </div>
     </div>
   );
-};
+});
+
+ComboProgressIndicator.displayName = 'ComboProgressIndicator';
 
 /**
  * Hook to convert ComboState to ComboProgressProps
  */
 export const useComboProgressProps = (comboState: ComboState): ComboProgressProps => {
-  return {
+  return useMemo(() => ({
     currentProgress: comboState.comboProgress,
     expectedNext: comboState.expectedNext,
     totalCombos: comboState.totalCombos,
     isActive: comboState.isComboActive,
-  };
+  }), [comboState.comboProgress, comboState.expectedNext, comboState.totalCombos, comboState.isComboActive]);
 };
 
 export default ComboProgressIndicator;
