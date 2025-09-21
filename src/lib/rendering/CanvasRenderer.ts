@@ -1,6 +1,13 @@
 /**
  * Core canvas rendering engine for the Snake game
- * Handles all drawing operations with high performance and visual quality
+ * Handles all drawing operati    // Background canvas for static elements (grid, background)
+    this.backgroundCanvas = document.createElement('canvas');
+    const backgroundCtx = CanvasUtils.setupHighDPICanvas(
+      this.backgroundCanvas,
+      this.renderContext.width,
+      this.renderContext.height
+    );
+    this.backgroundCtx = backgroundCtx;performance and visual quality
  */
 
 import type { Snake, EnhancedFood } from '@/lib/game/types';
@@ -81,37 +88,23 @@ export class CanvasRenderer {
    * Initialize layered rendering with background and dynamic canvases
    */
   private initializeLayeredRendering(): void {
-    const pixelRatio = this.renderContext.pixelRatio;
-    
-    // Background canvas for static elements (grid, UI)
+    // Background canvas for static elements (grid, background)
     this.backgroundCanvas = document.createElement('canvas');
-    this.backgroundCanvas.width = this.renderContext.width * pixelRatio;
-    this.backgroundCanvas.height = this.renderContext.height * pixelRatio;
-    this.backgroundCanvas.style.width = `${this.renderContext.width}px`;
-    this.backgroundCanvas.style.height = `${this.renderContext.height}px`;
-    
-    const bgCtx = this.backgroundCanvas.getContext('2d');
-    if (!bgCtx) {
-      throw new Error('Failed to get background 2D context');
-    }
-    this.backgroundCtx = bgCtx;
-    // Scale only once for the pixel ratio
-    this.backgroundCtx.scale(pixelRatio, pixelRatio);
+    const backgroundCtx = CanvasUtils.setupHighDPICanvas(
+      this.backgroundCanvas,
+      this.renderContext.width,
+      this.renderContext.height
+    );
+    this.backgroundCtx = backgroundCtx;
     
     // Dynamic canvas for moving elements (food, snake, performance overlay)
     this.dynamicCanvas = document.createElement('canvas');
-    this.dynamicCanvas.width = this.renderContext.width * pixelRatio;
-    this.dynamicCanvas.height = this.renderContext.height * pixelRatio;
-    this.dynamicCanvas.style.width = `${this.renderContext.width}px`;
-    this.dynamicCanvas.style.height = `${this.renderContext.height}px`;
-    
-    const dynCtx = this.dynamicCanvas.getContext('2d');
-    if (!dynCtx) {
-      throw new Error('Failed to get dynamic 2D context');
-    }
-    this.dynamicCtx = dynCtx;
-    // Scale only once for the pixel ratio
-    this.dynamicCtx.scale(pixelRatio, pixelRatio);
+    const dynamicCtx = CanvasUtils.setupHighDPICanvas(
+      this.dynamicCanvas,
+      this.renderContext.width,
+      this.renderContext.height
+    );
+    this.dynamicCtx = dynamicCtx;
     
     CanvasUtils.applyCanvasOptimizations(this.backgroundCtx);
     CanvasUtils.applyCanvasOptimizations(this.dynamicCtx);
@@ -458,27 +451,19 @@ export class CanvasRenderer {
       newConfig
     );
     
-    const pixelRatio = this.renderContext.pixelRatio;
+    // Resize background canvas using setupHighDPICanvas
+    this.backgroundCtx = CanvasUtils.setupHighDPICanvas(
+      this.backgroundCanvas,
+      this.renderContext.width,
+      this.renderContext.height
+    );
     
-    // Resize background canvas
-    this.backgroundCanvas.width = this.renderContext.width * pixelRatio;
-    this.backgroundCanvas.height = this.renderContext.height * pixelRatio;
-    this.backgroundCanvas.style.width = `${this.renderContext.width}px`;
-    this.backgroundCanvas.style.height = `${this.renderContext.height}px`;
-    
-    // Reset and scale background context
-    this.backgroundCtx.setTransform(1, 0, 0, 1, 0, 0);
-    this.backgroundCtx.scale(pixelRatio, pixelRatio);
-    
-    // Resize dynamic canvas
-    this.dynamicCanvas.width = this.renderContext.width * pixelRatio;
-    this.dynamicCanvas.height = this.renderContext.height * pixelRatio;
-    this.dynamicCanvas.style.width = `${this.renderContext.width}px`;
-    this.dynamicCanvas.style.height = `${this.renderContext.height}px`;
-    
-    // Reset and scale dynamic context
-    this.dynamicCtx.setTransform(1, 0, 0, 1, 0, 0);
-    this.dynamicCtx.scale(pixelRatio, pixelRatio);
+    // Resize dynamic canvas using setupHighDPICanvas
+    this.dynamicCtx = CanvasUtils.setupHighDPICanvas(
+      this.dynamicCanvas,
+      this.renderContext.width,
+      this.renderContext.height
+    );
     
     CanvasUtils.applyCanvasOptimizations(this.backgroundCtx);
     CanvasUtils.applyCanvasOptimizations(this.dynamicCtx);

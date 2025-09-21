@@ -22,18 +22,17 @@ export class CanvasUtils {
       throw new Error('Failed to get 2D context');
     }
 
-    const pixelRatio = window.devicePixelRatio || 1;
-
-    // Set actual canvas size for crisp rendering
-    canvas.width = width * pixelRatio;
-    canvas.height = height * pixelRatio;
+    // For now, use 1:1 pixel ratio to fix scaling issue
+    // TODO: Properly implement high-DPI support with coordinate adjustment
+    canvas.width = width;
+    canvas.height = height;
     
     // Set display size
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
 
-    // Scale context for high-DPI displays
-    ctx.scale(pixelRatio, pixelRatio);
+    // Don't scale context - use logical coordinates directly
+    // ctx.scale(pixelRatio, pixelRatio);
     
     return ctx;
   }

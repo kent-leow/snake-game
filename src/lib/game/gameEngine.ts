@@ -66,21 +66,25 @@ export class GameEngine {
     this.config = config;
     this.callbacks = callbacks;
 
-    // Initialize game systems
+    // Calculate the actual cell size that matches the renderer
+    // This ensures movement and collision detection align with visual grid
+    const actualCellSize = Math.floor(config.canvasWidth / config.gridSize);
+
+    // Initialize game systems with the actual cell size
     this.snakeGame = new SnakeGame(
       config.canvasWidth,
       config.canvasHeight,
-      config.gridSize
+      actualCellSize // Use actual cell size instead of gridSize
     );
 
     this.foodManager = new FoodManager(
-      config.gridSize,
+      actualCellSize, // Use actual cell size for consistent positioning
       config.canvasWidth,
       config.canvasHeight
     );
 
     this.multipleFoodManager = new MultipleFoodManager({
-      gridSize: config.gridSize,
+      gridSize: actualCellSize, // Use actual cell size
       boardWidth: config.canvasWidth,
       boardHeight: config.canvasHeight
     });
@@ -88,7 +92,7 @@ export class GameEngine {
     this.collisionDetector = new CollisionDetector(
       config.canvasWidth,
       config.canvasHeight,
-      config.gridSize
+      actualCellSize // Use actual cell size for boundary calculations
     );
 
     this.scoringSystem = new ScoringSystem(config.initialScore || 0);

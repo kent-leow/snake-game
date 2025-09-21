@@ -89,6 +89,7 @@ export class MobileUtils {
 
   /**
    * Optimize canvas for mobile performance and touch interaction
+   * Note: Canvas sizing and high-DPI scaling are handled by CanvasRenderer
    */
   static optimizeCanvasForMobile(canvas: HTMLCanvasElement): void {
     // Disable context menu on long press
@@ -101,19 +102,13 @@ export class MobileUtils {
     // Improve touch responsiveness
     canvas.style.touchAction = 'none';
 
-    // Add high DPI support
-    const context = canvas.getContext('2d');
-    if (context) {
-      const devicePixelRatio = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      
-      canvas.width = rect.width * devicePixelRatio;
-      canvas.height = rect.height * devicePixelRatio;
-      context.scale(devicePixelRatio, devicePixelRatio);
-      
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
-    }
+    // Mobile-specific performance optimizations
+    canvas.style.willChange = 'contents';
+    canvas.style.backfaceVisibility = 'hidden';
+    canvas.style.transform = 'translateZ(0)'; // Force hardware acceleration
+    
+    // Note: High-DPI scaling is handled by CanvasRenderer's setupHighDPICanvas
+    // to avoid double scaling issues
   }
 
   /**
