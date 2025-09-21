@@ -3,7 +3,7 @@
 import React from 'react';
 import { ScoreEntry } from './ScoreEntry';
 import { HighScoreTableProps } from '@/types/HighScore';
-import { useResponsive } from '@/hooks';
+import { useResponsive } from '@/hooks/useResponsive';
 
 export function HighScoreTable({
   scores,

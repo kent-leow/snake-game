@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import NavigationMenu, { NavigationItem } from './NavigationMenu';
-import { useKeyboardNavigation } from '@/hooks';
+import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 
 interface MobileNavigationProps {
   isOpen: boolean;

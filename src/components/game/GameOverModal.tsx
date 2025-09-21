@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui';
+import Button from '@/components/ui/Button';
 import type { GameStatistics } from '@/lib/game/gameOverState';
 
 /**

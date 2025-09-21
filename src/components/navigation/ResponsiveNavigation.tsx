@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useMediaQuery } from '@/hooks';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import NavigationMenu, { NavigationItem } from './NavigationMenu';
 import MobileNavigation from './MobileNavigation';
 

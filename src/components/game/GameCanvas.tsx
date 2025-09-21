@@ -6,16 +6,13 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { 
-  CanvasRenderer, 
-  RenderLoop, 
-  ResponsiveCanvas,
-  type GameConfig,
-  type GameElements
-} from '@/lib/rendering';
-import { useResponsiveLayout } from '@/hooks';
-import { MobileUtils } from '@/lib/mobile';
-import { SwipeGestureHandler } from '@/components/mobile';
+import { CanvasRenderer } from '@/lib/rendering/CanvasRenderer';
+import { RenderLoop } from '@/lib/rendering/RenderLoop';
+import { ResponsiveCanvas } from '@/lib/rendering/ResponsiveCanvas';
+import type { GameConfig, GameElements } from '@/lib/rendering/CanvasRenderer';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
+import { MobileUtils } from '@/lib/mobile/MobileUtils';
+import SwipeGestureHandler from '@/components/mobile/SwipeGestureHandler';
 import { ComboProgressIndicator } from '@/components/ComboProgressIndicator';
 import { ComboFeedback } from '@/components/ComboFeedback';
 import type { GameEngine } from '@/lib/game/gameEngine';

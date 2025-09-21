@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { PageLayout, HighScoreTable } from '@/components';
-import { useHighScores } from '@/hooks';
+import PageLayout from '@/components/ui/PageLayout';
+import { HighScoreTable } from '@/components/HighScoreTable';
+import { useHighScores } from '@/hooks/useHighScores';
 
 export default function ScoresPage(): React.JSX.Element {
   const { scores, loading, error, refetch } = useHighScores({

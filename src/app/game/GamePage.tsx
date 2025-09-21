@@ -1,21 +1,20 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { 
-  ScoreSubmissionModal, 
-  ComboProgressIndicator, 
-  useComboProgressProps,
-  PageLayout,
-  MobileGameLayout
-} from '@/components';
-import { 
-  GameControls, 
-  SpeedIndicator, 
-  GameStateIndicator, 
-  GameCanvas
-} from '@/components/game';
-import { useGameState, useResponsiveLayout, useSpeedData } from '@/hooks';
-import { GameEngine, type GameEngineConfig, type GameEngineCallbacks, GameStateEnum, type Direction } from '@/lib/game';
+import { ScoreSubmissionModal } from '@/components/ScoreSubmissionModal';
+import { ComboProgressIndicator, useComboProgressProps } from '@/components/ComboProgressIndicator';
+import PageLayout from '@/components/ui/PageLayout';
+import MobileGameLayout from '@/components/mobile/MobileGameLayout';
+import GameControls from '@/components/game/GameControls';
+import SpeedIndicator from '@/components/game/SpeedIndicator';
+import GameStateIndicator from '@/components/game/GameStateIndicator';
+import GameCanvas from '@/components/game/GameCanvas';
+import { useGameState } from '@/hooks/useGameState';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
+import { useSpeedData } from '@/hooks/useSpeedData';
+import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '@/lib/game/gameEngine';
+import { GameStateEnum } from '@/lib/game/gameState';
+import type { Direction } from '@/lib/game/types';
 import type { ScoreSubmissionData, ScoreSubmissionResult } from '@/services/ScoreService';
 
 export function GamePage(): React.JSX.Element {

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useScoreSubmission } from '@/hooks/useScoreSubmission';
 import { GameStorageUtils } from '@/utils/localStorage';
-import { Button } from '@/components/ui';
+import Button from '@/components/ui/Button';
 import type { ScoreSubmissionData, ScoreSubmissionResult } from '@/services/ScoreService';
 
 /**

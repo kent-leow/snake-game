@@ -6,7 +6,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { GameCanvas } from '@/components/game/GameCanvas';
 import type { GameEngine } from '@/lib/game/gameEngine';
-import type { GameConfig } from '@/lib/rendering';
+import type { GameConfig } from '@/lib/rendering/CanvasRenderer';
 import type { Direction } from '@/lib/game/types';
 
 // Mock the rendering system
