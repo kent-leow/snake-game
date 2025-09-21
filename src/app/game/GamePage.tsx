@@ -1,13 +1,10 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { PageLayout, GameControls, SpeedIndicator, ScoreSubmissionModal, GameStateIndicator } from '@/components';
-import { GameCanvas } from '@/components/game/GameCanvas';
-import { MobileGameLayout } from '@/components/mobile';
+import { PageLayout, GameControls, SpeedIndicator, ScoreSubmissionModal, GameStateIndicator, ComboProgressIndicator, useComboProgressProps, GameCanvas, MobileGameLayout } from '@/components';
 import { useGameState, useResponsiveLayout, useSpeedData } from '@/hooks';
 import { GameEngine, type GameEngineConfig, type GameEngineCallbacks, GameStateEnum, type Direction } from '@/lib/game';
 import type { ScoreSubmissionData, ScoreSubmissionResult } from '@/services/ScoreService';
-import { ComboProgressIndicator, useComboProgressProps } from '@/components/ComboProgressIndicator';
 
 export function GamePage(): React.JSX.Element {
   const [score, setScore] = useState(0);

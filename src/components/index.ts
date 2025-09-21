@@ -9,3 +9,8 @@ export * from './game';
 export { ScoreSubmissionModal } from './ScoreSubmissionModal';
 export { HighScoreTable } from './HighScoreTable';
 export { ScoreEntry } from './ScoreEntry';
+
+// Combo components
+export { ComboProgressIndicator, useComboProgressProps } from './ComboProgressIndicator';
+export { default as ComboFeedback } from './ComboFeedback';
+
