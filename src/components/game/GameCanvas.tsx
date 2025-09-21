@@ -140,19 +140,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       const performanceMonitor = new PerformanceMonitor(enablePerformanceMonitoring);
       performanceMonitorRef.current = performanceMonitor;
 
-      // Initialize responsive canvas with fixed size to prevent resizing conflicts
-      const responsiveCanvas = new ResponsiveCanvas(
-        canvasRef.current,
-        containerRef.current,
-        {
-          minSize: gameConfig.canvasWidth || 300,
-          maxSize: gameConfig.canvasWidth || 600,
-          maintainAspectRatio: true,
-        }
-      );
-      responsiveCanvasRef.current = responsiveCanvas;
+      // Initialize canvas with fixed dimensions - skip ResponsiveCanvas to avoid conflicts
+      // ResponsiveCanvas interferes with the CanvasRenderer's dimension management
+      responsiveCanvasRef.current = null;
 
-      // Initialize renderer
+      // Initialize renderer with proper fixed dimensions
       const renderer = new CanvasRenderer(
         canvasRef.current,
         gameConfig,
@@ -200,7 +192,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       renderLoopRef.current?.destroy();
       rendererRef.current?.destroy();
       performanceMonitorRef.current?.destroy();
-      responsiveCanvasRef.current?.destroy();
+      // ResponsiveCanvas is disabled for fixed canvas sizes
       
       rendererRef.current = null;
       renderLoopRef.current = null;

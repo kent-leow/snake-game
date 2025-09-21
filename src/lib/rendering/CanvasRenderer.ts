@@ -503,10 +503,13 @@ export class CanvasRenderer {
     // If game config has explicit canvas dimensions, use those
     if ('canvasWidth' in config && 'canvasHeight' in config) {
       const gameConfig = config as GameConfig & { canvasWidth: number; canvasHeight: number };
+      // Calculate proper cell size: canvas width divided by number of grid cells
+      const cellSize = Math.floor(gameConfig.canvasWidth / config.gridSize);
+      
       return {
         width: gameConfig.canvasWidth,
         height: gameConfig.canvasHeight,
-        cellSize: config.gridSize,
+        cellSize: cellSize,
       };
     }
     

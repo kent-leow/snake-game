@@ -40,11 +40,12 @@ export function GamePage(): React.JSX.Element {
     }
   );
 
-  // Calculate canvas dimensions - FIXED SIZE
+  // Calculate canvas dimensions - FIXED SIZE aligned to grid
   const gridSize = 20;
   
-  // Use a fixed canvas size to prevent constant resizing
-  const actualSize = isMobile ? 320 : 500; // Fixed size: 320px for mobile, 500px for desktop
+  // Use canvas sizes that are perfectly divisible by gridSize to ensure no overflow
+  // Mobile: 320px (16px per cell) or Desktop: 500px (25px per cell)
+  const actualSize = isMobile ? 320 : 500; // Both perfectly divisible by 20
 
   const handleGameReady = useCallback((): void => {
     setIsGameReady(true);
