@@ -7,9 +7,77 @@ import type { NumberedFood } from '../lib/game/multipleFoodTypes';
 import type { Position } from '../lib/game/types';
 import type { ComboState } from '../types/Combo';
 import {
-  FOOD_COLORS,
   getFoodColors,
-} from '../constants/FoodColors';/**
+} from '../constants/FoodColors';
+
+// Food styling constants
+const FOOD_STYLE = {
+  fontFamily: 'Arial, sans-serif',
+  borderWidth: 2,
+  borderColor: '#333',
+  textColor: '#fff',
+  shadowOffset: 2,
+  cornerRadius: 0.1,
+  textAlign: 'center' as CanvasTextAlign,
+  textBaseline: 'middle' as CanvasTextBaseline,
+};
+
+// Combo targeting colors
+const COMBO_TARGET_COLORS = {
+  primaryGlow: '#ff6b6b',
+  secondaryGlow: '#4ecdc4',
+  border: '#ff9f43',
+};
+
+// Helper function to lighten a color
+function lightenColor(color: string, factor: number): string {
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  
+  const newR = Math.min(255, Math.floor(r + (255 - r) * factor));
+  const newG = Math.min(255, Math.floor(g + (255 - g) * factor));
+  const newB = Math.min(255, Math.floor(b + (255 - b) * factor));
+  
+  return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+}
+
+// Helper function to darken a color
+function darkenColor(color: string, factor: number): string {
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  
+  const newR = Math.max(0, Math.floor(r * (1 - factor)));
+  const newG = Math.max(0, Math.floor(g * (1 - factor)));
+  const newB = Math.max(0, Math.floor(b * (1 - factor)));
+  
+  return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+}
+
+// Helper function to get gradient colors
+function getGradientColors(number: number): { start: string; end: string } {
+  const baseColors = {
+    1: { start: '#FF6B6B', end: '#FF5252' },
+    2: { start: '#4ECDC4', end: '#26A69A' },
+    3: { start: '#45B7D1', end: '#2196F3' },
+    4: { start: '#FFA726', end: '#FF9800' },
+    5: { start: '#AB47BC', end: '#9C27B0' },
+  };
+  return baseColors[number as keyof typeof baseColors] || baseColors[1];
+}
+
+// Helper function to get border color
+function getBorderColor(baseColor: string, isComboTarget: boolean): string {
+  return isComboTarget ? COMBO_TARGET_COLORS.border : darkenColor(baseColor, 0.3);
+}
+
+// Helper function to get combo glow color
+function getComboGlowColor(): string {
+  return COMBO_TARGET_COLORS.primaryGlow;
+}/**
  * Configuration interface for the food renderer
  */
 export interface FoodRenderConfig {
