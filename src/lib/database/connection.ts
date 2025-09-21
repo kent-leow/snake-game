@@ -27,10 +27,10 @@ function getCache() {
  */
 function getMongoConfig(options?: ConnectionOptions): MongoConfig {
   const isProduction = process.env.NODE_ENV === 'production';
-  
+
   // Primary URI (production uses MONGODB_URI, development uses MONGO_URL)
   const uri = process.env.MONGODB_URI || process.env.MONGO_URL;
-  
+
   if (!uri) {
     const envVar = isProduction ? 'MONGODB_URI' : 'MONGO_URL';
     throw new Error(`${envVar} environment variable is required`);
@@ -38,15 +38,15 @@ function getMongoConfig(options?: ConnectionOptions): MongoConfig {
 
   // Detect Atlas connection
   const isAtlas = uri.includes('mongodb+srv://') || uri.includes('.mongodb.net');
-  
-  // Base connection options
+
+  // Base connection options - optimized for serverless
   const baseOptions: mongoose.ConnectOptions = {
     bufferCommands: options?.bufferCommands ?? false,
-    serverSelectionTimeoutMS: options?.serverSelectionTimeoutMS ?? (isProduction ? 5000 : 10000),
-    socketTimeoutMS: options?.socketTimeoutMS ?? (isProduction ? 10000 : 45000),
-    maxPoolSize: options?.maxPoolSize ?? (isProduction ? 10 : 5),
-    minPoolSize: isProduction ? 2 : 1,
-    maxIdleTimeMS: isProduction ? 30000 : 60000,
+    serverSelectionTimeoutMS: options?.serverSelectionTimeoutMS ?? (isProduction ? 3000 : 10000), // Faster timeout for serverless
+    socketTimeoutMS: options?.socketTimeoutMS ?? (isProduction ? 5000 : 45000), // Shorter socket timeout
+    maxPoolSize: options?.maxPoolSize ?? (isProduction ? 5 : 5), // Smaller pool for serverless
+    minPoolSize: isProduction ? 0 : 1, // No minimum connections in production
+    maxIdleTimeMS: isProduction ? 10000 : 60000, // Shorter idle time
     family: 4, // IPv4
   };
 
@@ -74,19 +74,25 @@ export async function connectToDatabase(
   options?: ConnectionOptions
 ): Promise<mongoose.Connection> {
   const cached = getCache();
-  
-  if (cached.conn) {
+
+  // In serverless environments, we might want to reconnect on each invocation
+  // to avoid stale connections, but we'll keep the cache for performance
+  if (cached.conn && mongoose.connection.readyState === 1) {
     return cached.conn;
   }
 
   if (!cached.promise) {
     const config = getMongoConfig(options);
-    
+
     console.log(`Connecting to MongoDB (${process.env.NODE_ENV || 'development'})...`);
-    
+
     cached.promise = mongoose.connect(config.uri, config.options).then(mongoose => {
       console.log('MongoDB connected successfully');
       return mongoose.connection;
+    }).catch(err => {
+      console.error('MongoDB connection failed:', err);
+      cached.promise = null; // Reset promise on failure
+      throw err;
     });
   }
 

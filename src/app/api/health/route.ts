@@ -43,7 +43,7 @@ interface DatabaseHealthResult {
  */
 async function checkDatabaseHealth(): Promise<DatabaseHealthResult> {
   const startTime = Date.now();
-  const timeout = 5000; // 5 seconds timeout
+  const timeout = 3000; // 3 seconds timeout for serverless
   
   try {
     // Create a timeout promise
@@ -73,8 +73,11 @@ async function checkDatabaseHealth(): Promise<DatabaseHealthResult> {
       const mongoose = require('mongoose');
       const db = mongoose.connection.db;
       
-      // Simple ping operation
-      await db.admin().ping();
+      // Simple ping operation with shorter timeout
+      await Promise.race([
+        db.admin().ping(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Ping timeout')), 2000))
+      ]);
       
       return {
         status: 'ok',

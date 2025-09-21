@@ -396,8 +396,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
           }}
         >
           <ComboProgressIndicator
-            currentProgress={comboState.comboProgress as 0 | 1 | 2 | 3 | 4 | 5}
-            expectedNext={comboState.expectedNext as 1 | 2 | 3 | 4 | 5}
+            currentProgress={comboState.comboProgress}
+            expectedNext={comboState.expectedNext}
             totalCombos={comboState.totalCombos}
             isActive={comboState.isComboActive}
           />
