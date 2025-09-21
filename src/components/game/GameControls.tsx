@@ -15,6 +15,7 @@ interface GameControlsProps {
   onGoToMenu: () => void;
   className?: string;
   showKeyboardHints?: boolean;
+  hideStartButton?: boolean; // New prop to hide start button in game page
 }
 
 /**
@@ -28,7 +29,8 @@ export const GameControls: React.FC<GameControlsProps> = ({
   onRestartGame,
   onGoToMenu,
   className = '',
-  showKeyboardHints = true
+  showKeyboardHints = true,
+  hideStartButton = false // Default to false for backward compatibility
 }) => {
   const isPlaying = currentState === GameStateEnum.PLAYING;
   const isPaused = currentState === GameStateEnum.PAUSED;
@@ -48,6 +50,10 @@ export const GameControls: React.FC<GameControlsProps> = ({
   const getControlButtons = (): React.JSX.Element | null => {
     switch (currentState) {
       case GameStateEnum.MENU:
+        // Don't show Start Game button if hideStartButton is true (game page context)
+        if (hideStartButton) {
+          return null;
+        }
         return (
           <ControlButton
             onClick={onStartGame}

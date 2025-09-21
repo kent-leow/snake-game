@@ -21,6 +21,7 @@ interface UseGameStateOptions {
   onTransition?: (from: GameStateEnum, to: GameStateEnum) => void;
   onTransitionResult?: (result: StateTransitionResult) => void;
   autoSave?: boolean;
+  initialState?: GameStateEnum; // Allow setting initial state
 }
 
 /**
@@ -74,8 +75,9 @@ export const useGameState = ({
   onStateChange,
   onTransition,
   onTransitionResult,
+  initialState = GameStateEnum.MENU, // Default to MENU for backward compatibility
 }: UseGameStateOptions = {}): UseGameStateReturn => {
-  const [currentState, setCurrentState] = useState<GameStateEnum>(GameStateEnum.MENU);
+  const [currentState, setCurrentState] = useState<GameStateEnum>(initialState);
   const [gameData, setGameData] = useState<GameStateData | null>(null);
   
   // Create stable manager instances

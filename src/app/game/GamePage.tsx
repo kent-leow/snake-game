@@ -7,6 +7,7 @@ import { GameStateIndicator } from '@/components/game/GameStateIndicator';
 import { MobileGameLayout } from '@/components/mobile';
 import { useGameState, useResponsiveLayout, useSpeedData } from '@/hooks';
 import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '@/lib/game/gameEngine';
+import { GameStateEnum } from '@/lib/game/gameState';
 import type { Direction } from '@/lib/game/types';
 import type { ScoreSubmissionData, ScoreSubmissionResult } from '@/services/ScoreService';
 import { ComboProgressIndicator, useComboProgressProps } from '@/components/ComboProgressIndicator';
@@ -23,7 +24,9 @@ export function GamePage(): React.JSX.Element {
   const gameEngineRef = useRef<GameEngine | null>(null);
 
   // Game state management
-  const { currentState, actions } = useGameState();
+  const { currentState, actions } = useGameState({
+    initialState: GameStateEnum.PLAYING, // Start directly in playing state
+  });
   const { isMobile } = useResponsiveLayout();
   
   // Speed data for UI indicator
@@ -223,6 +226,16 @@ export function GamePage(): React.JSX.Element {
     };
   }, [handleScoreChange, handleGameReady, actions, actualSize]);
 
+  // Auto-start game immediately when ready
+  useEffect(() => {
+    if (isGameReady && gameEngineRef.current) {
+      // Start the game immediately - no menu state
+      gameEngineRef.current.start();
+      actions.startGame();
+      focusCanvas();
+    }
+  }, [isGameReady, actions, focusCanvas]);
+
   if (!gameEngineRef.current) {
     return (
       <PageLayout title='Snake Game' showBackButton={true}>
@@ -298,6 +311,7 @@ export function GamePage(): React.JSX.Element {
                 onRestartGame={handleRestartGame}
                 onGoToMenu={handleGoToMenu}
                 showKeyboardHints={false}
+                hideStartButton={true}
               />
             </div>
           </div>
@@ -321,6 +335,7 @@ export function GamePage(): React.JSX.Element {
                   onRestartGame={handleRestartGame}
                   onGoToMenu={handleGoToMenu}
                   showKeyboardHints={false}
+                  hideStartButton={true}
                 />
               </div>
 
