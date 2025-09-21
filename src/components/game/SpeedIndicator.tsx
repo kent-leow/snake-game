@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import styles from '@/styles/speed-indicator.module.css';
+import styles from '../../styles/speed-indicator.module.css';
 
 /**
  * Props interface for SpeedIndicator component
