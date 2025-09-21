@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { ScoreSubmissionModal } from '@/components/ScoreSubmissionModal';
-import { ComboProgressIndicator, useComboProgressProps } from '@/components/ComboProgressIndicator';
+import ScoreSubmissionModal from '@/components/ScoreSubmissionModal';
+import ComboProgressIndicator, { useComboProgressProps } from '@/components/ComboProgressIndicator';
 import PageLayout from '@/components/ui/PageLayout';
 import MobileGameLayout from '@/components/mobile/MobileGameLayout';
 import GameControls from '@/components/game/GameControls';
