@@ -21,3 +21,9 @@ export { useResponsiveLayout } from './useResponsiveLayout';
 export { useDeviceOrientation } from './useDeviceOrientation';
 export { useTouchControls } from './useTouchControls';
 export { useResponsive, useBreakpoint, useMinBreakpoint, useResponsiveClasses } from './useResponsive';
+
+// Performance and monitoring hooks
+export { useCanvasPerformance } from './useCanvasPerformance';
+export { usePerformanceMonitor } from './usePerformanceMonitor';
+export { useComboAnimation } from './useComboAnimation';
+export { useScoreSubmission } from './useScoreSubmission';
