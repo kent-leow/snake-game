@@ -2,10 +2,10 @@ export * from './ui';
 export * from './navigation';
 export * from './mobile';
 
-// Game components - these depend on @/lib/game
-// Only import these in game-related pages to avoid bringing
-// game dependencies into non-game pages
-export * from './game';
+// Game components - temporarily commented out due to Vercel build issues
+// These components have dependencies on @/lib/game which cause module resolution
+// failures in Vercel deployment. Import these directly from @/components/game when needed.
+// export * from './game';
 
 // Score components
 export { ScoreSubmissionModal } from './ScoreSubmissionModal';

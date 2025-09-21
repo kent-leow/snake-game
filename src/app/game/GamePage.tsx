@@ -5,13 +5,15 @@ import {
   ScoreSubmissionModal, 
   ComboProgressIndicator, 
   useComboProgressProps,
-  GameControls, 
-  SpeedIndicator, 
-  GameStateIndicator, 
-  GameCanvas,
   PageLayout,
   MobileGameLayout
 } from '@/components';
+import { 
+  GameControls, 
+  SpeedIndicator, 
+  GameStateIndicator, 
+  GameCanvas
+} from '@/components/game';
 import { useGameState, useResponsiveLayout, useSpeedData } from '@/hooks';
 import { GameEngine, type GameEngineConfig, type GameEngineCallbacks, GameStateEnum, type Direction } from '@/lib/game';
 import type { ScoreSubmissionData, ScoreSubmissionResult } from '@/services/ScoreService';
