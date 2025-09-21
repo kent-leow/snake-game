@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { GameControls, SpeedIndicator, ScoreSubmissionModal, GameStateIndicator, ComboProgressIndicator, useComboProgressProps, GameCanvas, MobileGameLayout, PageLayout } from '../../components';
-import { useGameState, useResponsiveLayout, useSpeedData } from '../../hooks';
-import { GameEngine, type GameEngineConfig, type GameEngineCallbacks, GameStateEnum, type Direction } from '../../lib/game';
+import { GameControls, SpeedIndicator, ScoreSubmissionModal, GameStateIndicator, ComboProgressIndicator, useComboProgressProps, GameCanvas, MobileGameLayout, PageLayout } from '@/components';
+import { useGameState, useResponsiveLayout, useSpeedData } from '@/hooks';
+import { GameEngine, type GameEngineConfig, type GameEngineCallbacks, GameStateEnum, type Direction } from '@/lib/game';
 import type { ScoreSubmissionData, ScoreSubmissionResult } from '@/services/ScoreService';
 
 export function GamePage(): React.JSX.Element {

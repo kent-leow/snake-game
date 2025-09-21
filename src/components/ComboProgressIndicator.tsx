@@ -6,8 +6,8 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import type { ComboState } from '../types/Combo';
-import { COMBO_SEQUENCE } from '../constants/ComboConfig';
+import type { ComboState } from '@/types/Combo';
+import { COMBO_SEQUENCE } from '@/constants/ComboConfig';
 
 export interface ComboProgressProps {
   /** Current progress in the combo sequence (0-5) */
