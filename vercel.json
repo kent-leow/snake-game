@@ -1,6 +1,9 @@
 {
   "version": 2,
   "name": "snake-game",
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "env": {
     "NODE_ENV": "production"
   },
