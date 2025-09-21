@@ -19,6 +19,8 @@ import { SwipeGestureHandler } from '@/components/mobile';
 import type { GameEngine } from '@/lib/game/gameEngine';
 import type { Direction } from '@/lib/game/types';
 import type { ComboEvent, ComboState } from '@/types/Combo';
+import { ComboProgressIndicator } from '@/components/ComboProgressIndicator';
+import { ComboFeedback } from '@/components/ComboFeedback';
 
 export interface GameCanvasProps {
   gameEngine: GameEngine;
@@ -50,6 +52,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
   
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [comboEvent, setComboEvent] = useState<ComboEvent | null>(null);
+  const [comboState, setComboState] = useState<ComboState | null>(null);
   const comboStateRef = useRef<ComboState | null>(null);
 
   const { isMobile } = useResponsiveLayout();
@@ -186,15 +190,20 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       const comboManager = gameEngine.getComboManager();
       
       // Subscribe to combo events
-      const unsubscribe = comboManager.subscribe((_event: ComboEvent) => {
+      const unsubscribe = comboManager.subscribe((event: ComboEvent) => {
         // Update combo state ref (no re-render)
-        comboStateRef.current = comboManager.getCurrentState();
+        const newState = comboManager.getCurrentState();
+        comboStateRef.current = newState;
+        setComboState(newState);
         
-        // Combo animations removed per user request
+        // Set combo event for feedback animation
+        setComboEvent(event);
       });
 
-      // Initialize combo state ref
-      comboStateRef.current = comboManager.getCurrentState();
+      // Initialize combo state
+      const initialState = comboManager.getCurrentState();
+      comboStateRef.current = initialState;
+      setComboState(initialState);
 
       return unsubscribe;
     } catch (error) {
@@ -202,6 +211,13 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
       return undefined;
     }
   }, [gameEngine, enableComboVisuals]);
+
+  /**
+   * Handle combo feedback animation completion
+   */
+  const handleComboAnimationComplete = useCallback(() => {
+    setComboEvent(null);
+  }, []);
 
   /**
    * Handle canvas click for focus
@@ -363,9 +379,33 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
         </div>
       )}
 
+      {/* Combo Progress Indicator */}
+      {enableComboVisuals && comboState && (
+        <div 
+          className="combo-progress-overlay"
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            zIndex: 10,
+          }}
+        >
+          <ComboProgressIndicator
+            currentProgress={comboState.comboProgress as 0 | 1 | 2 | 3 | 4 | 5}
+            expectedNext={comboState.expectedNext as 1 | 2 | 3 | 4 | 5}
+            totalCombos={comboState.totalCombos}
+            isActive={comboState.isComboActive}
+          />
+        </div>
+      )}
 
-
-      {/* Combo Feedback Animations - removed per user request */}
+      {/* Combo Feedback Animations */}
+      {enableComboVisuals && comboEvent && (
+        <ComboFeedback
+          event={comboEvent}
+          onAnimationComplete={handleComboAnimationComplete}
+        />
+      )}
     </div>
   );
 });

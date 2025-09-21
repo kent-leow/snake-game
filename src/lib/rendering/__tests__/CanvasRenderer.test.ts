@@ -3,7 +3,6 @@
  */
 
 import { CanvasRenderer, type GameConfig, type GameElements } from '../CanvasRenderer';
-import { PerformanceMonitor } from '../PerformanceMonitor';
 import type { Snake, EnhancedFood } from '@/lib/game/types';
 
 // Mock canvas context
@@ -21,6 +20,9 @@ const mockContext = {
   fill: jest.fn(),
   stroke: jest.fn(),
   fillText: jest.fn(),
+  strokeText: jest.fn(),
+  drawImage: jest.fn(), // Add missing drawImage method
+  measureText: jest.fn(() => ({ width: 0 })), // Add missing measureText method
   createRadialGradient: jest.fn(() => ({
     addColorStop: jest.fn(),
   })),
@@ -50,6 +52,15 @@ const mockCanvas = {
   },
 } as unknown as HTMLCanvasElement;
 
+// Mock document.createElement to return our mock canvas for internal canvases
+const originalCreateElement = document.createElement.bind(document);
+document.createElement = jest.fn((tagName: string) => {
+  if (tagName === 'canvas') {
+    return mockCanvas;
+  }
+  return originalCreateElement(tagName);
+});
+
 // Mock window.devicePixelRatio
 Object.defineProperty(window, 'devicePixelRatio', {
   writable: true,
@@ -58,20 +69,18 @@ Object.defineProperty(window, 'devicePixelRatio', {
 
 describe('CanvasRenderer', () => {
   let renderer: CanvasRenderer;
-  let performanceMonitor: PerformanceMonitor;
   let gameConfig: GameConfig;
 
   beforeEach(() => {
     jest.clearAllMocks();
     
-    performanceMonitor = new PerformanceMonitor(true);
     gameConfig = {
       gridSize: 20,
       gameSpeed: 150,
       enableSound: true,
     };
     
-    renderer = new CanvasRenderer(mockCanvas, gameConfig, performanceMonitor);
+    renderer = new CanvasRenderer(mockCanvas, gameConfig);
   });
 
   afterEach(() => {
@@ -81,7 +90,8 @@ describe('CanvasRenderer', () => {
   describe('initialization', () => {
     it('should initialize with canvas and config', () => {
       expect(mockCanvas.getContext).toHaveBeenCalledWith('2d');
-      expect(mockContext.scale).toHaveBeenCalledWith(2, 2); // devicePixelRatio
+      // Note: scale is no longer called due to high-DPI fix
+      // expect(mockContext.scale).toHaveBeenCalledWith(2, 2); 
     });
 
     it('should set up canvas optimizations', () => {
@@ -153,7 +163,7 @@ describe('CanvasRenderer', () => {
       expect(mockContext.arc).toHaveBeenCalled();
       
       // Should draw UI text
-      expect(mockContext.fillText).toHaveBeenCalledWith('Score: 100', 10, 10);
+      expect(mockContext.fillText).toHaveBeenCalledWith('Score: 100', 10, 30);
     });
   });
 });

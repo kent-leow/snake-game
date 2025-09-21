@@ -215,19 +215,15 @@ describe('GameCanvas Food Rendering Integration', () => {
       // Verify CanvasRenderer was initialized
       expect(mockRenderer).toHaveBeenCalledWith(
         expect.any(HTMLCanvasElement),
-        defaultGameConfig,
-        expect.any(Object)
+        defaultGameConfig
       );
     });
 
     it('should handle game state updates correctly', () => {
-      const onPerformanceUpdate = jest.fn();
-      
       render(
         <GameCanvas
           gameEngine={mockGameEngine}
           gameConfig={defaultGameConfig}
-          onPerformanceUpdate={onPerformanceUpdate}
         />
       );
 
@@ -269,7 +265,6 @@ describe('GameCanvas Food Rendering Integration', () => {
         <GameCanvas
           gameEngine={mockGameEngine}
           gameConfig={defaultGameConfig}
-          enablePerformanceMonitoring={true}
         />
       );
 
@@ -285,8 +280,6 @@ describe('GameCanvas Food Rendering Integration', () => {
         <GameCanvas
           gameEngine={mockGameEngine}
           gameConfig={defaultGameConfig}
-          onPerformanceUpdate={onPerformanceUpdate}
-          enablePerformanceMonitoring={true}
         />
       );
 

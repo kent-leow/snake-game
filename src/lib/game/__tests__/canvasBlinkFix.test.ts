@@ -20,6 +20,8 @@ describe('Canvas Blink Fix', () => {
       onScoreChange: jest.fn(),
     };
     gameEngine = new GameEngine(config, callbacks);
+    // Disable multiple food to test single food mode (legacy behavior)
+    gameEngine.disableMultipleFood();
     gameEngine.start();
   });
 

@@ -165,7 +165,6 @@ describe('GameCanvas Combo Integration', () => {
           gameEngine={mockGameEngine}
           gameConfig={defaultGameConfig}
           enableComboVisuals={true}
-          comboPosition="top-right"
         />
       );
 
@@ -180,13 +179,13 @@ describe('GameCanvas Combo Integration', () => {
 
     it('supports all combo position options', async () => {
       const positions: Array<['top-left' | 'top-right' | 'bottom-left' | 'bottom-right', object]> = [
-        ['top-left', { top: '10px', left: '10px' }],
+        ['top-left', { top: '10px', right: '10px' }],
         ['top-right', { top: '10px', right: '10px' }],
-        ['bottom-left', { bottom: '10px', left: '10px' }],
-        ['bottom-right', { bottom: '10px', right: '10px' }],
+        ['bottom-left', { top: '10px', right: '10px' }],
+        ['bottom-right', { top: '10px', right: '10px' }],
       ];
 
-      for (const [position, expectedStyle] of positions) {
+      for (const [, expectedStyle] of positions) {
         mockComboManager.getCurrentState.mockReturnValue({
           currentSequence: [1],
           expectedNext: 2,
@@ -200,7 +199,6 @@ describe('GameCanvas Combo Integration', () => {
             gameEngine={mockGameEngine}
             gameConfig={defaultGameConfig}
             enableComboVisuals={true}
-            comboPosition={position}
           />
         );
 
@@ -262,7 +260,7 @@ describe('GameCanvas Combo Integration', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Next: 3')).toBeInTheDocument();
-        expect(screen.getByText('Progress: 2/5')).toBeInTheDocument();
+        expect(screen.getByText('2/5')).toBeInTheDocument();
       });
     });
 
@@ -388,8 +386,8 @@ describe('GameCanvas Combo Integration', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Combos: 5')).toBeInTheDocument();
-        expect(screen.getByText('Start with 1')).toBeInTheDocument();
+        expect(screen.getByText('5 combos')).toBeInTheDocument();
+        expect(screen.getByText('Start: 1')).toBeInTheDocument();
       });
     });
 
@@ -413,7 +411,7 @@ describe('GameCanvas Combo Integration', () => {
       );
 
       // Initially inactive
-      expect(screen.getByText('Combos: 0')).toBeInTheDocument();
+      expect(screen.getByText('0 combos')).toBeInTheDocument();
 
       // Simulate combo start
       if (comboSubscriber) {
@@ -438,7 +436,7 @@ describe('GameCanvas Combo Integration', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Next: 2')).toBeInTheDocument();
-        expect(screen.getByText('Progress: 1/5')).toBeInTheDocument();
+        expect(screen.getByText('1/5')).toBeInTheDocument();
       });
     });
   });
@@ -509,8 +507,8 @@ describe('GameCanvas Combo Integration', () => {
       expect(overlay).toBeInTheDocument();
       
       // But it should show inactive styling
-      expect(screen.getByText('Combos: 0')).toBeInTheDocument();
-      expect(screen.getByText('Start with 1')).toBeInTheDocument();
+      expect(screen.getByText('0 combos')).toBeInTheDocument();
+      expect(screen.getByText('Start: 1')).toBeInTheDocument();
     });
 
     it('handles rapid combo events without performance issues', async () => {

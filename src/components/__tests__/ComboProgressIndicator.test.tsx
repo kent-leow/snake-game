@@ -50,8 +50,8 @@ describe('ComboProgressIndicator', () => {
     it('displays correct status when inactive', () => {
       render(<ComboProgressIndicator {...defaultProps} totalCombos={5} />);
       
-      expect(screen.getByText('Combos: 5')).toBeInTheDocument();
-      expect(screen.getByText('Start with 1')).toBeInTheDocument();
+      expect(screen.getByText('5 combos')).toBeInTheDocument();
+      expect(screen.getByText('Start: 1')).toBeInTheDocument();
     });
 
     it('displays correct status when active', () => {
@@ -65,7 +65,7 @@ describe('ComboProgressIndicator', () => {
       );
       
       expect(screen.getByText('Next: 3')).toBeInTheDocument();
-      expect(screen.getByText('Progress: 2/5')).toBeInTheDocument();
+      expect(screen.getByText('2/5')).toBeInTheDocument();
     });
   });
 
@@ -159,8 +159,8 @@ describe('ComboProgressIndicator', () => {
       
       const indicator = container.querySelector('.combo-progress-indicator');
       expect(indicator).toHaveStyle({
-        background: 'rgba(33, 150, 243, 0.1)',
-        borderColor: 'rgba(33, 150, 243, 0.3)',
+        background: 'rgba(33, 150, 243, 0.15)',
+        borderColor: 'rgba(33, 150, 243, 0.4)',
       });
     });
 
@@ -171,7 +171,7 @@ describe('ComboProgressIndicator', () => {
       
       const indicator = container.querySelector('.combo-progress-indicator');
       expect(indicator).toHaveStyle({
-        background: 'rgba(0, 0, 0, 0.8)',
+        background: 'rgba(0, 0, 0, 0.6)',
         borderColor: 'rgba(255, 255, 255, 0.1)',
       });
     });
@@ -207,7 +207,7 @@ describe('ComboProgressIndicator', () => {
         />
       );
       
-      expect(screen.getByText('Combos: 1')).toBeInTheDocument();
+      expect(screen.getByText('1 combos')).toBeInTheDocument();
       
       // All steps should be completed
       const steps = screen.getAllByRole('progressbar');
@@ -258,7 +258,7 @@ describe('useComboProgressProps hook', () => {
     render(<TestComponent comboState={comboState} />);
     
     expect(screen.getByText('Next: 3')).toBeInTheDocument();
-    expect(screen.getByText('Progress: 2/5')).toBeInTheDocument();
+    expect(screen.getByText('2/5')).toBeInTheDocument();
   });
 
   it('handles inactive combo state', () => {
@@ -272,8 +272,8 @@ describe('useComboProgressProps hook', () => {
 
     render(<TestComponent comboState={comboState} />);
     
-    expect(screen.getByText('Combos: 5')).toBeInTheDocument();
-    expect(screen.getByText('Start with 1')).toBeInTheDocument();
+    expect(screen.getByText('5 combos')).toBeInTheDocument();
+    expect(screen.getByText('Start: 1')).toBeInTheDocument();
   });
 
   it('handles completed combo state', () => {

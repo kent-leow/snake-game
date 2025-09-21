@@ -18,6 +18,7 @@ const createMockContext = (): CanvasRenderingContext2D => {
     fillRect: jest.fn(),
     strokeRect: jest.fn(),
     fillText: jest.fn(),
+    strokeText: jest.fn(), // Add missing strokeText method
     arc: jest.fn(),
     beginPath: jest.fn(),
     fill: jest.fn(),
@@ -27,6 +28,7 @@ const createMockContext = (): CanvasRenderingContext2D => {
     translate: jest.fn(),
     scale: jest.fn(),
     clearRect: jest.fn(),
+    measureText: jest.fn(() => ({ width: 0 })), // Add missing measureText method
   } as unknown as CanvasRenderingContext2D;
 
   return mockContext;

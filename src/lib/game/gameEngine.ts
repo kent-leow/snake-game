@@ -168,6 +168,9 @@ export class GameEngine {
     
     // Reset speed manager to initial state
     this.speedManager.reset();
+    
+    // Spawn initial food when game starts
+    this.spawnFood();
   }
 
   /**

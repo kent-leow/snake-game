@@ -3,7 +3,6 @@
  */
 
 import { RenderLoop, type RenderLoopCallbacks } from '../RenderLoop';
-import { PerformanceMonitor } from '../PerformanceMonitor';
 
 // Mock requestAnimationFrame
 let animationFrameId = 0;
@@ -39,22 +38,18 @@ Object.defineProperty(global.performance, 'now', {
 
 describe('RenderLoop', () => {
   let renderLoop: RenderLoop;
-  let performanceMonitor: PerformanceMonitor;
   let mockCallbacks: RenderLoopCallbacks;
 
   beforeEach(() => {
     jest.clearAllMocks();
     animationFrameId = 0;
     
-    performanceMonitor = new PerformanceMonitor(true);
-    
     mockCallbacks = {
       onUpdate: jest.fn(),
       onRender: jest.fn(),
-      onPerformanceUpdate: jest.fn(),
     };
     
-    renderLoop = new RenderLoop(mockCallbacks, { targetFPS: 60 }, performanceMonitor);
+    renderLoop = new RenderLoop(mockCallbacks, { targetFPS: 60 });
   });
 
   afterEach(() => {
@@ -179,20 +174,7 @@ describe('RenderLoop', () => {
   });
 
   describe('performance integration', () => {
-    it('should record frame timing in performance monitor', async () => {
-      const startFrameSpy = jest.spyOn(performanceMonitor, 'startFrame');
-      const endFrameSpy = jest.spyOn(performanceMonitor, 'endFrame');
-      
-      renderLoop.start();
-      
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      expect(startFrameSpy).toHaveBeenCalled();
-      expect(endFrameSpy).toHaveBeenCalled();
-    });
-
-    it('should record errors when callbacks throw', async () => {
-      const recordErrorSpy = jest.spyOn(performanceMonitor, 'recordError');
+    it('should handle errors in callbacks gracefully', async () => {
       const mockUpdate = mockCallbacks.onUpdate as jest.Mock;
       mockUpdate.mockImplementation(() => {
         throw new Error('Update error');
@@ -202,7 +184,8 @@ describe('RenderLoop', () => {
       
       await new Promise(resolve => setTimeout(resolve, 50));
       
-      expect(recordErrorSpy).toHaveBeenCalled();
+      // Should continue running despite errors
+      expect(renderLoop.isActive()).toBe(true);
     });
 
     it('should continue running after render errors', async () => {
@@ -222,17 +205,6 @@ describe('RenderLoop', () => {
       expect(renderLoop.isActive()).toBe(true);
       expect(mockUpdate.mock.calls.length).toBeGreaterThan(1);
     });
-
-    it('should call performance update callback', async () => {
-      // Enable performance and set up mock FPS
-      jest.spyOn(performanceMonitor, 'getCurrentFPS').mockReturnValue(60);
-      
-      renderLoop.start();
-      
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      expect(mockCallbacks.onPerformanceUpdate).toHaveBeenCalled();
-    });
   });
 
   describe('callback management', () => {
@@ -250,12 +222,15 @@ describe('RenderLoop', () => {
   });
 
   describe('performance metrics', () => {
-    it('should provide performance metrics', () => {
-      const metrics = renderLoop.getPerformanceMetrics();
+    it('should provide basic runtime information', () => {
+      expect(renderLoop.isActive()).toBe(false);
+      expect(renderLoop.getTargetFPS()).toBe(60);
       
-      expect(metrics).not.toBeNull();
-      expect(metrics).toHaveProperty('fps');
-      expect(metrics).toHaveProperty('enabled');
+      renderLoop.start();
+      expect(renderLoop.isActive()).toBe(true);
+      
+      renderLoop.stop();
+      expect(renderLoop.isActive()).toBe(false);
     });
   });
 

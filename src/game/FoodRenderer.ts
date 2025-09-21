@@ -69,7 +69,7 @@ export class FoodRenderer {
       borderColor: FOOD_STYLE.borderColor,
       textColor: FOOD_STYLE.textColor,
       enableShadow: true,
-      enableAnimation: false, // Disable animation for debugging
+      enableAnimation: true, // Enable animation by default
       colorScheme: 'default',
       ...options,
     };
