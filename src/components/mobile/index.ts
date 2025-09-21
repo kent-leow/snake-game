@@ -1,4 +1,4 @@
 // Mobile components barrel export
-export { TouchControls } from './TouchControls';
-export { SwipeGestureHandler } from './SwipeGestureHandler';
-export { MobileGameLayout } from './MobileGameLayout';
+export { default as TouchControls } from './TouchControls';
+export { default as SwipeGestureHandler } from './SwipeGestureHandler';
+export { default as MobileGameLayout } from './MobileGameLayout';
