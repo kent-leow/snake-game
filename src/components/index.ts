@@ -1,5 +1,6 @@
 export * from './ui';
 export * from './navigation';
+export * from './mobile';
 
 // Game components
 export { GameControls } from './game/GameControls';
