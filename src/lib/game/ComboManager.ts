@@ -5,13 +5,13 @@ import type {
   ComboChangeCallback,
   ComboStatistics,
   ComboConfig
-} from '@/types/Combo';
+} from '../../types/Combo';
 
 import { 
   DEFAULT_COMBO_CONFIG, 
   COMBO_SEQUENCE, 
   SEQUENCE_LENGTH
-} from '@/constants/ComboConfig';
+} from '../../constants/ComboConfig';
 
 /**
  * Manages combo state and sequence tracking for the 1→2→3→4→5 food consumption system

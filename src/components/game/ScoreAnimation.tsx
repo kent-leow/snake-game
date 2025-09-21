@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import type { ScoreAnimation } from '@/hooks/useScore';
+import type { ScoreAnimation } from '../../hooks/useScore';
 
 /**
  * Score animation component properties

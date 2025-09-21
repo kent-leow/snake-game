@@ -6,18 +6,18 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { CanvasRenderer } from '@/lib/rendering/CanvasRenderer';
-import { RenderLoop } from '@/lib/rendering/RenderLoop';
-import { ResponsiveCanvas } from '@/lib/rendering/ResponsiveCanvas';
-import type { GameConfig, GameElements } from '@/lib/rendering/CanvasRenderer';
-import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
-import { MobileUtils } from '@/lib/mobile/MobileUtils';
-import SwipeGestureHandler from '@/components/mobile/SwipeGestureHandler';
-import ComboProgressIndicator from '@/components/ComboProgressIndicator';
-import ComboFeedback from '@/components/ComboFeedback';
-import type { GameEngine } from '@/lib/game/gameEngine';
-import type { Direction } from '@/lib/game/types';
-import type { ComboState, ComboEvent } from '@/types/Combo';
+import { CanvasRenderer } from '../../lib/rendering/CanvasRenderer';
+import { RenderLoop } from '../../lib/rendering/RenderLoop';
+import { ResponsiveCanvas } from '../../lib/rendering/ResponsiveCanvas';
+import type { GameConfig, GameElements } from '../../lib/rendering/CanvasRenderer';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { MobileUtils } from '../../lib/mobile/MobileUtils';
+import SwipeGestureHandler from '../mobile/SwipeGestureHandler';
+import ComboProgressIndicator from '../ComboProgressIndicator';
+import ComboFeedback from '../ComboFeedback';
+import type { GameEngine } from '../../lib/game/gameEngine';
+import type { Direction } from '../../lib/game/types';
+import type { ComboState, ComboEvent } from '../../types/Combo';
 
 export interface GameCanvasProps {
   gameEngine: GameEngine;

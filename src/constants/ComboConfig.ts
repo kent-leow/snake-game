@@ -1,4 +1,4 @@
-import type { ComboConfig } from '@/types/Combo';
+import type { ComboConfig } from '../types/Combo';
 
 /**
  * Default configuration for the combo system

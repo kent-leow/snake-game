@@ -3,14 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import TouchControls from './TouchControls';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-import type { GameStateType } from '../../lib/game/types';
+import type { GameStateType, Direction } from '../../lib/game/types';
 
 interface MobileGameLayoutProps {
   children: React.ReactNode;
   gameState: GameStateType;
   showTouchControls?: boolean;
   controlsPosition?: 'bottom' | 'side';
-  onDirectionChange?: (direction: import('@/lib/game/types').Direction) => void;
+  onDirectionChange?: (direction: Direction) => void;
 }
 
 /**
@@ -49,7 +49,7 @@ export const MobileGameLayout: React.FC<MobileGameLayoutProps> = ({
     return classes.join(' ');
   };
 
-  const handleDirectionChange = (direction: import('@/lib/game/types').Direction): void => {
+  const handleDirectionChange = (direction: Direction): void => {
     if (onDirectionChange) {
       onDirectionChange(direction);
     } else {

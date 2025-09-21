@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { ScoreEntryProps } from '@/types/HighScore';
-import { useResponsive } from '@/hooks/useResponsive';
-import styles from '@/styles/responsive.module.css';
+import { ScoreEntryProps } from '../types/HighScore';
+import { useResponsive } from '../hooks/useResponsive';
+import styles from '../styles/responsive.module.css';
 
 export function ScoreEntry({
   score,

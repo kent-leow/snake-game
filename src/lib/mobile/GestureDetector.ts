@@ -1,4 +1,4 @@
-import type { Direction } from '@/lib/game/types';
+import type { Direction } from '../game/types';
 
 /**
  * Touch gesture detection and processing

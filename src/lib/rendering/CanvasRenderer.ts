@@ -10,9 +10,9 @@
     this.backgroundCtx = backgroundCtx;performance and visual quality
  */
 
-import type { Snake, EnhancedFood } from '@/lib/game/types';
-import type { NumberedFood } from '@/lib/game/multipleFoodTypes';
-import { FoodRenderer } from '@/game/FoodRenderer';
+import type { Snake, EnhancedFood } from '../game/types';
+import type { NumberedFood } from '../game/multipleFoodTypes';
+import { FoodRenderer } from '../../game/FoodRenderer';
 import { CanvasUtils, type CanvasDimensions } from './CanvasUtils';
 
 export interface RenderContext {

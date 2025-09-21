@@ -3,7 +3,7 @@
  * Defines default speed progression curves and difficulty presets
  */
 
-import type { SpeedConfig, SpeedPreset } from '@/types/Speed';
+import type { SpeedConfig, SpeedPreset } from '../types/Speed';
 
 /**
  * Default speed configuration for balanced gameplay

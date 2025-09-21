@@ -12,14 +12,14 @@ import type {
   SpeedTransition,
   EasingFunction,
   SpeedManagerData
-} from '@/types/Speed';
-import type { ComboEvent } from '@/types/Combo';
+} from '../types/Speed';
+import type { ComboEvent } from '../types/Combo';
 import { 
   DEFAULT_SPEED_CONFIG, 
   calculateSpeedCurve,
   validateSpeedConfig
-} from '@/constants/SpeedConfig';
-import { SpeedEasing } from '@/types/Speed';
+} from '../constants/SpeedConfig';
+import { SpeedEasing } from '../types/Speed';
 
 /**
  * Core speed management class that handles progressive speed increases

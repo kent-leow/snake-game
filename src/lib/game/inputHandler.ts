@@ -1,5 +1,5 @@
-import type { Direction } from '@/lib/game/types';
-import { isValidDirectionChange } from '@/lib/utils/direction';
+import type { Direction } from './types';
+import { isValidDirectionChange } from '../utils/direction';
 
 /**
  * Input validation options
