@@ -1,15 +1,14 @@
 /**
- * Integration tests for GameCanvas with Combo Visual Feedback
- * Tests the integration of combo components with the main game canvas
+ * Basic tests for GameCanvas component
+ * Since combo functionality has been removed from the canvas, these tests focus on core functionality
  */
 
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { GameCanvas } from '../game/GameCanvas';
 import type { GameEngine } from '@/lib/game/gameEngine';
 import type { GameConfig } from '@/lib/rendering';
-import type { ComboEvent, ComboState } from '@/types/Combo';
 
 // Mock all dependencies
 jest.mock('@/lib/rendering', () => ({
@@ -21,28 +20,11 @@ jest.mock('@/lib/rendering', () => ({
   RenderLoop: jest.fn().mockImplementation(() => ({
     start: jest.fn(),
     destroy: jest.fn(),
-    pause: jest.fn(),
-    resume: jest.fn(),
-    isActive: jest.fn().mockReturnValue(true),
-  })),
-  PerformanceMonitor: jest.fn().mockImplementation(() => ({
-    getMetrics: jest.fn().mockReturnValue({}),
-    destroy: jest.fn(),
-    recordError: jest.fn(),
+    isActive: jest.fn().mockReturnValue(false),
   })),
   ResponsiveCanvas: jest.fn().mockImplementation(() => ({
-    resize: jest.fn(),
     destroy: jest.fn(),
-    onResize: jest.fn(),
   })),
-}));
-
-jest.mock('@/components/mobile', () => ({
-  SwipeGestureHandler: ({ children }: { children: React.ReactNode }) => <div data-testid="swipe-handler">{children}</div>,
-}));
-
-jest.mock('@/hooks', () => ({
-  useResponsiveLayout: () => ({ isMobile: false }),
 }));
 
 jest.mock('@/lib/mobile', () => ({
@@ -51,55 +33,21 @@ jest.mock('@/lib/mobile', () => ({
   },
 }));
 
-jest.mock('@/styles/combo.module.css', () => ({}));
-
-// Mock canvas context
-const mockCanvas = {
-  getContext: jest.fn().mockReturnValue({
-    fillRect: jest.fn(),
-    clearRect: jest.fn(),
-    drawImage: jest.fn(),
+jest.mock('@/hooks', () => ({
+  useResponsiveLayout: jest.fn().mockReturnValue({
+    isMobile: false,
   }),
-  style: {},
-  focus: jest.fn(),
-} as any;
+}));
 
-Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
-  value: () => mockCanvas.getContext(),
-});
+jest.mock('@/components/mobile', () => ({
+  SwipeGestureHandler: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
 
-describe('GameCanvas Combo Integration', () => {
+describe('GameCanvas Basic Functionality', () => {
   let mockGameEngine: jest.Mocked<GameEngine>;
-  let mockComboManager: any;
-  let comboSubscriber: ((event: ComboEvent) => void) | null = null;
-
-  const defaultGameConfig: GameConfig = {
-    gridSize: 20,
-    canvasWidth: 400,
-    canvasHeight: 400,
-    gameSpeed: 100,
-    enableSound: false,
-  };
+  let defaultGameConfig: GameConfig;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    comboSubscriber = null;
-
-    // Create mock combo manager
-    mockComboManager = {
-      subscribe: jest.fn((callback: (event: ComboEvent) => void) => {
-        comboSubscriber = callback;
-        return jest.fn(); // Unsubscribe function
-      }),
-      getCurrentState: jest.fn().mockReturnValue({
-        currentSequence: [],
-        expectedNext: 1,
-        comboProgress: 0,
-        totalCombos: 0,
-        isComboActive: false,
-      } as ComboState),
-    };
-
     // Create mock game engine
     mockGameEngine = {
       getGameState: jest.fn().mockReturnValue({
@@ -110,177 +58,65 @@ describe('GameCanvas Combo Integration', () => {
         score: 0,
         isRunning: true,
       }),
-      getComboManager: jest.fn().mockReturnValue(mockComboManager),
       update: jest.fn(),
       changeDirection: jest.fn(),
     } as any;
+
+    defaultGameConfig = {
+      gridSize: 20,
+      canvasWidth: 400,
+      canvasHeight: 400,
+      gameSpeed: 150,
+      enableSound: false,
+    };
+
+    // Clear all mocks
+    jest.clearAllMocks();
   });
 
-  describe('Combo Components Rendering', () => {
-    it('does not render combo progress indicator in canvas overlay (moved to Game Stats panel)', async () => {
-      mockComboManager.getCurrentState.mockReturnValue({
-        currentSequence: [1],
-        expectedNext: 2,
-        comboProgress: 1,
-        totalCombos: 0,
-        isComboActive: true,
-      });
-
+  describe('Basic Rendering', () => {
+    it('renders canvas element', () => {
       render(
         <GameCanvas
           gameEngine={mockGameEngine}
           gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
         />
       );
 
-      // Combo progress indicator should not be in canvas - it's moved to Game Stats panel
-      expect(screen.queryByRole('group', { name: /combo progress indicator/i })).not.toBeInTheDocument();
+      const canvas = screen.getByRole('img', { name: /snake game canvas/i });
+      expect(canvas).toBeInTheDocument();
+      expect(canvas.tagName).toBe('CANVAS');
     });
 
-    it('does not render combo components when disabled (already moved to Game Stats panel)', () => {
+    it('renders without loading state interference', () => {
       render(
         <GameCanvas
           gameEngine={mockGameEngine}
           gameConfig={defaultGameConfig}
-          enableComboVisuals={false}
         />
       );
 
-      // Combo progress indicator is no longer in canvas - it's in Game Stats panel
-      expect(screen.queryByRole('group', { name: /combo progress indicator/i })).not.toBeInTheDocument();
+      // The canvas should render cleanly without loading text interference
+      const canvas = screen.getByRole('img', { name: /snake game canvas/i });
+      expect(canvas).toBeInTheDocument();
     });
 
-    it('combo indicator is now in Game Stats panel, not canvas overlay', async () => {
-      mockComboManager.getCurrentState.mockReturnValue({
-        currentSequence: [1],
-        expectedNext: 2,
-        comboProgress: 1,
-        totalCombos: 0,
-        isComboActive: true,
-      });
-
+    it('accepts className prop', () => {
       const { container } = render(
         <GameCanvas
           gameEngine={mockGameEngine}
           gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
+          className="custom-class"
         />
       );
 
-      // Combo progress overlay should not exist in canvas
-      const overlay = container.querySelector('.combo-progress-overlay');
-      expect(overlay).not.toBeInTheDocument();
-    });
-
-    it('combo position options no longer apply (combo moved to Game Stats panel)', async () => {
-      mockComboManager.getCurrentState.mockReturnValue({
-        currentSequence: [1],
-        expectedNext: 2,
-        comboProgress: 1,
-        totalCombos: 0,
-        isComboActive: true,
-      });
-
-      const { container } = render(
-        <GameCanvas
-          gameEngine={mockGameEngine}
-          gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
-        />
-      );
-
-      await waitFor(() => {
-        const overlay = container.querySelector('.combo-progress-overlay');
-        expect(overlay).not.toBeInTheDocument(); // Combo indicator moved to Game Stats panel
-      });
+      const canvasContainer = container.querySelector('.game-canvas-container');
+      expect(canvasContainer).toHaveClass('custom-class');
     });
   });
 
-  describe('Combo Event Handling', () => {
-    it('no longer subscribes to combo manager events (combo functionality removed)', () => {
-      render(
-        <GameCanvas
-          gameEngine={mockGameEngine}
-          gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
-        />
-      );
-
-      // Combo functionality has been completely removed from canvas
-      expect(mockComboManager.subscribe).not.toHaveBeenCalled();
-    });
-
-    it('updates combo state when events are received', async () => {
-      const newComboState: ComboState = {
-        currentSequence: [1, 2],
-        expectedNext: 3,
-        comboProgress: 2,
-        totalCombos: 0,
-        isComboActive: true,
-      };
-
-      render(
-        <GameCanvas
-          gameEngine={mockGameEngine}
-          gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
-        />
-      );
-
-      // Simulate receiving a combo event
-      if (comboSubscriber) {
-        mockComboManager.getCurrentState.mockReturnValue(newComboState);
-        
-        const comboEvent: ComboEvent = {
-          type: 'progress',
-          sequence: [1, 2],
-          progress: 2,
-          totalPoints: 20,
-          timestamp: Date.now(),
-        };
-
-        comboSubscriber(comboEvent);
-      }
-
-      // Combo progress indicator is now in Game Stats panel, not canvas
-      // Canvas no longer shows combo feedback animations either
-      expect(screen.queryByText('Next: 3')).not.toBeInTheDocument();
-      expect(screen.queryByText('2/5')).not.toBeInTheDocument();
-    });
-
-    it('no longer displays combo feedback animations on canvas', async () => {
-      render(
-        <GameCanvas
-          gameEngine={mockGameEngine}
-          gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
-        />
-      );
-
-      // Simulate receiving a combo completion event
-      if (comboSubscriber) {
-        const comboEvent: ComboEvent = {
-          type: 'completed',
-          sequence: [1, 2, 3, 4, 5],
-          progress: 5,
-          totalPoints: 100,
-          timestamp: Date.now(),
-        };
-
-        comboSubscriber(comboEvent);
-      }
-
-      // Combo feedback animations are no longer displayed on canvas
-      expect(screen.queryByText('COMBO COMPLETE!')).not.toBeInTheDocument();
-    });
-
-    it('handles combo manager not being available gracefully', () => {
-      mockGameEngine.getComboManager.mockImplementation(() => {
-        throw new Error('Combo manager not available');
-      });
-
-      // Should not crash
+  describe('Props Handling', () => {
+    it('handles enableComboVisuals prop without errors', () => {
       expect(() => {
         render(
           <GameCanvas
@@ -291,191 +127,62 @@ describe('GameCanvas Combo Integration', () => {
         );
       }).not.toThrow();
     });
-  });
 
-  describe('Component Lifecycle', () => {
-    it('no unsubscribe needed (combo functionality removed)', () => {
-      const unsubscribeMock = jest.fn();
-      mockComboManager.subscribe.mockReturnValue(unsubscribeMock);
-
-      const { unmount } = render(
-        <GameCanvas
-          gameEngine={mockGameEngine}
-          gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
-        />
-      );
-
-      unmount();
-
-      // No subscription means no unsubscribe needed
-      expect(unsubscribeMock).not.toHaveBeenCalled();
+    it('handles enableTouchControls prop', () => {
+      expect(() => {
+        render(
+          <GameCanvas
+            gameEngine={mockGameEngine}
+            gameConfig={defaultGameConfig}
+            enableTouchControls={false}
+          />
+        );
+      }).not.toThrow();
     });
 
-    it('no resubscription needed (combo functionality removed)', () => {\n      const { rerender } = render(\n        <GameCanvas\n          gameEngine={mockGameEngine}\n          gameConfig={defaultGameConfig}\n          enableComboVisuals={true}\n        />\n      );\n\n      // Combo functionality completely removed - no subscription occurs\n      expect(mockComboManager.subscribe).not.toHaveBeenCalled();\n\n      // Create new game engine mock\n      const newGameEngine = { ...mockGameEngine } as jest.Mocked<GameEngine>;\n      const newComboManager = {\n        ...mockComboManager,\n        subscribe: jest.fn().mockReturnValue(jest.fn()),\n        getCurrentState: jest.fn().mockReturnValue({\n          currentSequence: [],\n          expectedNext: 1,\n          comboProgress: 0,\n          totalCombos: 0,\n          isComboActive: false,\n        }),\n      };\n      newGameEngine.getComboManager.mockReturnValue(newComboManager);\n\n      rerender(\n        <GameCanvas\n          gameEngine={newGameEngine}\n          gameConfig={defaultGameConfig}\n          enableComboVisuals={true}\n        />\n      );\n\n      // Still no subscription with new engine\n      expect(newComboManager.subscribe).not.toHaveBeenCalled();\n    });
+    it('handles onDirectionChange prop', () => {
+      const onDirectionChange = jest.fn();
       
-      rerender(
-        <GameCanvas
-          gameEngine={newGameEngine}
-          gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
-        />
-      );
-
-      expect(mockComboManager.subscribe).toHaveBeenCalledTimes(2);
-    });
-
-    it('does not subscribe when combo visuals are disabled', () => {
-      render(
-        <GameCanvas
-          gameEngine={mockGameEngine}
-          gameConfig={defaultGameConfig}
-          enableComboVisuals={false}
-        />
-      );
-
-      expect(mockComboManager.subscribe).not.toHaveBeenCalled();
+      expect(() => {
+        render(
+          <GameCanvas
+            gameEngine={mockGameEngine}
+            gameConfig={defaultGameConfig}
+            onDirectionChange={onDirectionChange}
+          />
+        );
+      }).not.toThrow();
     });
   });
 
-  describe('State Management', () => {
-    it('initializes combo state on mount', async () => {
-      const initialState: ComboState = {
-        currentSequence: [],
-        expectedNext: 1,
-        comboProgress: 0,
-        totalCombos: 5,
-        isComboActive: false,
-      };
-
-      mockComboManager.getCurrentState.mockReturnValue(initialState);
-
+  describe('Canvas Focus and Interaction', () => {
+    it('makes canvas focusable', () => {
       render(
         <GameCanvas
           gameEngine={mockGameEngine}
           gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
         />
       );
 
-      // Combo state should be tracked internally but not displayed in canvas
-      // The combo indicator is now in the Game Stats panel
-      expect(screen.queryByText('5 combos')).not.toBeInTheDocument();
-      expect(screen.queryByText('Start: 1')).not.toBeInTheDocument();
-    });
-
-    it('updates state correctly when combo progress changes', async () => {
-      let currentState: ComboState = {
-        currentSequence: [],
-        expectedNext: 1,
-        comboProgress: 0,
-        totalCombos: 0,
-        isComboActive: false,
-      };
-
-      mockComboManager.getCurrentState.mockImplementation(() => currentState);
-
-      render(
-        <GameCanvas
-          gameEngine={mockGameEngine}
-          gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
-        />
-      );
-
-      // Combo state is managed internally but not displayed in canvas
-      // The combo indicator is now in the Game Stats panel
-      expect(screen.queryByText('0 combos')).not.toBeInTheDocument();
-
-      // Simulate combo start
-      if (comboSubscriber) {
-        currentState = {
-          currentSequence: [1],
-          expectedNext: 2,
-          comboProgress: 1,
-          totalCombos: 0,
-          isComboActive: true,
-        };
-
-        const startEvent: ComboEvent = {
-          type: 'started',
-          sequence: [1],
-          progress: 1,
-          totalPoints: 0,
-          timestamp: Date.now(),
-        };
-
-        comboSubscriber(startEvent);
-      }
-
-            // Combo progress indicator is no longer in canvas - moved to Game Stats panel\n      expect(screen.queryByText('Next: 2')).not.toBeInTheDocument();\n      expect(screen.queryByText('1/5')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Accessibility', () => {
-    it('maintains canvas accessibility when combo visuals are added', async () => {
-      render(
-        <GameCanvas
-          gameEngine={mockGameEngine}
-          gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
-        />
-      );
-
-      // Canvas should still have proper ARIA attributes
       const canvas = screen.getByRole('img', { name: /snake game canvas/i });
-      expect(canvas).toBeInTheDocument();
       expect(canvas).toHaveAttribute('tabIndex', '0');
     });
 
-    it('canvas maintains accessibility without combo progress indicator (moved to Game Stats)', async () => {
-      mockComboManager.getCurrentState.mockReturnValue({
-        currentSequence: [1],
-        expectedNext: 2,
-        comboProgress: 1,
-        totalCombos: 0,
-        isComboActive: true,
-      });
-
+    it('has proper accessibility attributes', () => {
       render(
         <GameCanvas
           gameEngine={mockGameEngine}
           gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
         />
       );
 
-      // Combo progress indicator is no longer in canvas - moved to Game Stats panel
-      expect(screen.queryByRole('group', { name: /combo progress indicator/i })).not.toBeInTheDocument();
+      const canvas = screen.getByRole('img', { name: /snake game canvas/i });
+      expect(canvas).toHaveAttribute('aria-label', 'Snake game canvas');
     });
   });
 
-  describe('Performance', () => {
-    it('does not create combo components when combo state shows no progress', () => {
-      mockComboManager.getCurrentState.mockReturnValue({
-        currentSequence: [],
-        expectedNext: 1,
-        comboProgress: 0,
-        totalCombos: 0,
-        isComboActive: false,
-      });
-
-      const { container } = render(
-        <GameCanvas
-          gameEngine={mockGameEngine}
-          gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
-        />
-      );
-
-      // Progress indicator should no longer be in canvas - moved to Game Stats panel
-      const overlay = container.querySelector('.combo-progress-overlay');
-      expect(overlay).not.toBeInTheDocument();
-      
-      // Combo data is now displayed in Game Stats panel instead
-    });
-
-    it('handles rapid combo events without performance issues', async () => {
+  describe('No Combo Components', () => {
+    it('does not render combo progress indicator', () => {
       render(
         <GameCanvas
           gameEngine={mockGameEngine}
@@ -484,23 +191,34 @@ describe('GameCanvas Combo Integration', () => {
         />
       );
 
-      // Simulate rapid events
-      if (comboSubscriber) {
-        for (let i = 0; i < 10; i++) {
-          const event: ComboEvent = {
-            type: 'progress',
-            sequence: [1, 2],
-            progress: 2,
-            totalPoints: 10,
-            timestamp: Date.now(),
-          };
-          comboSubscriber(event);
-        }
-      }
+      // Combo progress indicator should not be in canvas
+      expect(screen.queryByRole('group', { name: /combo progress indicator/i })).not.toBeInTheDocument();
+    });
 
-      // Should handle without crashing
-      // No status elements expected since combo feedback is removed from canvas
+    it('does not render combo feedback animations', () => {
+      render(
+        <GameCanvas
+          gameEngine={mockGameEngine}
+          gameConfig={defaultGameConfig}
+          enableComboVisuals={true}
+        />
+      );
+
+      // No combo feedback animations should be present
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      expect(screen.queryByText(/combo/i)).not.toBeInTheDocument();
+    });
+
+    it('does not display score on canvas', () => {
+      render(
+        <GameCanvas
+          gameEngine={mockGameEngine}
+          gameConfig={defaultGameConfig}
+        />
+      );
+
+      // Score should not be displayed on the canvas
+      expect(screen.queryByText(/score/i)).not.toBeInTheDocument();
     });
   });
 });

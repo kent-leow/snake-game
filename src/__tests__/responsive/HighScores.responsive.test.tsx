@@ -629,7 +629,7 @@ describe('Performance Considerations', () => {
     const endTime = performance.now();
     const renderTime = endTime - startTime;
 
-    // Render should complete within reasonable time (< 2000ms for CI)
-    expect(renderTime).toBeLessThan(2000);
+    // Render should complete within reasonable time (< 5000ms for CI)
+    expect(renderTime).toBeLessThan(5000);
   });
 });

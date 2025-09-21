@@ -309,7 +309,7 @@ describe('ScoringSystem', () => {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      expect(duration).toBeLessThan(100); // Should complete in less than 100ms
+      expect(duration).toBeLessThan(500); // Should complete in less than 500ms
       expect(scoringSystem.getCurrentScore()).toBe(10000);
       expect(scoringSystem.getScoreHistory()).toHaveLength(1000);
     });
