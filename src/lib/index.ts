@@ -2,6 +2,9 @@ export * from './game/types';
 export { CollisionDetector, type CollisionResult, type BoundaryConfig } from './game/collisionDetection';
 export { OptimizedCollisionDetector } from './game/optimizedCollisionDetector';
 
+// Game Engine exports
+export * from './game';
+
 // Enhanced Game State Management
 export { 
   GameStateManager, 
