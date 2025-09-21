@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { GameStateEnum } from '@/lib/game/gameState';
+import { GameStateEnum } from '../../lib/game/gameState';
 
 interface KeyboardShortcutsProps {
   currentState: GameStateEnum;

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import type { Direction } from '@/lib/game/types';
+import type { Direction } from '../lib/game/types';
 
 /**
  * Configuration options for keyboard input handling

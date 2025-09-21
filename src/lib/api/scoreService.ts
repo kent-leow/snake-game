@@ -1,8 +1,8 @@
-import { connectToDatabase } from '@/lib/database/connection';
-import Score from '@/models/Score';
-import { validateScoreData } from '@/utils/scoreValidation';
+import { connectToDatabase } from '../database/connection';
+import Score from '../../models/Score';
+import { validateScoreData } from '../../utils/scoreValidation';
 import { ValidationError, SecurityError, DatabaseError } from './errorHandler';
-import { ScoreInput, IScore } from '@/types/Database';
+import { ScoreInput, IScore } from '../../types/Database';
 
 /**
  * Options for retrieving scores with pagination and sorting

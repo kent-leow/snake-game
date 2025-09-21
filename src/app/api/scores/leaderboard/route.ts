@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ScoreService } from '@/lib/api/scoreService';
-import { handleApiError } from '@/lib/api/errorHandler';
+import { ScoreService } from '../../../../lib/api/scoreService';
+import { handleApiError } from '../../../../lib/api/errorHandler';
 
 /**
  * GET /api/scores/leaderboard - Get top scores leaderboard

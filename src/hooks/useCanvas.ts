@@ -5,10 +5,10 @@
 'use client';
 
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { CanvasRenderer } from '@/lib/rendering/CanvasRenderer';
-import { ResponsiveCanvas } from '@/lib/rendering/ResponsiveCanvas';
-import type { GameConfig } from '@/lib/rendering/CanvasRenderer';
-import type { CanvasDimensions } from '@/lib/rendering/CanvasUtils';
+import { CanvasRenderer } from '../lib/rendering/CanvasRenderer';
+import { ResponsiveCanvas } from '../lib/rendering/ResponsiveCanvas';
+import type { GameConfig } from '../lib/rendering/CanvasRenderer';
+import type { CanvasDimensions } from '../lib/rendering/CanvasUtils';
 
 export interface UseCanvasOptions {
   gameConfig: GameConfig;

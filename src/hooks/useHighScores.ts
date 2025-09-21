@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { IScore } from '@/types/Database';
+import { IScore } from '../types/Database';
 
 /**
  * Error types for score loading

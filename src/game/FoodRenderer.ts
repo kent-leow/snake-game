@@ -3,21 +3,13 @@
  * Provides responsive design, accessibility features, and visual enhancements
  */
 
-import type { NumberedFood } from '@/lib/game/multipleFoodTypes';
-import type { Position } from '@/lib/game/types';
-import type { ComboState } from '@/types/Combo';
-import { 
-  FOOD_STYLE, 
-  getFoodColors, 
-  getBorderColor, 
-  getGradientColors,
-  getComboGlowColor,
-  lightenColor,
-  darkenColor,
-  COMBO_TARGET_COLORS
-} from '@/constants/FoodColors';
-
-/**
+import type { NumberedFood } from '../lib/game/multipleFoodTypes';
+import type { Position } from '../lib/game/types';
+import type { ComboState } from '../types/Combo';
+import {
+  FOOD_COLORS,
+  getFoodColors,
+} from '../constants/FoodColors';/**
  * Configuration interface for the food renderer
  */
 export interface FoodRenderConfig {

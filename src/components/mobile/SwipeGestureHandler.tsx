@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useCallback } from 'react';
-import type { Direction } from '@/lib/game/types';
+import type { Direction } from '../../lib/game/types';
 
 interface SwipeGestureHandlerProps {
   onSwipe: (direction: Direction) => void;

@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import type { ComboEvent } from '@/types/Combo';
+import type { ComboEvent } from '../types/Combo';
 
 /**
  * Animation types for different combo events

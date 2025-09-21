@@ -8,9 +8,9 @@ import { ScoringSystem } from './scoring';
 import { ScoreManager } from './ScoreManager';
 import { GameOverManager, type GameOverState, type GameStatistics } from './gameOverState';
 import { ComboManager } from './ComboManager';
-import type { ComboEvent } from '@/types/Combo';
-import { SpeedManager } from '@/game/SpeedManager';
-import type { SpeedConfig } from '@/types/Speed';
+import type { ComboEvent } from '../../types/Combo';
+import { SpeedManager } from '../../game/SpeedManager';
+import type { SpeedConfig } from '../../types/Speed';
 
 /**
  * Game engine configuration interface

@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import type { Snake, EnhancedFood } from '@/lib/game/types';
-import type { GameStateData, GameStateEnum } from '@/lib/game/gameState';
+import type { Snake, EnhancedFood } from '../lib/game/types';
+import type { GameStateData, GameStateEnum } from '../lib/game/gameState';
 
 /**
  * Game persistence data structure for saving/loading game state

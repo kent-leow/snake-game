@@ -1,4 +1,4 @@
-import type { Position } from '@/lib/game/types';
+import type { Position } from '../lib/game/types';
 
 /**
  * Represents the current state of a combo sequence

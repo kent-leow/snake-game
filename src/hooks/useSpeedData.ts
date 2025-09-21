@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { GameEngine } from '@/lib/game/gameEngine';
+import type { GameEngine } from '../lib/game/gameEngine';
 
 /**
  * Interface for speed data from the game engine

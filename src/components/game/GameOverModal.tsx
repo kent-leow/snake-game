@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Button from '@/components/ui/Button';
-import type { GameStatistics } from '@/lib/game/gameOverState';
+import Button from '../ui/Button';
+import type { GameStatistics } from '../../lib/game/gameOverState';
 
 /**
  * GameOverModal component properties

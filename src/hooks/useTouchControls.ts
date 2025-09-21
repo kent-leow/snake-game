@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useResponsiveLayout } from './useResponsiveLayout';
-import type { Direction } from '@/lib/game/types';
+import type { Direction } from '../lib/game/types';
 
 interface TouchControlsOptions {
   onDirectionChange: (direction: Direction) => void;

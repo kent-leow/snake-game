@@ -1,4 +1,4 @@
-import type { Direction, Position } from '@/lib/game/types';
+import type { Direction, Position } from '../game/types';
 
 /**
  * Direction utility functions for snake movement logic

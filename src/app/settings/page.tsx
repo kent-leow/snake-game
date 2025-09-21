@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import PageLayout from '@/components/ui/PageLayout';
+import PageLayout from '../../components/ui/PageLayout';
 
 export const metadata: Metadata = {
   title: 'Snake Game - Settings',

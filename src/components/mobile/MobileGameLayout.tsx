@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import TouchControls from './TouchControls';
-import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
-import type { GameStateType } from '@/lib/game/types';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import type { GameStateType } from '../../lib/game/types';
 
 interface MobileGameLayoutProps {
   children: React.ReactNode;

@@ -5,8 +5,8 @@
 'use client';
 
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { PerformanceMonitor } from '@/lib/rendering/PerformanceMonitor';
-import type { PerformanceMetrics } from '@/lib/rendering/PerformanceMonitor';
+import { PerformanceMonitor } from '../lib/rendering/PerformanceMonitor';
+import type { PerformanceMetrics } from '../lib/rendering/PerformanceMonitor';
 
 export interface UseCanvasPerformanceOptions {
   enabled?: boolean;

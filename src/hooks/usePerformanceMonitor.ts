@@ -5,7 +5,7 @@
 'use client';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { PerformanceMonitor, type PerformanceStats, detectDevicePerformance } from '@/lib/game/performance';
+import { PerformanceMonitor, type PerformanceStats, detectDevicePerformance } from '../lib/game/performance';
 
 /**
  * Performance monitoring hook

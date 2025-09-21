@@ -6,7 +6,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import type { ComboEvent } from '@/types/Combo';
+import type { ComboEvent } from '../types/Combo';
 
 export interface ComboFeedbackProps {
   /** Current combo event to display */

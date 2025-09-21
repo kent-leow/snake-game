@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { ScoreService, type ScoreSubmissionData, type ScoreSubmissionResult } from '@/services/ScoreService';
+import { ScoreService, type ScoreSubmissionData, type ScoreSubmissionResult } from '../services/ScoreService';
 
 /**
  * Options for the useScoreSubmission hook

@@ -5,9 +5,9 @@
 'use client';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { GameLoop, type GameLoopCallbacks, type GameLoopOptions } from '@/lib/game/gameLoop';
-import { type PerformanceStats } from '@/lib/game/performance';
-import { AdaptiveTimer } from '@/lib/game/timing';
+import { GameLoop, type GameLoopCallbacks, type GameLoopOptions } from '../lib/game/gameLoop';
+import { type PerformanceStats } from '../lib/game/performance';
+import { AdaptiveTimer } from '../lib/game/timing';
 
 /**
  * Options for the useGameLoop hook

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectToDatabase, isConnected } from '@/lib/database/connection';
+import { connectToDatabase, isConnected } from '../../../lib/database/connection';
 
 /**
  * Health Check API Endpoint

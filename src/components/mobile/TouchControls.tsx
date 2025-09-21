@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import type { Direction } from '@/lib/game/types';
+import type { Direction } from '../../lib/game/types';
 
 interface TouchControlsProps {
   onDirectionChange: (direction: Direction) => void;

@@ -1,5 +1,5 @@
-import type { Snake, SnakeSegment, Direction, Position } from '@/lib/game/types';
-import { getNextPosition } from '@/lib/utils/direction';
+import type { Snake, SnakeSegment, Direction, Position } from './types';
+import { getNextPosition } from '../utils/direction';
 
 /**
  * Movement configuration options

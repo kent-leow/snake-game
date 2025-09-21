@@ -5,13 +5,13 @@ import {
   GameStateManager, 
   GameStateEnum, 
   type GameStateData
-} from '@/lib/game/gameState';
+} from '../lib/game/gameState';
 import { 
   StateTransitionManager, 
   StateTransitionAction, 
   type StateTransitionResult 
-} from '@/lib/game/stateTransitions';
-import type { GameConfig, Direction } from '@/lib/game/types';
+} from '../lib/game/stateTransitions';
+import type { GameConfig, Direction } from '../lib/game/types';
 
 /**
  * Hook options for game state management

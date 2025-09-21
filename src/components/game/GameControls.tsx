@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import { GameStateEnum } from '@/lib/game/gameState';
+import { GameStateEnum } from '../../lib/game/gameState';
 import ControlButton from './ControlButton';
 import KeyboardShortcuts from './KeyboardShortcuts';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 
 interface GameControlsProps {
   currentState: GameStateEnum;

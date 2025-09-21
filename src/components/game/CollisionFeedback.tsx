@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import type { Position } from '@/lib/game/types';
+import type { Position } from '../../lib/game/types';
 
 /**
  * CollisionFeedback component properties

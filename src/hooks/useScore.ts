@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ScoringSystem, type ScoreEvent } from '@/lib/game/scoring';
+import { ScoringSystem, type ScoreEvent } from '../lib/game/scoring';
 
 /**
  * Options for the useScore hook

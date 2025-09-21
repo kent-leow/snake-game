@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { GameOverManager, type GameOverState, type GameStatistics } from '@/lib/game/gameOverState';
-import type { Position } from '@/lib/game/types';
+import { GameOverManager, type GameOverState, type GameStatistics } from '../lib/game/gameOverState';
+import type { Position } from '../lib/game/types';
 
 /**
  * Options for useGameOver hook
