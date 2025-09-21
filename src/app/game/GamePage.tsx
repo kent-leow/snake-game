@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { PageLayout, GameControls, SpeedIndicator, ScoreSubmissionModal } from '@/components';
+import { PageLayout, GameControls, SpeedIndicator, ScoreSubmissionModal, GameStateIndicator } from '@/components';
 import { GameCanvas } from '@/components/game/GameCanvas';
-import { GameStateIndicator } from '@/components/game/GameStateIndicator';
 import { MobileGameLayout } from '@/components/mobile';
 import { useGameState, useResponsiveLayout, useSpeedData } from '@/hooks';
 import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '@/lib/game/gameEngine';
