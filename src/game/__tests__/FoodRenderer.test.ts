@@ -29,6 +29,13 @@ const createMockContext = (): CanvasRenderingContext2D => {
     scale: jest.fn(),
     clearRect: jest.fn(),
     measureText: jest.fn(() => ({ width: 0 })), // Add missing measureText method
+    createRadialGradient: jest.fn(() => ({
+      addColorStop: jest.fn(),
+    })),
+    moveTo: jest.fn(),
+    lineTo: jest.fn(),
+    quadraticCurveTo: jest.fn(),
+    closePath: jest.fn(),
   } as unknown as CanvasRenderingContext2D;
 
   return mockContext;
@@ -62,8 +69,8 @@ describe('FoodRenderer', () => {
       const config = renderer.getConfig();
       
       expect(config.fontSize).toBeGreaterThan(0);
-      expect(config.fontFamily).toBe('Arial, sans-serif');
-      expect(config.borderWidth).toBe(2);
+      expect(config.fontFamily).toBe('Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif');
+      expect(config.borderWidth).toBe(3);
       expect(config.enableShadow).toBe(true);
       expect(config.enableAnimation).toBe(true);
       expect(config.colorScheme).toBe('default');
@@ -110,11 +117,11 @@ describe('FoodRenderer', () => {
 
       renderer.renderFood(food, 0);
 
-      // Should draw background
-      expect(mockContext.fillRect).toHaveBeenCalled();
+      // Should draw background (path-based drawing)
+      expect(mockContext.fill).toHaveBeenCalled();
       
       // Should draw border if enabled
-      expect(mockContext.strokeRect).toHaveBeenCalled();
+      expect(mockContext.stroke).toHaveBeenCalled();
       
       // Should draw number text
       expect(mockContext.fillText).toHaveBeenCalledWith('1', expect.any(Number), expect.any(Number));
@@ -126,9 +133,9 @@ describe('FoodRenderer', () => {
 
       renderer.renderFood(food, 16);
 
-      // Should draw background and border
-      expect(mockContext.fillRect).toHaveBeenCalled();
-      expect(mockContext.strokeRect).toHaveBeenCalled();
+      // Should draw background and border (path-based drawing)
+      expect(mockContext.fill).toHaveBeenCalled();
+      expect(mockContext.stroke).toHaveBeenCalled();
       
       // Should draw number text
       expect(mockContext.fillText).toHaveBeenCalledWith('2', expect.any(Number), expect.any(Number));
@@ -140,8 +147,8 @@ describe('FoodRenderer', () => {
 
       renderer.renderFood(food, 0);
 
-      // Should draw shadow (additional fillRect calls)
-      expect(mockContext.fillRect).toHaveBeenCalledTimes(2); // Background + shadow
+      // Should draw shadow (additional fill calls)
+      expect(mockContext.fill).toHaveBeenCalledTimes(2); // Background + shadow
       expect(mockContext.fillText).toHaveBeenCalledTimes(2); // Text + shadow
     });
 
@@ -152,7 +159,7 @@ describe('FoodRenderer', () => {
       renderer.renderFood(food, 0);
 
       // Should only draw background (no shadow)
-      expect(mockContext.fillRect).toHaveBeenCalledTimes(1);
+      expect(mockContext.fill).toHaveBeenCalledTimes(1);
       expect(mockContext.fillText).toHaveBeenCalledTimes(1);
     });
 
@@ -166,7 +173,7 @@ describe('FoodRenderer', () => {
         renderer.renderFood(edgeFood, 0);
       }).not.toThrow();
 
-      expect(mockContext.fillRect).toHaveBeenCalled();
+      expect(mockContext.fill).toHaveBeenCalled();
       expect(mockContext.fillText).toHaveBeenCalled();
     });
   });
@@ -184,7 +191,7 @@ describe('FoodRenderer', () => {
       renderer.renderMultipleFoods(foods, 16);
 
       // Should render all foods
-      expect(mockContext.fillRect).toHaveBeenCalledTimes(10); // 5 foods * 2 (background + shadow)
+      expect(mockContext.fill).toHaveBeenCalledTimes(10); // 5 foods * 2 (background + shadow)
       expect(mockContext.fillText).toHaveBeenCalledTimes(10); // 5 foods * 2 (text + shadow)
     });
 
@@ -193,7 +200,7 @@ describe('FoodRenderer', () => {
         renderer.renderMultipleFoods([], 0);
       }).not.toThrow();
 
-      expect(mockContext.fillRect).not.toHaveBeenCalled();
+      expect(mockContext.fill).not.toHaveBeenCalled();
       expect(mockContext.fillText).not.toHaveBeenCalled();
     });
 
@@ -238,7 +245,7 @@ describe('FoodRenderer', () => {
       const food = createSampleFood(1);
       renderer.renderFood(food, 0);
 
-      expect(newMockContext.fillRect).toHaveBeenCalled();
+      expect(newMockContext.fill).toHaveBeenCalled();
     });
   });
 
@@ -412,4 +419,5 @@ describe('FoodRenderer', () => {
       }).not.toThrow();
     });
   });
+});
 });

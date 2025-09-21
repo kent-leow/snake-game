@@ -126,8 +126,8 @@ describe('HighScoreTable Responsive Behavior', () => {
       const tableHeaders = screen.getAllByText(/Rank|Player|Score|Combos|Time|Date/);
       expect(tableHeaders.length).toBeGreaterThan(0);
       
-      // Verify table layout is used
-      const tableContainer = document.querySelector('[class*="scoreTable"]');
+      // Verify table layout is used (hidden on mobile, shown on desktop)
+      const tableContainer = document.querySelector('[class*="lg:block"]');
       expect(tableContainer).toBeInTheDocument();
     });
 
@@ -140,8 +140,8 @@ describe('HighScoreTable Responsive Behavior', () => {
         />
       );
 
-      // Card layout should be hidden
-      const cardContainer = document.querySelector('[class*="scoreCards"]');
+      // Card layout should be hidden on desktop (lg:hidden class)
+      const cardContainer = document.querySelector('[class*="lg:hidden"]');
       expect(cardContainer).toBeInTheDocument(); // CSS handles visibility
     });
 
@@ -154,8 +154,8 @@ describe('HighScoreTable Responsive Behavior', () => {
         />
       );
 
-      // Check for stats grid
-      const statsContainer = document.querySelector('[class*="statsGrid"]');
+      // Check for stats grid (responsive grid classes)
+      const statsContainer = document.querySelector('[class*="grid-cols-2"]');
       expect(statsContainer).toBeInTheDocument();
     });
   });
@@ -178,8 +178,8 @@ describe('HighScoreTable Responsive Behavior', () => {
         />
       );
 
-      // Should use card layout
-      const cardContainer = document.querySelector('[class*="scoreCards"]');
+      // Should use card layout (lg:hidden for mobile/tablet)
+      const cardContainer = document.querySelector('[class*="lg:hidden"]');
       expect(cardContainer).toBeInTheDocument();
     });
 
@@ -216,8 +216,8 @@ describe('HighScoreTable Responsive Behavior', () => {
         />
       );
 
-      // Should use card layout
-      const cardContainer = document.querySelector('[class*="scoreCards"]');
+      // Should use card layout (lg:hidden for mobile)
+      const cardContainer = document.querySelector('[class*="lg:hidden"]');
       expect(cardContainer).toBeInTheDocument();
     });
 
@@ -244,8 +244,8 @@ describe('HighScoreTable Responsive Behavior', () => {
         />
       );
 
-      // Stats should be in responsive grid
-      const statsContainer = document.querySelector('[class*="statsGrid"]');
+      // Stats should be in responsive grid (2 columns on mobile, 4 on larger screens)
+      const statsContainer = document.querySelector('[class*="grid-cols-2"]');
       expect(statsContainer).toBeInTheDocument();
     });
   });
@@ -260,10 +260,10 @@ describe('HighScoreTable Responsive Behavior', () => {
         />
       );
 
-      const loadingContainer = document.querySelector('[class*="loadingContainer"]');
+      const loadingContainer = document.querySelector('.text-center.py-12');
       expect(loadingContainer).toBeInTheDocument();
 
-      const spinner = document.querySelector('[class*="spinner"]');
+      const spinner = document.querySelector('.rounded-full');
       expect(spinner).toBeInTheDocument();
     });
 
@@ -279,7 +279,7 @@ describe('HighScoreTable Responsive Behavior', () => {
         />
       );
 
-      const spinner = document.querySelector('[class*="spinner"]');
+      const spinner = document.querySelector('.rounded-full');
       expect(spinner).toBeInTheDocument();
       // Should not have animate-spin class when reduced motion is preferred
       expect(spinner).not.toHaveClass('animate-spin');
@@ -296,7 +296,7 @@ describe('HighScoreTable Responsive Behavior', () => {
         />
       );
 
-      const errorContainer = document.querySelector('[class*="errorContainer"]');
+      const errorContainer = document.querySelector('.glass-effect.rounded-lg');
       expect(errorContainer).toBeInTheDocument();
 
       expect(screen.getByText('Test error message')).toBeInTheDocument();
@@ -313,7 +313,7 @@ describe('HighScoreTable Responsive Behavior', () => {
         />
       );
 
-      const emptyContainer = document.querySelector('[class*="emptyContainer"]');
+      const emptyContainer = document.querySelector('.text-center.py-12');
       expect(emptyContainer).toBeInTheDocument();
 
       expect(screen.getByText('No High Scores Yet')).toBeInTheDocument();
@@ -534,8 +534,8 @@ describe('Responsive Hook Integration', () => {
       />
     );
 
-    // Should now use card layout
-    const cardContainer = document.querySelector('[class*="scoreCards"]');
+    // Should now use card layout (lg:hidden for mobile view)
+    const cardContainer = document.querySelector('[class*="lg:hidden"]');
     expect(cardContainer).toBeInTheDocument();
   });
 
@@ -564,7 +564,7 @@ describe('Responsive Hook Integration', () => {
     );
 
     // Component should handle orientation change gracefully - use getAllByText since both layouts render
-    const leaderboardHeadings = screen.getAllByText('🏆 Leaderboard');
+    const leaderboardHeadings = screen.getAllByText('🏆 Hall of Fame');
     expect(leaderboardHeadings.length).toBeGreaterThan(0);
   });
 });
@@ -582,7 +582,7 @@ describe('Accessibility and Motion Preferences', () => {
       />
     );
 
-    const spinner = document.querySelector('[class*="spinner"]');
+    const spinner = document.querySelector('.rounded-full');
     expect(spinner).toBeInTheDocument();
     // Should not have animation classes when reduced motion is preferred
     expect(spinner).not.toHaveClass('animate-spin');

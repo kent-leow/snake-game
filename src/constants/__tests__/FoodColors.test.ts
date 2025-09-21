@@ -66,15 +66,15 @@ describe('FoodColors', () => {
 
   describe('FOOD_STYLE constants', () => {
     it('should have proper style configuration', () => {
-      expect(FOOD_STYLE.borderWidth).toBe(2);
-      expect(FOOD_STYLE.borderColor).toBe('#2C3E50');
-      expect(FOOD_STYLE.fontFamily).toBe('Arial, sans-serif');
+      expect(FOOD_STYLE.borderWidth).toBe(3);
+      expect(FOOD_STYLE.borderColor).toBe('#FFFFFF');
+      expect(FOOD_STYLE.fontFamily).toBe('Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif');
       expect(FOOD_STYLE.fontWeight).toBe('bold');
       expect(FOOD_STYLE.textAlign).toBe('center');
       expect(FOOD_STYLE.textBaseline).toBe('middle');
       expect(FOOD_STYLE.textColor).toBe('#FFFFFF');
-      expect(FOOD_STYLE.shadowColor).toBe('rgba(0, 0, 0, 0.5)');
-      expect(FOOD_STYLE.shadowOffset).toBe(1);
+      expect(FOOD_STYLE.shadowColor).toBe('rgba(0, 0, 0, 0.4)');
+      expect(FOOD_STYLE.shadowOffset).toBe(2);
     });
 
     it('should have numeric border width', () => {

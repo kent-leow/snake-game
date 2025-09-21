@@ -41,23 +41,24 @@ describe('PageLayout', () => {
 
   it('renders back button by default', () => {
     render(<PageLayout {...defaultProps} />);
-    expect(screen.getByText('← Back')).toBeDefined();
+    expect(screen.getByText('Back')).toBeDefined();
+    expect(screen.getByText('←')).toBeDefined();
   });
 
   it('hides back button when showBackButton is false', () => {
     render(<PageLayout {...defaultProps} showBackButton={false} />);
-    expect(screen.queryByText('← Back')).toBeNull();
+    expect(screen.queryByText('Back')).toBeNull();
   });
 
   it('renders back button with custom href', () => {
     render(<PageLayout {...defaultProps} backHref='/custom' />);
-    const backLink = screen.getByText('← Back').closest('a');
+    const backLink = screen.getByText('Back').closest('a');
     expect(backLink?.getAttribute('href')).toBe('/custom');
   });
 
   it('renders back button with default href when not specified', () => {
     render(<PageLayout {...defaultProps} />);
-    const backLink = screen.getByText('← Back').closest('a');
+    const backLink = screen.getByText('Back').closest('a');
     expect(backLink?.getAttribute('href')).toBe('/');
   });
 

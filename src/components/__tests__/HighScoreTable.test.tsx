@@ -88,9 +88,9 @@ describe('HighScoreTable', () => {
         />
       );
 
-      expect(screen.getByText('❌ Error Loading Scores')).toBeInTheDocument();
+      expect(screen.getByText('Error Loading Scores')).toBeInTheDocument();
       expect(screen.getByText(errorMessage)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Try Again' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Try Again/i })).toBeInTheDocument();
     });
 
     it('error container has correct styling', () => {
@@ -102,8 +102,8 @@ describe('HighScoreTable', () => {
         />
       );
 
-      const errorContainer = screen.getByText('❌ Error Loading Scores').closest('div')?.parentElement;
-      expect(errorContainer).toHaveClass('errorContainer');
+      const errorContainer = screen.getByText('Error Loading Scores').closest('div')?.parentElement;
+      expect(errorContainer).toHaveClass('glass-effect');
     });
   });
 
@@ -177,8 +177,8 @@ describe('HighScoreTable', () => {
         />
       );
 
-      const headers = screen.getAllByText('🏆 Leaderboard');
-      expect(headers.length).toBe(2); // One for desktop, one for mobile
+      const headers = screen.getAllByText('🏆 Hall of Fame');
+      expect(headers.length).toBe(1); // Only one header for all layouts
     });
   });
 
@@ -209,7 +209,7 @@ describe('HighScoreTable', () => {
         />
       );
 
-      const tableContainer = document.querySelector('.scoreTable');
+      const tableContainer = document.querySelector('[class*="lg:block"]');
       expect(tableContainer).toBeInTheDocument();
     });
   });
@@ -224,13 +224,13 @@ describe('HighScoreTable', () => {
         />
       );
 
-      // Find the mobile container by looking for the mobile-specific leaderboard title
-      const mobileHeaders = screen.getAllByText('🏆 Leaderboard');
-      expect(mobileHeaders).toHaveLength(2); // One for desktop, one for mobile
+            // Find the mobile container by looking for the mobile-specific leaderboard title
+      const mobileHeaders = screen.getAllByText('🏆 Hall of Fame');
+      expect(mobileHeaders).toHaveLength(1); // One header for all layouts
       
-      // The mobile one should be in a container with scoreCards class
-      const mobileContainer = mobileHeaders[1].closest('div')?.parentElement;
-      expect(mobileContainer).toHaveClass('scoreCards');
+      // The mobile layout container should be present
+      const mobileContainer = document.querySelector('[class*="lg:hidden"]');
+      expect(mobileContainer).toBeInTheDocument();
     });
   });
 
@@ -262,7 +262,7 @@ describe('HighScoreTable', () => {
       expect(screen.getByText('Highest Score')).toBeInTheDocument();
       expect(screen.getByText('Best Combo')).toBeInTheDocument();
       expect(screen.getByText('Longest Game')).toBeInTheDocument();
-      expect(screen.getByText('Total Players')).toBeInTheDocument();
+      expect(screen.getByText('Total Entries')).toBeInTheDocument();
     });
 
     it('does not render stats when no scores', () => {
@@ -315,7 +315,7 @@ describe('HighScoreTable', () => {
         />
       );
 
-      const statsContainer = document.querySelector('.statsGrid');
+      const statsContainer = document.querySelector('[class*="grid-cols-2"]');
       expect(statsContainer).toBeInTheDocument();
     });
   });
