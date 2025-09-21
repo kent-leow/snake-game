@@ -117,7 +117,7 @@ describe('GameCanvas Combo Integration', () => {
   });
 
   describe('Combo Components Rendering', () => {
-    it('renders combo progress indicator when combo visuals are enabled', async () => {
+    it('does not render combo progress indicator in canvas overlay (moved to Game Stats panel)', async () => {
       mockComboManager.getCurrentState.mockReturnValue({
         currentSequence: [1],
         expectedNext: 2,
@@ -134,12 +134,11 @@ describe('GameCanvas Combo Integration', () => {
         />
       );
 
-      await waitFor(() => {
-        expect(screen.getByRole('group', { name: /combo progress indicator/i })).toBeInTheDocument();
-      });
+      // Combo progress indicator should not be in canvas - it's moved to Game Stats panel
+      expect(screen.queryByRole('group', { name: /combo progress indicator/i })).not.toBeInTheDocument();
     });
 
-    it('does not render combo components when disabled', () => {
+    it('does not render combo components when disabled (already moved to Game Stats panel)', () => {
       render(
         <GameCanvas
           gameEngine={mockGameEngine}
@@ -148,10 +147,33 @@ describe('GameCanvas Combo Integration', () => {
         />
       );
 
+      // Combo progress indicator is no longer in canvas - it's in Game Stats panel
       expect(screen.queryByRole('group', { name: /combo progress indicator/i })).not.toBeInTheDocument();
     });
 
-    it('positions combo indicator according to comboPosition prop', async () => {
+    it('combo indicator is now in Game Stats panel, not canvas overlay', async () => {
+      mockComboManager.getCurrentState.mockReturnValue({
+        currentSequence: [1],
+        expectedNext: 2,
+        comboProgress: 1,
+        totalCombos: 0,
+        isComboActive: true,
+      });
+
+      const { container } = render(
+        <GameCanvas
+          gameEngine={mockGameEngine}
+          gameConfig={defaultGameConfig}
+          enableComboVisuals={true}
+        />
+      );
+
+      // Combo progress overlay should not exist in canvas
+      const overlay = container.querySelector('.combo-progress-overlay');
+      expect(overlay).not.toBeInTheDocument();
+    });
+
+    it('combo position options no longer apply (combo moved to Game Stats panel)', async () => {
       mockComboManager.getCurrentState.mockReturnValue({
         currentSequence: [1],
         expectedNext: 2,
@@ -170,50 +192,13 @@ describe('GameCanvas Combo Integration', () => {
 
       await waitFor(() => {
         const overlay = container.querySelector('.combo-progress-overlay');
-        expect(overlay).toHaveStyle({
-          top: '10px',
-          right: '10px',
-        });
+        expect(overlay).not.toBeInTheDocument(); // Combo indicator moved to Game Stats panel
       });
-    });
-
-    it('supports all combo position options', async () => {
-      const positions: Array<['top-left' | 'top-right' | 'bottom-left' | 'bottom-right', object]> = [
-        ['top-left', { top: '10px', right: '10px' }],
-        ['top-right', { top: '10px', right: '10px' }],
-        ['bottom-left', { top: '10px', right: '10px' }],
-        ['bottom-right', { top: '10px', right: '10px' }],
-      ];
-
-      for (const [, expectedStyle] of positions) {
-        mockComboManager.getCurrentState.mockReturnValue({
-          currentSequence: [1],
-          expectedNext: 2,
-          comboProgress: 1,
-          totalCombos: 0,
-          isComboActive: true,
-        });
-
-        const { container, unmount } = render(
-          <GameCanvas
-            gameEngine={mockGameEngine}
-            gameConfig={defaultGameConfig}
-            enableComboVisuals={true}
-          />
-        );
-
-        await waitFor(() => {
-          const overlay = container.querySelector('.combo-progress-overlay');
-          expect(overlay).toHaveStyle(expectedStyle as Record<string, unknown>);
-        });
-
-        unmount();
-      }
     });
   });
 
   describe('Combo Event Handling', () => {
-    it('subscribes to combo manager events on mount', () => {
+    it('no longer subscribes to combo manager events (combo functionality removed)', () => {
       render(
         <GameCanvas
           gameEngine={mockGameEngine}
@@ -222,8 +207,8 @@ describe('GameCanvas Combo Integration', () => {
         />
       );
 
-      expect(mockComboManager.subscribe).toHaveBeenCalledTimes(1);
-      expect(typeof mockComboManager.subscribe.mock.calls[0][0]).toBe('function');
+      // Combo functionality has been completely removed from canvas
+      expect(mockComboManager.subscribe).not.toHaveBeenCalled();
     });
 
     it('updates combo state when events are received', async () => {
@@ -258,13 +243,13 @@ describe('GameCanvas Combo Integration', () => {
         comboSubscriber(comboEvent);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Next: 3')).toBeInTheDocument();
-        expect(screen.getByText('2/5')).toBeInTheDocument();
-      });
+      // Combo progress indicator is now in Game Stats panel, not canvas
+      // Canvas no longer shows combo feedback animations either
+      expect(screen.queryByText('Next: 3')).not.toBeInTheDocument();
+      expect(screen.queryByText('2/5')).not.toBeInTheDocument();
     });
 
-    it('displays combo feedback animations for events', async () => {
+    it('no longer displays combo feedback animations on canvas', async () => {
       render(
         <GameCanvas
           gameEngine={mockGameEngine}
@@ -286,9 +271,8 @@ describe('GameCanvas Combo Integration', () => {
         comboSubscriber(comboEvent);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('COMBO COMPLETE!')).toBeInTheDocument();
-      });
+      // Combo feedback animations are no longer displayed on canvas
+      expect(screen.queryByText('COMBO COMPLETE!')).not.toBeInTheDocument();
     });
 
     it('handles combo manager not being available gracefully', () => {
@@ -310,7 +294,7 @@ describe('GameCanvas Combo Integration', () => {
   });
 
   describe('Component Lifecycle', () => {
-    it('unsubscribes from combo events on unmount', () => {
+    it('no unsubscribe needed (combo functionality removed)', () => {
       const unsubscribeMock = jest.fn();
       mockComboManager.subscribe.mockReturnValue(unsubscribeMock);
 
@@ -324,22 +308,11 @@ describe('GameCanvas Combo Integration', () => {
 
       unmount();
 
-      expect(unsubscribeMock).toHaveBeenCalled();
+      // No subscription means no unsubscribe needed
+      expect(unsubscribeMock).not.toHaveBeenCalled();
     });
 
-    it('resubscribes when gameEngine changes', () => {
-      const { rerender } = render(
-        <GameCanvas
-          gameEngine={mockGameEngine}
-          gameConfig={defaultGameConfig}
-          enableComboVisuals={true}
-        />
-      );
-
-      expect(mockComboManager.subscribe).toHaveBeenCalledTimes(1);
-
-      // Create new game engine mock
-      const newGameEngine = { ...mockGameEngine } as jest.Mocked<GameEngine>;
+    it('no resubscription needed (combo functionality removed)', () => {\n      const { rerender } = render(\n        <GameCanvas\n          gameEngine={mockGameEngine}\n          gameConfig={defaultGameConfig}\n          enableComboVisuals={true}\n        />\n      );\n\n      // Combo functionality completely removed - no subscription occurs\n      expect(mockComboManager.subscribe).not.toHaveBeenCalled();\n\n      // Create new game engine mock\n      const newGameEngine = { ...mockGameEngine } as jest.Mocked<GameEngine>;\n      const newComboManager = {\n        ...mockComboManager,\n        subscribe: jest.fn().mockReturnValue(jest.fn()),\n        getCurrentState: jest.fn().mockReturnValue({\n          currentSequence: [],\n          expectedNext: 1,\n          comboProgress: 0,\n          totalCombos: 0,\n          isComboActive: false,\n        }),\n      };\n      newGameEngine.getComboManager.mockReturnValue(newComboManager);\n\n      rerender(\n        <GameCanvas\n          gameEngine={newGameEngine}\n          gameConfig={defaultGameConfig}\n          enableComboVisuals={true}\n        />\n      );\n\n      // Still no subscription with new engine\n      expect(newComboManager.subscribe).not.toHaveBeenCalled();\n    });
       
       rerender(
         <GameCanvas
@@ -385,10 +358,10 @@ describe('GameCanvas Combo Integration', () => {
         />
       );
 
-      await waitFor(() => {
-        expect(screen.getByText('5 combos')).toBeInTheDocument();
-        expect(screen.getByText('Start: 1')).toBeInTheDocument();
-      });
+      // Combo state should be tracked internally but not displayed in canvas
+      // The combo indicator is now in the Game Stats panel
+      expect(screen.queryByText('5 combos')).not.toBeInTheDocument();
+      expect(screen.queryByText('Start: 1')).not.toBeInTheDocument();
     });
 
     it('updates state correctly when combo progress changes', async () => {
@@ -410,8 +383,9 @@ describe('GameCanvas Combo Integration', () => {
         />
       );
 
-      // Initially inactive
-      expect(screen.getByText('0 combos')).toBeInTheDocument();
+      // Combo state is managed internally but not displayed in canvas
+      // The combo indicator is now in the Game Stats panel
+      expect(screen.queryByText('0 combos')).not.toBeInTheDocument();
 
       // Simulate combo start
       if (comboSubscriber) {
@@ -434,10 +408,7 @@ describe('GameCanvas Combo Integration', () => {
         comboSubscriber(startEvent);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Next: 2')).toBeInTheDocument();
-        expect(screen.getByText('1/5')).toBeInTheDocument();
-      });
+            // Combo progress indicator is no longer in canvas - moved to Game Stats panel\n      expect(screen.queryByText('Next: 2')).not.toBeInTheDocument();\n      expect(screen.queryByText('1/5')).not.toBeInTheDocument();
     });
   });
 
@@ -457,7 +428,7 @@ describe('GameCanvas Combo Integration', () => {
       expect(canvas).toHaveAttribute('tabIndex', '0');
     });
 
-    it('combo components have proper ARIA attributes', async () => {
+    it('canvas maintains accessibility without combo progress indicator (moved to Game Stats)', async () => {
       mockComboManager.getCurrentState.mockReturnValue({
         currentSequence: [1],
         expectedNext: 2,
@@ -474,13 +445,8 @@ describe('GameCanvas Combo Integration', () => {
         />
       );
 
-      await waitFor(() => {
-        const progressIndicator = screen.getByRole('group', { name: /combo progress indicator/i });
-        expect(progressIndicator).toBeInTheDocument();
-        
-        const progressBar = screen.getByRole('progressbar', { name: /combo progress/i });
-        expect(progressBar).toBeInTheDocument();
-      });
+      // Combo progress indicator is no longer in canvas - moved to Game Stats panel
+      expect(screen.queryByRole('group', { name: /combo progress indicator/i })).not.toBeInTheDocument();
     });
   });
 
@@ -502,13 +468,11 @@ describe('GameCanvas Combo Integration', () => {
         />
       );
 
-      // Progress indicator should be rendered but show inactive state
+      // Progress indicator should no longer be in canvas - moved to Game Stats panel
       const overlay = container.querySelector('.combo-progress-overlay');
-      expect(overlay).toBeInTheDocument();
+      expect(overlay).not.toBeInTheDocument();
       
-      // But it should show inactive styling
-      expect(screen.getByText('0 combos')).toBeInTheDocument();
-      expect(screen.getByText('Start: 1')).toBeInTheDocument();
+      // Combo data is now displayed in Game Stats panel instead
     });
 
     it('handles rapid combo events without performance issues', async () => {
@@ -534,11 +498,9 @@ describe('GameCanvas Combo Integration', () => {
         }
       }
 
-      // Should handle without crashing and show status elements
-      await waitFor(() => {
-        const statusElements = screen.getAllByRole('status');
-        expect(statusElements.length).toBeGreaterThanOrEqual(1);
-      });
+      // Should handle without crashing
+      // No status elements expected since combo feedback is removed from canvas
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
     });
   });
 });

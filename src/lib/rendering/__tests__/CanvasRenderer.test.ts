@@ -162,8 +162,7 @@ describe('CanvasRenderer', () => {
       // Should draw food
       expect(mockContext.arc).toHaveBeenCalled();
       
-      // Should draw UI text
-      expect(mockContext.fillText).toHaveBeenCalledWith('Score: 100', 10, 30);
+      // Score is no longer drawn on canvas - it's in the UI panel
     });
   });
 });

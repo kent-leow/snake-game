@@ -190,7 +190,7 @@ export class CanvasRenderer {
     this.drawGrid(this.backgroundCtx);
     
     // Draw UI
-    this.drawUI(this.backgroundCtx, gameElements.score, gameElements.gameState);
+    this.drawUI(this.backgroundCtx, gameElements.gameState);
   }
 
   /**
@@ -363,14 +363,9 @@ export class CanvasRenderer {
   }
 
   /**
-   * Draw UI elements (score, game state)
+   * Draw UI elements (game state)
    */
-  private drawUI(ctx: CanvasRenderingContext2D, score: number, gameState: string): void {
-    // Score display
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 20px monospace';
-    ctx.fillText(`Score: ${score}`, 10, 30);
-
+  private drawUI(ctx: CanvasRenderingContext2D, gameState: string): void {
     // Game state overlay
     if (gameState === 'paused') {
       this.drawOverlay(ctx, 'PAUSED', 'Press SPACE to resume');
