@@ -121,8 +121,7 @@ export function GamePage(): React.JSX.Element {
       const canvas = document.querySelector('.game-canvas') as HTMLCanvasElement;
       if (canvas) {
         canvas.focus();
-        // Ensure the canvas is in view if needed
-        canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // No scrolling - just focus the canvas for keyboard input
       }
     }, 50);
   }, []);
@@ -326,24 +325,6 @@ export function GamePage(): React.JSX.Element {
           <div className='flex items-center justify-center gap-6 max-w-7xl w-full'>
             {/* Left Side Panel */}
             <div className='flex flex-col gap-4 w-64 flex-shrink-0'>
-              {/* Game Controls */}
-              <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
-                <div className='flex items-center justify-between mb-3'>
-                  <h3 className='text-base font-semibold text-white'>Controls</h3>
-                  <GameStateIndicator currentState={currentState} />
-                </div>
-                <GameControls
-                  currentState={currentState}
-                  onStartGame={handleStartGame}
-                  onPauseGame={handlePauseGame}
-                  onResumeGame={handleResumeGame}
-                  onRestartGame={handleRestartGame}
-                  onGoToMenu={handleGoToMenu}
-                  showKeyboardHints={false}
-                  hideStartButton={true}
-                />
-              </div>
-
               {/* Game Stats */}
               <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
                 <h3 className='text-base font-semibold mb-3 text-white'>Game Stats</h3>
@@ -396,6 +377,24 @@ export function GamePage(): React.JSX.Element {
 
             {/* Right Side Panel */}
             <div className='flex flex-col gap-4 w-64 flex-shrink-0'>
+              {/* Game Controls */}
+              <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
+                <div className='flex items-center justify-between mb-3'>
+                  <h3 className='text-base font-semibold text-white'>Controls</h3>
+                  <GameStateIndicator currentState={currentState} />
+                </div>
+                <GameControls
+                  currentState={currentState}
+                  onStartGame={handleStartGame}
+                  onPauseGame={handlePauseGame}
+                  onResumeGame={handleResumeGame}
+                  onRestartGame={handleRestartGame}
+                  onGoToMenu={handleGoToMenu}
+                  showKeyboardHints={false}
+                  hideStartButton={true}
+                />
+              </div>
+
               {/* Keyboard Instructions */}
               <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
                 <h3 className='text-base font-semibold mb-3 text-white'>How to Play</h3>
@@ -437,17 +436,6 @@ export function GamePage(): React.JSX.Element {
                     <span>Restart</span>
                   </div>
                 </div>
-              </div>
-
-              {/* Game Tips */}
-              <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
-                <h3 className='text-base font-semibold mb-3 text-white'>Tips</h3>
-                <ul className='space-y-1 text-xs text-gray-300'>
-                  <li>• Eat red food to grow</li>
-                  <li>• Avoid walls and body</li>
-                  <li>• Plan moves ahead</li>
-                  <li>• Speed increases with size</li>
-                </ul>
               </div>
             </div>
           </div>
