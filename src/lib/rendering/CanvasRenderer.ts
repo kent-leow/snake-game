@@ -375,7 +375,7 @@ export class CanvasRenderer {
     if (gameState === 'paused') {
       this.drawOverlay(ctx, 'PAUSED', 'Press SPACE to resume');
     } else if (gameState === 'game-over') {
-      this.drawOverlay(ctx, 'GAME OVER', `Final Score: ${score}`);
+      this.drawOverlay(ctx, 'GAME OVER', 'Press R to restart');
     }
   }
 

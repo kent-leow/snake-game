@@ -131,7 +131,7 @@ describe('GameControls', () => {
   });
 
   describe('Game Over State', () => {
-    it('should show play again and main menu buttons when game over', () => {
+    it('should show restart game and main menu buttons when game over', () => {
       render(
         <GameControls
           currentState={GameStateEnum.GAME_OVER}
@@ -139,7 +139,7 @@ describe('GameControls', () => {
         />
       );
 
-      expect(screen.getByRole('button', { name: /play again/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /restart game \(r\)/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /main menu/i })).toBeInTheDocument();
     });
 
@@ -151,7 +151,7 @@ describe('GameControls', () => {
         />
       );
 
-      fireEvent.click(screen.getByRole('button', { name: /play again/i }));
+      fireEvent.click(screen.getByRole('button', { name: /restart game \(r\)/i }));
       expect(mockActions.onRestartGame).toHaveBeenCalledTimes(1);
 
       fireEvent.click(screen.getByRole('button', { name: /main menu/i }));

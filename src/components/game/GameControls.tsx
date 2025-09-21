@@ -131,8 +131,9 @@ export const GameControls: React.FC<GameControlsProps> = ({
               variant="primary"
               size="large"
               icon="🔄"
+              shortcut="R"
             >
-              Play Again
+              Restart Game
             </ControlButton>
             <ControlButton
               onClick={onGoToMenu}
