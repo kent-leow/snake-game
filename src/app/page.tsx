@@ -1,4 +1,4 @@
-import MainMenu from '@/components/navigation/MainMenu';
+import { MainMenu } from '@/components';
 
 export default function Home(): React.JSX.Element {
   return <MainMenu />;
