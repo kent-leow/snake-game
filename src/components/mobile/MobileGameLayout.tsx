@@ -61,7 +61,7 @@ export const MobileGameLayout: React.FC<MobileGameLayoutProps> = ({
   };
 
   return (
-    <div className={getLayoutClasses()}>
+    <div className={`${getLayoutClasses()} game-page-container`}>
       <div className="mobile-game-layout__content">
         {children}
       </div>

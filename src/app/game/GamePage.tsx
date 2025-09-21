@@ -249,7 +249,7 @@ export function GamePage(): React.JSX.Element {
 
   if (!gameEngineRef.current) {
     return (
-      <PageLayout title='Snake Game' showBackButton={true}>
+      <PageLayout title='Snake Game' showBackButton={true} scrollable={false}>
         <div className='flex flex-col items-center gap-6'>
           <div className='text-center'>Loading game...</div>
         </div>
@@ -258,7 +258,7 @@ export function GamePage(): React.JSX.Element {
   }
 
   return (
-    <PageLayout title='Snake Game' showBackButton={true}>
+    <PageLayout title='Snake Game' showBackButton={true} scrollable={false}>
       {isMobile ? (
         <MobileGameLayout 
           gameState={currentState}
@@ -321,7 +321,7 @@ export function GamePage(): React.JSX.Element {
           </div>
         </MobileGameLayout>
       ) : (
-        <div className='h-full flex items-center justify-center p-4' onClick={handleGameAreaClick}>
+        <div className='h-full flex items-center justify-center p-4 game-page-container' onClick={handleGameAreaClick}>
           <div className='flex items-center justify-center gap-6 max-w-7xl w-full'>
             {/* Left Side Panel */}
             <div className='flex flex-col gap-4 w-64 flex-shrink-0'>

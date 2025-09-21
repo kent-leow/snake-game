@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function SettingsPage(): React.JSX.Element {
   return (
-    <PageLayout title='Settings' showBackButton={true}>
+    <PageLayout title='Settings' showBackButton={true} scrollable={true}>
       <div className='flex-1 overflow-auto p-6 relative'>
         {/* Animated background elements */}
         <div className="absolute top-20 left-10 w-20 h-20 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 animate-floating"></div>

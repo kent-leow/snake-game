@@ -10,6 +10,7 @@ interface PageLayoutProps {
   showBackButton?: boolean;
   backHref?: string;
   showNavigation?: boolean;
+  scrollable?: boolean; // New prop to control scrolling behavior
 }
 
 // Navigation items
@@ -26,11 +27,14 @@ export default function PageLayout({
   showBackButton = true,
   backHref = '/',
   showNavigation = true,
+  scrollable = true, // Default to scrollable for most pages
 }: PageLayoutProps): React.JSX.Element {
   const pathname = usePathname();
 
   return (
-    <div className='h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white flex flex-col overflow-hidden relative'>
+    <div className={`h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white flex flex-col relative ${
+      scrollable ? 'overflow-hidden' : 'overflow-hidden'
+    }`}>
       {/* Animated background */}
       <div className="absolute inset-0 retro-grid opacity-10"></div>
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-neon-green via-neon-cyan to-neon-pink animate-glow-rotate"></div>
@@ -92,7 +96,9 @@ export default function PageLayout({
         </div>
       </header>
       
-      <main className='flex-1 overflow-hidden relative z-10 animate-fade-in animate-delay-1'>
+      <main className={`flex-1 relative z-10 animate-fade-in animate-delay-1 ${
+        scrollable ? 'overflow-auto' : 'overflow-hidden'
+      }`}>
         {children}
       </main>
       

@@ -509,5 +509,36 @@ html {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+}
+
+/* Page-specific scroll behavior utilities */
+.no-scroll {
+  overflow: hidden !important;
+  height: 100vh;
+  position: fixed;
+  width: 100%;
+}
+
+.allow-scroll {
+  overflow: auto;
+}
+
+/* Game page specific - prevent any scrolling */
+.game-page-container {
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.game-page-container * {
+  overflow: visible;
+}
+
+/* Settings and scores pages - ensure scrolling works */
+.scrollable-page {
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }

@@ -15,7 +15,7 @@ export default function ScoresPage(): React.JSX.Element {
   });
 
   return (
-    <PageLayout title='High Scores' showBackButton={true}>
+    <PageLayout title='High Scores' showBackButton={true} scrollable={true}>
       <div className='flex-1 overflow-auto p-6 relative'>
         {/* Animated background elements */}
         <div className="absolute top-10 right-10 w-24 h-24 rounded-full bg-gradient-to-r from-yellow-500/20 to-orange-500/20 animate-floating"></div>
