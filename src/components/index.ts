@@ -2,11 +2,10 @@ export * from './ui';
 export * from './navigation';
 export * from './mobile';
 
-// Game components - only import when needed
-// Note: These components depend on @/lib/game and should be imported 
-// specifically from '@/components/game' when needed to avoid
-// bringing in game dependencies for non-game pages
-// export * from './game';
+// Game components - these depend on @/lib/game
+// Only import these in game-related pages to avoid bringing
+// game dependencies into non-game pages
+export * from './game';
 
 // Score components
 export { ScoreSubmissionModal } from './ScoreSubmissionModal';
