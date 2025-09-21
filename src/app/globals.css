@@ -4,37 +4,498 @@
 @import '../styles/gameOver.css';
 @import '../styles/navigation.css';
 @import '../styles/mobile.css';
+@import '../styles/effects.css';
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  /* Modern Retro Color Palette */
+  --retro-bg-primary: #0f0f0f;
+  --retro-bg-secondary: #1a1a1a;
+  --retro-bg-tertiary: #262626;
+  --retro-bg-glass: rgba(26, 26, 26, 0.8);
+  
+  /* Neon Colors */
+  --neon-green: #39ff14;
+  --neon-pink: #ff073a;
+  --neon-cyan: #00ffff;
+  --neon-orange: #ff8c00;
+  --neon-purple: #8a2be2;
+  --neon-yellow: #ffff00;
+  
+  /* Gradient Colors */
+  --gradient-neon: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+  --gradient-retro: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+  --gradient-sunset: linear-gradient(135deg, var(--neon-orange), var(--neon-pink));
+  
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-accent: var(--neon-green);
+  --text-muted: #666666;
+  
+  /* Interactive Colors */
+  --hover-glow: 0 0 20px;
+  --focus-glow: 0 0 30px;
+  --active-glow: 0 0 40px;
+  
+  /* Animations */
+  --duration-fast: 0.15s;
+  --duration-normal: 0.3s;
+  --duration-slow: 0.6s;
+  --easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Typography */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+  --font-size-6xl: 3.75rem;
+  
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  
+  /* Border radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-neon-green: 0 0 20px rgba(57, 255, 20, 0.5);
+  --shadow-neon-pink: 0 0 20px rgba(255, 7, 58, 0.5);
+  --shadow-neon-cyan: 0 0 20px rgba(0, 255, 255, 0.5);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
+  
+  /* Legacy variables for compatibility */
+  --background: var(--retro-bg-primary);
+  --foreground: var(--text-primary);
   --font-geist-sans: var(--font-geist-sans);
   --font-geist-mono: var(--font-geist-mono);
 }
 
-/* Base dark theme styling for the game */
+/* Base modern retro styling */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  background: var(--retro-bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(57, 255, 20, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 7, 58, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(0, 255, 255, 0.02) 0%, transparent 50%);
+  background-attachment: fixed;
 }
 
-/* Ensure consistent box-sizing */
+/* Global utility classes and animations */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-/* Smooth scrolling */
+/* Smooth scrolling with retro feel */
 html {
   scroll-behavior: smooth;
 }
 
-/* Focus styles for accessibility */
+/* Enhanced focus styles with neon glow */
 *:focus {
-  outline: 2px solid #10b981;
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--focus-glow) var(--neon-green);
+  border-radius: var(--radius-sm);
+}
+
+/* Modern retro animations */
+@keyframes neonPulse {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.8;
+    filter: brightness(1.2);
+  }
+}
+
+@keyframes glowRotate {
+  from {
+    transform: rotate(0deg);
+    filter: hue-rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes neonFlicker {
+  0%, 100% { opacity: 1; }
+  2% { opacity: 0.9; }
+  4% { opacity: 1; }
+  8% { opacity: 0.95; }
+  10% { opacity: 1; }
+  12% { opacity: 0.98; }
+  14% { opacity: 1; }
+}
+
+@keyframes floatingAnimation {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Utility animation classes */
+.animate-neon-pulse {
+  animation: neonPulse 2s ease-in-out infinite;
+}
+
+.animate-glow-rotate {
+  animation: glowRotate 4s linear infinite;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp var(--duration-normal) var(--easing-smooth) both;
+}
+
+.animate-slide-in-down {
+  animation: slideInDown var(--duration-normal) var(--easing-smooth) both;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft var(--duration-normal) var(--easing-smooth) both;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight var(--duration-normal) var(--easing-smooth) both;
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--duration-normal) var(--easing-bounce) both;
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--duration-normal) var(--easing-smooth) both;
+}
+
+.animate-neon-flicker {
+  animation: neonFlicker 3s ease-in-out infinite;
+}
+
+.animate-floating {
+  animation: floatingAnimation 3s ease-in-out infinite;
+}
+
+/* Staggered animation delays */
+.animate-delay-1 { animation-delay: 0.1s; }
+.animate-delay-2 { animation-delay: 0.2s; }
+.animate-delay-3 { animation-delay: 0.3s; }
+.animate-delay-4 { animation-delay: 0.4s; }
+.animate-delay-5 { animation-delay: 0.5s; }
+
+/* Glass morphism effect */
+.glass-effect {
+  background: var(--retro-bg-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Neon text effects */
+.text-neon-green {
+  color: var(--neon-green);
+  text-shadow: 
+    0 0 5px var(--neon-green),
+    0 0 10px var(--neon-green),
+    0 0 20px var(--neon-green);
+}
+
+.text-neon-pink {
+  color: var(--neon-pink);
+  text-shadow: 
+    0 0 5px var(--neon-pink),
+    0 0 10px var(--neon-pink),
+    0 0 20px var(--neon-pink);
+}
+
+.text-neon-cyan {
+  color: var(--neon-cyan);
+  text-shadow: 
+    0 0 5px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    0 0 20px var(--neon-cyan);
+}
+
+/* Hover effects */
+.hover-glow {
+  transition: all var(--duration-normal) var(--easing-smooth);
+}
+
+.hover-glow:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+/* Retro grid background */
+.retro-grid {
+  background-image: 
+    linear-gradient(rgba(57, 255, 20, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57, 255, 20, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Responsive design helpers */
+@media (max-width: 480px) {
+  :root {
+    --font-size-6xl: 2.5rem;
+    --font-size-5xl: 2rem;
+    --font-size-4xl: 1.75rem;
+    --font-size-3xl: 1.5rem;
+    --font-size-2xl: 1.25rem;
+    --space-xl: 1.5rem;
+    --space-2xl: 2rem;
+  }
+
+  .glass-effect {
+    backdrop-filter: blur(5px);
+  }
+
+  .text-neon-green,
+  .text-neon-pink,
+  .text-neon-cyan {
+    text-shadow: 
+      0 0 3px currentColor,
+      0 0 6px currentColor,
+      0 0 12px currentColor;
+  }
+
+  .game-card {
+    padding: 1rem;
+    border-radius: 0.75rem;
+  }
+
+  .animate-floating {
+    animation-duration: 2s;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --font-size-6xl: 2rem;
+    --font-size-5xl: 1.75rem;
+    --font-size-4xl: 1.5rem;
+    --space-lg: 1rem;
+    --space-xl: 1.25rem;
+    --space-2xl: 1.5rem;
+  }
+
+  .game-card {
+    padding: 0.75rem;
+    margin: 0.5rem;
+  }
+
+  .glass-effect {
+    padding: 0.75rem;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .game-card {
+    padding: 2rem;
+  }
+
+  .glass-effect {
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* Desktop enhancements */
+@media (min-width: 1025px) {
+  .hover-glow:hover {
+    transform: translateY(-4px);
+    filter: brightness(1.15);
+  }
+
+  .game-card:hover {
+    transform: translateY(-6px);
+  }
+
+  .animate-floating {
+    animation-duration: 4s;
+  }
+}
+
+/* Ultra-wide display optimizations */
+@media (min-width: 1920px) {
+  :root {
+    --font-size-6xl: 5rem;
+    --font-size-5xl: 4rem;
+    --space-2xl: 4rem;
+  }
+}
+
+/* Portrait orientation optimizations */
+@media (orientation: portrait) {
+  .retro-grid {
+    background-size: 15px 15px;
+  }
+}
+
+/* Landscape orientation optimizations */
+@media (orientation: landscape) and (max-height: 600px) {
+  :root {
+    --font-size-6xl: 2rem;
+    --font-size-5xl: 1.5rem;
+    --space-xl: 1rem;
+    --space-2xl: 1.5rem;
+  }
+
+  .game-card {
+    padding: 1rem;
+  }
+}
+
+/* High resolution display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .text-neon-green,
+  .text-neon-pink,
+  .text-neon-cyan {
+    text-shadow: 
+      0 0 2px currentColor,
+      0 0 4px currentColor,
+      0 0 8px currentColor,
+      0 0 16px currentColor;
+  }
+
+  .game-card {
+    border-width: 1px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .hover-glow:hover {
+    transform: none;
+    filter: none;
+  }
+
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .btn-danger:hover {
+    transform: none;
+  }
+
+  .game-card:hover {
+    transform: none;
+  }
+
+  /* Larger touch targets */
+  button,
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* Safe area support for modern mobile devices */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
