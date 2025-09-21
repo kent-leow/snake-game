@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { HighScoreTable } from '../HighScoreTable';
-import { IScore } from '@/types/Database';
+import { IScore } from '../../types/Database';
 
 // Mock the ScoreEntry component
 jest.mock('../ScoreEntry', () => ({

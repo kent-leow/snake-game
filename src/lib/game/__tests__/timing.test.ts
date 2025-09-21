@@ -15,7 +15,7 @@ import {
   AdaptiveTimer,
   Interpolator,
   TimeUtils,
-} from '@/lib/game/timing';
+} from '../timing';
 
 describe('PrecisionTimer', () => {
   let timer: PrecisionTimer;

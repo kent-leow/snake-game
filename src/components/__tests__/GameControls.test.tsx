@@ -6,7 +6,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { GameControls } from '../game/GameControls';
-import { GameStateEnum } from '@/lib/game/gameState';
+import { GameStateEnum } from '../../lib/game/gameState';
 
 // Mock the keyboard shortcuts hook
 jest.mock('@/hooks/useKeyboardShortcuts', () => ({

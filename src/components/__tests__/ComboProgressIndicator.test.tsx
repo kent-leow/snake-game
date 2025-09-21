@@ -7,7 +7,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ComboProgressIndicator, useComboProgressProps } from '../ComboProgressIndicator';
-import type { ComboState } from '@/types/Combo';
+import type { ComboState } from '../../types/Combo';
 
 // Mock CSS modules
 jest.mock('@/styles/combo.module.css', () => ({}));

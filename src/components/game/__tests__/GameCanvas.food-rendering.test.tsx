@@ -5,11 +5,11 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { GameCanvas } from '@/components/game/GameCanvas';
-import type { GameEngine } from '@/lib/game/gameEngine';
-import type { GameConfig } from '@/lib/rendering/CanvasRenderer';
-import type { NumberedFood } from '@/lib/game/multipleFoodTypes';
-import type { Direction } from '@/lib/game/types';
+import { GameCanvas } from '../GameCanvas';
+import type { GameEngine } from '../../../lib/game/gameEngine';
+import type { GameConfig } from '../../../lib/rendering/CanvasRenderer';
+import type { NumberedFood } from '../../../lib/game/multipleFoodTypes';
+import type { Direction } from '../../../lib/game/types';
 
 // Mock the rendering system
 jest.mock('@/lib/rendering', () => ({

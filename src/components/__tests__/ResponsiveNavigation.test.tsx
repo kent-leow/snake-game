@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ResponsiveNavigation from '../navigation/ResponsiveNavigation';
-import { useMediaQuery } from '@/hooks';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 // Mock the useMediaQuery hook
 jest.mock('@/hooks', () => ({

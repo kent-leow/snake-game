@@ -3,7 +3,7 @@
  * Tests online/offline functionality, local storage fallback, and sync behavior
  */
 
-import { ScoreService, type ScoreSubmissionData } from '@/services/ScoreService';
+import { ScoreService, type ScoreSubmissionData } from '../ScoreService';
 
 // Mock fetch globally
 const mockFetch = jest.fn();

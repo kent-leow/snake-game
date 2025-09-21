@@ -3,7 +3,7 @@
  */
 
 import { renderHook, act } from '@testing-library/react';
-import { useResponsive, useBreakpoint, useMinBreakpoint, useResponsiveClasses } from '@/hooks/useResponsive';
+import { useResponsive, useBreakpoint, useMinBreakpoint, useResponsiveClasses } from '../useResponsive';
 
 // Mock window.matchMedia
 const createMatchMedia = (matches: boolean) => {

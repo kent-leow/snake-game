@@ -3,7 +3,7 @@
  */
 import { NextRequest } from 'next/server';
 import { GET } from '../scores/leaderboard/route';
-import { ScoreService } from '@/lib/api/scoreService';
+import { ScoreService } from '../../../lib/api/scoreService';
 
 // Mock the ScoreService
 jest.mock('@/lib/api/scoreService');
@@ -102,7 +102,6 @@ describe('/api/scores/leaderboard', () => {
 
       const request = new NextRequest('http://localhost:3000/api/scores/leaderboard?limit=5');
       const response = await GET(request);
-      const data = await response.json();
 
       expect(response.status).toBe(200);
       expect(MockScoreService.prototype.getLeaderboard).toHaveBeenCalledWith({
@@ -116,7 +115,6 @@ describe('/api/scores/leaderboard', () => {
 
       const request = new NextRequest('http://localhost:3000/api/scores/leaderboard?period=weekly&limit=20');
       const response = await GET(request);
-      const data = await response.json();
 
       expect(response.status).toBe(200);
       expect(MockScoreService.prototype.getLeaderboard).toHaveBeenCalledWith({

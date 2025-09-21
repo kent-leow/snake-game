@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { GameOverModal } from '../game/GameOverModal';
-import type { GameStatistics } from '@/lib/game/gameOverState';
+import type { GameStatistics } from '../../lib/game/gameOverState';
 
 describe('GameOverModal', () => {
   const mockOnRestart = jest.fn();

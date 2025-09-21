@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { useSpeedData } from '../useSpeedData';
-import type { GameEngine } from '@/lib/game/gameEngine';
+import type { GameEngine } from '../../lib/game/gameEngine';
 
 // Mock the game engine and speed manager
 const createMockSpeedManager = () => ({

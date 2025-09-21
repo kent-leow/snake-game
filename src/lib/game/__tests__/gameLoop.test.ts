@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { GameLoop, createGameLoop, FrameRateLimiter, SimpleGameLoop } from '@/lib/game/gameLoop';
+import { GameLoop, createGameLoop, FrameRateLimiter, SimpleGameLoop } from '../gameLoop';
 
 // Mock performance.now for consistent testing
 const mockPerformanceNow = jest.fn();

@@ -12,7 +12,7 @@ import {
   getFoodColors,
   hasGoodContrast,
   getBorderColor,
-} from '@/constants/FoodColors';
+} from '../FoodColors';
 
 describe('FoodColors', () => {
   describe('Color Constants', () => {

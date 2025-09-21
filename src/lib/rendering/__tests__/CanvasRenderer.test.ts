@@ -3,7 +3,7 @@
  */
 
 import { CanvasRenderer, type GameConfig, type GameElements } from '../CanvasRenderer';
-import type { Snake, EnhancedFood } from '@/lib/game/types';
+import type { Snake, EnhancedFood } from '../../game/types';
 
 // Mock canvas context
 const mockContext = {

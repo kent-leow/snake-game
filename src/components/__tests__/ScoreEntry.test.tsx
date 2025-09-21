@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ScoreEntry } from '../ScoreEntry';
-import { IScore } from '@/types/Database';
+import { IScore } from '../../types/Database';
 
 const createMockScore = (overrides: Partial<IScore> = {}): IScore => ({
   _id: 'mock-id-1',

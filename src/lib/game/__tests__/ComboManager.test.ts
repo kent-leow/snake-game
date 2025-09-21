@@ -1,6 +1,6 @@
 import { ComboManager } from '../ComboManager';
-import type { ComboState, ComboResult, ComboEvent } from '@/types/Combo';
-import { DEFAULT_COMBO_CONFIG, COMBO_SEQUENCE } from '@/constants/ComboConfig';
+import type { ComboState, ComboResult, ComboEvent } from '../../../types/Combo';
+import { DEFAULT_COMBO_CONFIG, COMBO_SEQUENCE } from '../../../constants/ComboConfig';
 
 describe('ComboManager', () => {
   let comboManager: ComboManager;

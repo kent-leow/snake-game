@@ -9,7 +9,7 @@ import {
   formatFoodCount,
   abbreviateNumber,
   formatScoreEntry,
-} from '@/utils/scoreFormatter';
+} from '../scoreFormatter';
 
 describe('Score Formatter Utilities', () => {
   describe('formatScore', () => {

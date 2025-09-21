@@ -13,8 +13,8 @@ import {
   SPEED_MILESTONES,
   getSpeedMilestone,
   getSpeedProgress,
-} from '@/constants/SpeedConfig';
-import type { SpeedConfig } from '@/types/Speed';
+} from '../SpeedConfig';
+import type { SpeedConfig } from '../../types/Speed';
 
 describe('SpeedConfig Constants', () => {
   describe('DEFAULT_SPEED_CONFIG', () => {

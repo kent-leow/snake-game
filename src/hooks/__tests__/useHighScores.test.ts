@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { useHighScores, usePlayerScores, ERROR_MESSAGES } from '@/hooks/useHighScores';
-import { IScore } from '@/types/Database';
+import { useHighScores, usePlayerScores, ERROR_MESSAGES } from '../useHighScores';
+import { IScore } from '../../types/Database';
 
 // Mock fetch and Response globally
 const mockFetch = jest.fn();

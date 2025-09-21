@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { useGameOver } from '../useGameOver';
-import type { GameStatistics } from '@/lib/game/gameOverState';
+import type { GameStatistics } from '../../lib/game/gameOverState';
 
 describe('useGameOver', () => {
   const mockOnGameOver = jest.fn();

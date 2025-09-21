@@ -3,8 +3,8 @@
  */
 import { ScoreService } from '../scoreService';
 import { ValidationError, SecurityError, DatabaseError } from '../errorHandler';
-import Score from '@/models/Score';
-import { connectToDatabase } from '@/lib/database/connection';
+import Score from '../../../models/Score';
+import { connectToDatabase } from '../../database/connection';
 
 // Mock dependencies
 jest.mock('@/lib/database/connection');

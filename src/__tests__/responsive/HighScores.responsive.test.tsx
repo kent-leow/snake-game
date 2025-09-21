@@ -5,9 +5,9 @@
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { HighScoreTable } from '@/components/HighScoreTable';
-import { ScoreEntry } from '@/components/ScoreEntry';
-import { IScore } from '@/types/Database';
+import { HighScoreTable } from '../../components/HighScoreTable';
+import { ScoreEntry } from '../../components/ScoreEntry';
+import { IScore } from '../../types/Database';
 
 // Mock data for testing
 const mockScores: IScore[] = [

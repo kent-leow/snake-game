@@ -3,7 +3,7 @@
  */
 import { NextRequest } from 'next/server';
 import { GET } from '../scores/player/[name]/route';
-import { ScoreService } from '@/lib/api/scoreService';
+import { ScoreService } from '../../../lib/api/scoreService';
 
 // Mock the ScoreService
 jest.mock('@/lib/api/scoreService');

@@ -2,7 +2,7 @@
  * Test to verify the canvas blink fix when food is consumed
  */
 
-import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '@/lib/game/gameEngine';
+import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '../gameEngine';
 
 describe('Canvas Blink Fix', () => {
   let gameEngine: GameEngine;

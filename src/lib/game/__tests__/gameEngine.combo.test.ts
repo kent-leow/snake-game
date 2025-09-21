@@ -1,5 +1,5 @@
 import { GameEngine } from '../gameEngine';
-import type { ComboEvent } from '@/types/Combo';
+import type { ComboEvent } from '../../../types/Combo';
 
 describe('GameEngine - Combo Integration', () => {
   let gameEngine: GameEngine;

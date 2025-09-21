@@ -3,11 +3,11 @@
  * Tests the specific GIVEN/WHEN/THEN scenarios from the task specification
  */
 
-import { SpeedManager } from '@/game/SpeedManager';
-import { GameEngine } from '@/lib/game/gameEngine';
-import { DEFAULT_SPEED_CONFIG } from '@/constants/SpeedConfig';
-import type { GameEngineConfig } from '@/lib/game/gameEngine';
-import type { ComboEvent } from '@/types/Combo';
+import { SpeedManager } from '../SpeedManager';
+import { GameEngine } from '../../lib/game/gameEngine';
+import { DEFAULT_SPEED_CONFIG } from '../../constants/SpeedConfig';
+import type { GameEngineConfig } from '../../lib/game/gameEngine';
+import type { ComboEvent } from '../../types/Combo';
 
 describe('Progressive Speed System - Acceptance Criteria', () => {
   let speedManager: SpeedManager;

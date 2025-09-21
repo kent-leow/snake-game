@@ -3,9 +3,9 @@
  * Visual validation and manual testing scenarios
  */
 
-import { FoodRenderer } from '@/game/FoodRenderer';
-import { getFoodColors } from '@/constants/FoodColors';
-import type { NumberedFood } from '@/lib/game/multipleFoodTypes';
+import { FoodRenderer } from '../FoodRenderer';
+import { getFoodColors } from '../../constants/FoodColors';
+import type { NumberedFood } from '../../lib/game/multipleFoodTypes';
 
 /**
  * Manual validation scenarios for acceptance criteria

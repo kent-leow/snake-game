@@ -7,8 +7,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { GameCanvas } from '../game/GameCanvas';
-import type { GameEngine } from '@/lib/game/gameEngine';
-import type { GameConfig } from '@/lib/rendering/CanvasRenderer';
+import type { GameEngine } from '../../lib/game/gameEngine';
+import type { GameConfig } from '../../lib/rendering/CanvasRenderer';
 
 // Mock all dependencies
 jest.mock('@/lib/rendering', () => ({

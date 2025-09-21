@@ -7,7 +7,7 @@ import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ComboFeedback } from '../ComboFeedback';
-import type { ComboEvent } from '@/types/Combo';
+import type { ComboEvent } from '../../types/Combo';
 
 // Mock CSS modules
 jest.mock('@/styles/combo.module.css', () => ({}));

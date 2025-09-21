@@ -3,12 +3,12 @@
  * Tests the complete speed system integration including combo events and game loop timing
  */
 
-import { GameEngine } from '@/lib/game/gameEngine';
-import type { GameEngineConfig, GameEngineCallbacks } from '@/lib/game/gameEngine';
-import { SpeedManager } from '@/game/SpeedManager';
-import { DEFAULT_SPEED_CONFIG } from '@/constants/SpeedConfig';
-import type { ComboEvent } from '@/types/Combo';
-import type { SpeedConfig } from '@/types/Speed';
+import { GameEngine } from '../gameEngine';
+import type { GameEngineConfig, GameEngineCallbacks } from '../gameEngine';
+import { SpeedManager } from '../../../game/SpeedManager';
+import { DEFAULT_SPEED_CONFIG } from '../../../constants/SpeedConfig';
+import type { ComboEvent } from '../../../types/Combo';
+import type { SpeedConfig } from '../../../types/Speed';
 
 describe('SpeedManager Integration', () => {
   let gameEngine: GameEngine;

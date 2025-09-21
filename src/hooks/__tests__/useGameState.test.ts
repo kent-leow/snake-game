@@ -4,8 +4,8 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { useGameState } from '../useGameState';
-import { GameStateEnum, GameStateManager } from '@/lib/game/gameState';
-import { StateTransitionManager } from '@/lib/game/stateTransitions';
+import { GameStateEnum, GameStateManager } from '../../lib/game/gameState';
+import { StateTransitionManager } from '../../lib/game/stateTransitions';
 
 // Mock the state management modules
 jest.mock('@/lib/game/gameState');

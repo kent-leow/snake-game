@@ -7,7 +7,7 @@ import {
   detectDevicePerformance,
   getOptimizationSuggestions,
   getAdaptiveQualitySettings,
-} from '@/lib/game/performance';
+} from '../performance';
 
 // Create a controllable time provider
 class MockTimeProvider {

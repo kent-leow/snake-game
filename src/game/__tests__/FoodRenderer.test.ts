@@ -3,8 +3,8 @@
  * Tests responsiveness, accessibility, performance, and visual quality
  */
 
-import { FoodRenderer, type FoodRenderConfig } from '@/game/FoodRenderer';
-import type { NumberedFood } from '@/lib/game/multipleFoodTypes';
+import { FoodRenderer, type FoodRenderConfig } from '../FoodRenderer';
+import type { NumberedFood } from '../../lib/game/multipleFoodTypes';
 
 // Mock Canvas API
 const createMockContext = (): CanvasRenderingContext2D => {

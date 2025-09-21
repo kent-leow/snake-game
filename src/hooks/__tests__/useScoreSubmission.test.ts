@@ -4,9 +4,9 @@
  */
 
 import { renderHook, act } from '@testing-library/react';
-import { useScoreSubmission } from '@/hooks/useScoreSubmission';
-import { ScoreService } from '@/services/ScoreService';
-import type { ScoreSubmissionData } from '@/services/ScoreService';
+import { useScoreSubmission } from '../useScoreSubmission';
+import { ScoreService } from '../../services/ScoreService';
+import type { ScoreSubmissionData } from '../../services/ScoreService';
 
 // Mock ScoreService
 jest.mock('@/services/ScoreService');

@@ -3,7 +3,7 @@
  * Tests safe localStorage operations, error handling, and game-specific utilities
  */
 
-import { LocalStorageUtils, GameStorageUtils } from '@/utils/localStorage';
+import { LocalStorageUtils, GameStorageUtils } from '../localStorage';
 
 // Mock localStorage
 const localStorageMock = {

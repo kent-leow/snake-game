@@ -3,10 +3,10 @@
  * Tests speed progression, combo integration, transitions, and edge cases
  */
 
-import { SpeedManager } from '@/game/SpeedManager';
-import { DEFAULT_SPEED_CONFIG, calculateSpeedCurve } from '@/constants/SpeedConfig';
-import type { SpeedConfig, SpeedChangeEvent } from '@/types/Speed';
-import type { ComboEvent } from '@/types/Combo';
+import { SpeedManager } from '../SpeedManager';
+import { DEFAULT_SPEED_CONFIG, calculateSpeedCurve } from '../../constants/SpeedConfig';
+import type { SpeedConfig, SpeedChangeEvent } from '../../types/Speed';
+import type { ComboEvent } from '../../types/Combo';
 
 describe('SpeedManager', () => {
   let speedManager: SpeedManager;

@@ -5,7 +5,7 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { useComboAnimation, useSimpleComboAnimation } from '../useComboAnimation';
-import type { ComboEvent } from '@/types/Combo';
+import type { ComboEvent } from '../../types/Combo';
 
 // Mock timers for animation testing
 jest.useFakeTimers();

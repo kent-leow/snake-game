@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { GameCanvas } from '../game/GameCanvas';
-import { GameEngine } from '@/lib/game/gameEngine';
+import { GameEngine } from '../../lib/game/gameEngine';
 
 // Mock the GameEngine
 const createMockGameEngine = () => ({
