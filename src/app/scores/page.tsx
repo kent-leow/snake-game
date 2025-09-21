@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { PageLayout, HighScoreTable } from '@/components';
+import { PageLayout } from '@/components/ui';
+import { HighScoreTable } from '@/components';
 import { useHighScores } from '@/hooks';
 
 export default function ScoresPage(): React.JSX.Element {

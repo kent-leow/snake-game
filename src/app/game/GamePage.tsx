@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { GameControls, SpeedIndicator, ScoreSubmissionModal, GameStateIndicator, ComboProgressIndicator, useComboProgressProps, GameCanvas, MobileGameLayout, PageLayout } from '@/components';
+import { ScoreSubmissionModal, ComboProgressIndicator, useComboProgressProps } from '@/components';
+import { GameControls, SpeedIndicator, GameStateIndicator, GameCanvas } from '@/components/game';
+import { PageLayout } from '@/components/ui';
+import { MobileGameLayout } from '@/components/mobile';
 import { useGameState, useResponsiveLayout, useSpeedData } from '@/hooks';
 import { GameEngine, type GameEngineConfig, type GameEngineCallbacks, GameStateEnum, type Direction } from '@/lib/game';
 import type { ScoreSubmissionData, ScoreSubmissionResult } from '@/services/ScoreService';

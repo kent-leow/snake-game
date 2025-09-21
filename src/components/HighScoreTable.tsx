@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ScoreEntry } from '@/components';
+import { ScoreEntry } from './ScoreEntry';
 import { HighScoreTableProps } from '@/types/HighScore';
 import { useResponsive } from '@/hooks';
 
