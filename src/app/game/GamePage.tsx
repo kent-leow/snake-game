@@ -5,9 +5,7 @@ import { PageLayout, GameControls, SpeedIndicator, ScoreSubmissionModal, GameSta
 import { GameCanvas } from '@/components/game/GameCanvas';
 import { MobileGameLayout } from '@/components/mobile';
 import { useGameState, useResponsiveLayout, useSpeedData } from '@/hooks';
-import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '@/lib/game/gameEngine';
-import { GameStateEnum } from '@/lib/game/gameState';
-import type { Direction } from '@/lib/game/types';
+import { GameEngine, type GameEngineConfig, type GameEngineCallbacks, GameStateEnum, type Direction } from '@/lib/game';
 import type { ScoreSubmissionData, ScoreSubmissionResult } from '@/services/ScoreService';
 import { ComboProgressIndicator, useComboProgressProps } from '@/components/ComboProgressIndicator';
 
