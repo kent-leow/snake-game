@@ -5,7 +5,17 @@
 
 import type { NumberedFood } from '@/lib/game/multipleFoodTypes';
 import type { Position } from '@/lib/game/types';
-import { FOOD_STYLE, getFoodColors, getBorderColor } from '@/constants/FoodColors';
+import type { ComboState } from '@/types/Combo';
+import { 
+  FOOD_STYLE, 
+  getFoodColors, 
+  getBorderColor, 
+  getGradientColors,
+  getComboGlowColor,
+  lightenColor,
+  darkenColor,
+  COMBO_TARGET_COLORS
+} from '@/constants/FoodColors';
 
 /**
  * Configuration interface for the food renderer
@@ -19,6 +29,9 @@ export interface FoodRenderConfig {
   textColor: string;
   enableShadow: boolean;
   enableAnimation: boolean;
+  enableGradients: boolean;
+  enableGlow: boolean;
+  enableComboTargeting: boolean;
   colorScheme: 'default' | 'high-contrast' | 'protanopia' | 'deuteranopia';
 }
 
@@ -29,6 +42,8 @@ interface FoodAnimationState {
   time: number;
   pulsePhase: number;
   glowIntensity: number;
+  comboTargetPulse: number;
+  comboGlowPhase: number;
 }
 
 /**
@@ -51,6 +66,7 @@ export class FoodRenderer {
   private animationState: FoodAnimationState;
   private fontCache: Map<number, string> = new Map();
   private metrics: FoodRenderMetrics;
+  private comboState: ComboState | null = null;
 
   constructor(
     context: CanvasRenderingContext2D, 
@@ -69,7 +85,10 @@ export class FoodRenderer {
       borderColor: FOOD_STYLE.borderColor,
       textColor: FOOD_STYLE.textColor,
       enableShadow: true,
-      enableAnimation: true, // Enable animation by default
+      enableAnimation: true,
+      enableGradients: true,
+      enableGlow: true,
+      enableComboTargeting: true,
       colorScheme: 'default',
       ...options,
     };
@@ -79,6 +98,8 @@ export class FoodRenderer {
       time: 0,
       pulsePhase: 0,
       glowIntensity: 1,
+      comboTargetPulse: 0,
+      comboGlowPhase: 0,
     };
 
     // Initialize metrics
@@ -109,6 +130,13 @@ export class FoodRenderer {
 
     this.metrics.renderTime += performance.now() - startTime;
     this.metrics.foodsRendered++;
+  }
+
+  /**
+   * Update combo state for targeting animation
+   */
+  public updateComboState(comboState: ComboState | null): void {
+    this.comboState = comboState;
   }
 
   /**
@@ -196,53 +224,20 @@ export class FoodRenderer {
   }
 
   /**
-   * Get cached font string
-   */
-  private getCachedFont(number: number): string {
-    const cached = this.fontCache.get(number);
-    if (cached) {
-      this.metrics.cacheHits++;
-      return cached;
-    }
-    
-    this.metrics.cacheMisses++;
-    const fontString = `bold ${this.config.fontSize}px ${this.config.fontFamily}`;
-    this.fontCache.set(number, fontString);
-    return fontString;
-  }
-
-  /**
    * Render food block without animation (static)
    */
   private renderStatic(food: NumberedFood): void {
     const { position } = food;
-    const color = this.config.colors[food.number];
+    const isComboTarget = this.isComboTarget(food);
     
-    // Draw a very visible colored square
-    this.context.fillStyle = color;
-    this.context.fillRect(position.x, position.y, this.gridSize, this.gridSize);
+    // Enhanced background rendering
+    this.renderEnhancedBackground(position, food.number, this.gridSize, isComboTarget);
     
-    // Draw a black border
-    this.context.strokeStyle = '#000000';
-    this.context.lineWidth = 2;
-    this.context.strokeRect(position.x, position.y, this.gridSize, this.gridSize);
+    // Enhanced border rendering
+    this.renderEnhancedBorder(position, food.number, this.gridSize, 1.0, isComboTarget);
     
-    // Draw the number in white, large text with black outline
-    const centerX = position.x + this.gridSize / 2;
-    const centerY = position.y + this.gridSize / 2;
-    const fontSize = Math.floor(this.gridSize * 0.8);
-    this.context.font = `bold ${fontSize}px Arial`;
-    this.context.textAlign = 'center';
-    this.context.textBaseline = 'middle';
-    
-    // Draw black outline
-    this.context.strokeStyle = '#000000';
-    this.context.lineWidth = 2;
-    this.context.strokeText(food.number.toString(), centerX, centerY);
-    
-    // Draw white text
-    this.context.fillStyle = '#FFFFFF';
-    this.context.fillText(food.number.toString(), centerX, centerY);
+    // Enhanced number rendering
+    this.renderEnhancedNumber(position, food.number, isComboTarget);
   }
 
   /**
@@ -250,11 +245,17 @@ export class FoodRenderer {
    */
   private renderWithAnimation(food: NumberedFood): void {
     const { position } = food;
-    const color = this.config.colors[food.number];
+    const isComboTarget = this.isComboTarget(food);
     
     // Calculate animation values
-    const pulseScale = 1 + Math.sin(this.animationState.pulsePhase) * 0.05;
-    const glowIntensity = 0.7 + Math.sin(this.animationState.time * 0.003) * 0.3;
+    let pulseScale = 1 + Math.sin(this.animationState.pulsePhase) * 0.05;
+    let glowIntensity = 0.7 + Math.sin(this.animationState.time * 0.003) * 0.3;
+    
+    // Enhanced combo target animation
+    if (isComboTarget && this.config.enableComboTargeting) {
+      pulseScale = 1 + Math.sin(this.animationState.comboTargetPulse) * 0.15;
+      glowIntensity = Math.max(glowIntensity, 0.8 + Math.sin(this.animationState.comboGlowPhase) * 0.2);
+    }
     
     // Apply scale transformation
     const scaledSize = this.gridSize * pulseScale;
@@ -264,91 +265,187 @@ export class FoodRenderer {
       y: position.y + offset,
     };
     
-    this.renderBackground(scaledPosition, color, scaledSize);
-    this.renderAnimatedBorder(scaledPosition, color, scaledSize, glowIntensity);
-    this.renderNumber(position, food.number); // Keep text stable for readability
+    // Enhanced background rendering
+    this.renderEnhancedBackground(scaledPosition, food.number, scaledSize, isComboTarget);
+    
+    // Enhanced border rendering
+    this.renderEnhancedBorder(scaledPosition, food.number, scaledSize, glowIntensity, isComboTarget);
+    
+    // Enhanced number rendering
+    this.renderEnhancedNumber(position, food.number, isComboTarget);
   }
 
   /**
-   * Render food background
+   * Check if food is the next combo target
    */
-  private renderBackground(
+  private isComboTarget(food: NumberedFood): boolean {
+    if (!this.comboState || !this.config.enableComboTargeting) {
+      return false;
+    }
+    return food.number === this.comboState.expectedNext;
+  }
+
+  /**
+   * Render enhanced food background with gradients and effects
+   */
+  private renderEnhancedBackground(
     position: Position, 
-    color: string, 
-    size: number = this.gridSize
+    number: 1 | 2 | 3 | 4 | 5,
+    size: number,
+    isComboTarget: boolean = false
   ): void {
-    // Draw shadow if enabled
+    const baseColor = this.config.colors[number];
+    
+    // Draw enhanced shadow
     if (this.config.enableShadow) {
-      this.context.fillStyle = FOOD_STYLE.shadowColor;
-      this.context.fillRect(
-        position.x + FOOD_STYLE.shadowOffset,
-        position.y + FOOD_STYLE.shadowOffset,
-        size,
-        size
-      );
+      const shadowOffset = isComboTarget ? 3 : FOOD_STYLE.shadowOffset;
+      const shadowBlur = isComboTarget ? 6 : 3;
+      
+      this.context.shadowColor = 'rgba(0, 0, 0, 0.6)';
+      this.context.shadowBlur = shadowBlur;
+      this.context.shadowOffsetX = shadowOffset;
+      this.context.shadowOffsetY = shadowOffset;
     }
 
-    // Draw main background - make it more visible for debugging
-    this.context.fillStyle = color;
-    this.context.fillRect(position.x, position.y, size, size);
+    // Create gradient background if enabled
+    if (this.config.enableGradients) {
+      const gradient = this.context.createRadialGradient(
+        position.x + size / 2, position.y + size / 2, 0,
+        position.x + size / 2, position.y + size / 2, size / 2
+      );
+      
+      const gradientColors = getGradientColors(number);
+      
+      // Enhanced colors for combo target
+      if (isComboTarget) {
+        gradient.addColorStop(0, lightenColor(gradientColors.start, 0.3));
+        gradient.addColorStop(0.6, gradientColors.start);
+        gradient.addColorStop(1, darkenColor(gradientColors.end, 0.1));
+      } else {
+        gradient.addColorStop(0, gradientColors.start);
+        gradient.addColorStop(1, gradientColors.end);
+      }
+      
+      this.context.fillStyle = gradient;
+    } else {
+      this.context.fillStyle = baseColor;
+    }
     
-    // Add a border to make it more visible
-    this.context.strokeStyle = '#000000';
-    this.context.lineWidth = 2;
-    this.context.strokeRect(position.x, position.y, size, size);
+    // Draw rounded rectangle for better aesthetics
+    const radius = size * FOOD_STYLE.cornerRadius;
+    this.drawRoundedRect(position.x, position.y, size, size, radius);
+    this.context.fill();
+    
+    // Reset shadow
+    this.context.shadowColor = 'transparent';
+    this.context.shadowBlur = 0;
+    this.context.shadowOffsetX = 0;
+    this.context.shadowOffsetY = 0;
   }
 
 
 
   /**
-   * Render animated border with glow effect
+   * Render enhanced border with glow effects
    */
-  private renderAnimatedBorder(
+  private renderEnhancedBorder(
     position: Position, 
-    foodColor: string, 
+    number: 1 | 2 | 3 | 4 | 5,
     size: number,
-    glowIntensity: number
+    glowIntensity: number,
+    isComboTarget: boolean = false
   ): void {
     if (this.config.borderWidth <= 0) return;
 
-    const borderColor = getBorderColor(foodColor);
+    const baseColor = this.config.colors[number];
+    const borderColor = getBorderColor(baseColor, isComboTarget);
     
-    // Create glow effect by drawing multiple borders with decreasing opacity
-    for (let i = 0; i < 3; i++) {
-      const alpha = (glowIntensity * (3 - i)) / 3;
-      const width = this.config.borderWidth + i;
+    // Enhanced glow for combo targets
+    const glowLayers = isComboTarget ? 5 : 3;
+    const maxGlowWidth = isComboTarget ? 6 : 3;
+    
+    // Create multiple glow layers
+    if (this.config.enableGlow) {
+      for (let i = 0; i < glowLayers; i++) {
+        const alpha = (glowIntensity * (glowLayers - i)) / glowLayers;
+        const width = this.config.borderWidth + (i * maxGlowWidth / glowLayers);
+        
+        // Special combo target glow color
+        let glowColor = borderColor;
+        if (isComboTarget) {
+          glowColor = getComboGlowColor();
+        }
+        
+        this.context.strokeStyle = glowColor + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+        this.context.lineWidth = width;
+        
+        const radius = size * FOOD_STYLE.cornerRadius;
+        this.drawRoundedRectStroke(position.x, position.y, size, size, radius);
+      }
+    } else {
+      // Simple border
+      this.context.strokeStyle = borderColor;
+      this.context.lineWidth = this.config.borderWidth;
       
-      this.context.strokeStyle = borderColor + Math.floor(alpha * 255).toString(16).padStart(2, '0');
-      this.context.lineWidth = width;
-      this.context.strokeRect(position.x, position.y, size, size);
+      const radius = size * FOOD_STYLE.cornerRadius;
+      this.drawRoundedRectStroke(position.x, position.y, size, size, radius);
     }
   }
 
   /**
-   * Render number text on food block
+   * Render enhanced number text with effects
    */
-  private renderNumber(position: Position, number: 1 | 2 | 3 | 4 | 5): void {
+  private renderEnhancedNumber(position: Position, number: 1 | 2 | 3 | 4 | 5, isComboTarget: boolean = false): void {
     const centerX = position.x + this.gridSize / 2;
     const centerY = position.y + this.gridSize / 2;
 
+    // Enhanced font size for combo targets
+    const baseFontSize = this.calculateFontSize(this.gridSize);
+    const fontSize = isComboTarget ? Math.floor(baseFontSize * 1.2) : baseFontSize;
+    
     // Set font properties
-    this.context.font = this.getCachedFont(number);
+    this.context.font = `bold ${fontSize}px ${this.config.fontFamily}`;
     this.context.textAlign = FOOD_STYLE.textAlign;
     this.context.textBaseline = FOOD_STYLE.textBaseline;
 
-    // Draw text shadow for better visibility
+    // Enhanced text shadow
     if (this.config.enableShadow) {
-      this.context.fillStyle = FOOD_STYLE.shadowColor;
-      this.context.fillText(
-        number.toString(),
-        centerX + FOOD_STYLE.shadowOffset,
-        centerY + FOOD_STYLE.shadowOffset
-      );
+      const shadowOffset = isComboTarget ? 2 : FOOD_STYLE.shadowOffset;
+      
+      // Multiple shadow layers for depth
+      for (let i = 0; i < (isComboTarget ? 3 : 2); i++) {
+        const offset = shadowOffset + i;
+        const alpha = 0.8 - (i * 0.2);
+        
+        this.context.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+        this.context.fillText(
+          number.toString(),
+          centerX + offset,
+          centerY + offset
+        );
+      }
     }
 
-    // Draw main text
-    this.context.fillStyle = this.config.textColor;
+    // Outline for better visibility
+    this.context.strokeStyle = isComboTarget ? '#000000' : 'rgba(0, 0, 0, 0.8)';
+    this.context.lineWidth = isComboTarget ? 3 : 2;
+    this.context.strokeText(number.toString(), centerX, centerY);
+
+    // Main text with enhanced color for combo targets
+    if (isComboTarget && this.config.enableGlow) {
+      // Glowing text effect
+      this.context.shadowColor = COMBO_TARGET_COLORS.primaryGlow;
+      this.context.shadowBlur = 8;
+      this.context.fillStyle = '#FFFFFF';
+    } else {
+      this.context.fillStyle = this.config.textColor;
+    }
+    
     this.context.fillText(number.toString(), centerX, centerY);
+    
+    // Reset shadow
+    this.context.shadowColor = 'transparent';
+    this.context.shadowBlur = 0;
   }
 
   /**
@@ -360,10 +457,20 @@ export class FoodRenderer {
     this.animationState.time += deltaTime;
     this.animationState.pulsePhase += deltaTime * 0.002; // Slow pulse
     this.animationState.glowIntensity = 0.7 + Math.sin(this.animationState.time * 0.003) * 0.3;
+    
+    // Enhanced combo target animations
+    this.animationState.comboTargetPulse += deltaTime * 0.004; // Faster pulse for targets
+    this.animationState.comboGlowPhase += deltaTime * 0.005; // Glow animation
 
     // Wrap phases to prevent overflow
     if (this.animationState.pulsePhase > Math.PI * 2) {
       this.animationState.pulsePhase -= Math.PI * 2;
+    }
+    if (this.animationState.comboTargetPulse > Math.PI * 2) {
+      this.animationState.comboTargetPulse -= Math.PI * 2;
+    }
+    if (this.animationState.comboGlowPhase > Math.PI * 2) {
+      this.animationState.comboGlowPhase -= Math.PI * 2;
     }
   }
 
@@ -379,6 +486,31 @@ export class FoodRenderer {
    */
   public getConfig(): FoodRenderConfig {
     return { ...this.config };
+  }
+
+  /**
+   * Draw a rounded rectangle
+   */
+  private drawRoundedRect(x: number, y: number, width: number, height: number, radius: number): void {
+    this.context.beginPath();
+    this.context.moveTo(x + radius, y);
+    this.context.lineTo(x + width - radius, y);
+    this.context.quadraticCurveTo(x + width, y, x + width, y + radius);
+    this.context.lineTo(x + width, y + height - radius);
+    this.context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    this.context.lineTo(x + radius, y + height);
+    this.context.quadraticCurveTo(x, y + height, x, y + height - radius);
+    this.context.lineTo(x, y + radius);
+    this.context.quadraticCurveTo(x, y, x + radius, y);
+    this.context.closePath();
+  }
+
+  /**
+   * Draw a rounded rectangle stroke
+   */
+  private drawRoundedRectStroke(x: number, y: number, width: number, height: number, radius: number): void {
+    this.drawRoundedRect(x, y, width, height, radius);
+    this.context.stroke();
   }
 
   /**

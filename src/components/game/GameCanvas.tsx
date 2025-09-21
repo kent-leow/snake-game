@@ -89,6 +89,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
         useMultipleFood: gameState.useMultipleFood,
         score: gameState.score,
         gameState: gameState.isRunning ? 'playing' : 'paused',
+        comboState: gameState.comboState ? {
+          expectedNext: gameState.comboState.expectedNext,
+          comboProgress: gameState.comboState.comboProgress,
+          isComboActive: gameState.comboState.isComboActive,
+        } : undefined,
       };
 
       rendererRef.current.render(gameElements, interpolation);

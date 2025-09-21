@@ -32,6 +32,11 @@ export interface GameElements {
   useMultipleFood?: boolean;
   score: number;
   gameState: 'playing' | 'paused' | 'game-over' | 'menu';
+  comboState?: {
+    expectedNext: 1 | 2 | 3 | 4 | 5;
+    comboProgress: 0 | 1 | 2 | 3 | 4 | 5;
+    isComboActive: boolean;
+  } | undefined;
 }
 
 export interface GameConfig {
@@ -202,7 +207,7 @@ export class CanvasRenderer {
     
     // Draw food (animated)
     if (gameElements.useMultipleFood && gameElements.multipleFoods) {
-      this.drawMultipleFoods(this.dynamicCtx, gameElements.multipleFoods);
+      this.drawMultipleFoods(this.dynamicCtx, gameElements.multipleFoods, gameElements.comboState);
     } else if (gameElements.food) {
       this.drawFood(this.dynamicCtx, gameElements.food);
     }
@@ -347,10 +352,23 @@ export class CanvasRenderer {
   /**
    * Draw multiple numbered food blocks
    */
-  private drawMultipleFoods(ctx: CanvasRenderingContext2D, foods: NumberedFood[]): void {
+  private drawMultipleFoods(ctx: CanvasRenderingContext2D, foods: NumberedFood[], comboState?: GameElements['comboState']): void {
     if (!this.foodRenderer) {
       console.warn('FoodRenderer not initialized');
       return;
+    }
+
+    // Update combo state for targeting animation
+    if (comboState) {
+      this.foodRenderer.updateComboState({
+        currentSequence: [], // We don't need the full sequence for rendering
+        expectedNext: comboState.expectedNext,
+        comboProgress: comboState.comboProgress,
+        totalCombos: 0, // Not needed for rendering
+        isComboActive: comboState.isComboActive,
+      });
+    } else {
+      this.foodRenderer.updateComboState(null);
     }
 
     // Calculate delta time for animation (simplified)
