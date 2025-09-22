@@ -11,6 +11,7 @@ interface PageLayoutProps {
   backHref?: string;
   showNavigation?: boolean;
   scrollable?: boolean; // New prop to control scrolling behavior
+  disableLaserEffects?: boolean; // New prop to disable animated borders
 }
 
 // Navigation items
@@ -28,6 +29,7 @@ export default function PageLayout({
   backHref = '/',
   showNavigation = true,
   scrollable = true, // Default to scrollable for most pages
+  disableLaserEffects = false, // Default to showing laser effects
 }: PageLayoutProps): React.JSX.Element {
   const pathname = usePathname();
 
@@ -35,7 +37,7 @@ export default function PageLayout({
     <div className={`page-layout ${scrollable ? 'scrollable' : 'non-scrollable'}`}>
       {/* Animated background */}
       <div className="page-layout-bg-grid"></div>
-      <div className="page-layout-top-border"></div>
+      {!disableLaserEffects && <div className="page-layout-top-border"></div>}
       
       <header className='page-layout-header'>
         <div className='page-layout-header-container'>
@@ -97,7 +99,7 @@ export default function PageLayout({
       </main>
       
       {/* Decorative bottom border */}
-      <div className="page-layout-bottom-border"></div>
+      {!disableLaserEffects && <div className="page-layout-bottom-border"></div>}
     </div>
   );
 }

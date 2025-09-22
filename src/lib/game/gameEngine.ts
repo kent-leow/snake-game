@@ -389,6 +389,9 @@ export class GameEngine {
     if (collisionResult?.hasCollision) {
       cause = collisionResult.type === 'boundary' ? 'boundary' : 'self';
       collisionPosition = collisionResult.position;
+    } else {
+      // If no collision result provided, assume it's a self collision
+      cause = 'self';
     }
     
     // Calculate game statistics
@@ -399,12 +402,10 @@ export class GameEngine {
       averageSpeed: this.calculateAverageSpeed(),
     };
     
-    // Trigger game over in manager
-    if (cause) {
-      this.gameOverManager.triggerGameOver(cause, finalScore, collisionPosition, gameStats);
-    }
+    // Always trigger game over in manager with a valid cause
+    this.gameOverManager.triggerGameOver(cause, finalScore, collisionPosition, gameStats);
     
-    // Call legacy callback for backwards compatibility
+    // Always call the callback for backwards compatibility
     this.callbacks.onGameOver?.(finalScore, snake, cause, collisionPosition);
   }
 

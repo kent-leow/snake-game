@@ -7,3 +7,6 @@ export { default as GameCanvas } from './GameCanvas';
 export { default as CollisionFeedback } from './CollisionFeedback';
 export { default as GameOverModal } from './GameOverModal';
 export { default as ScoreDisplay } from './ScoreDisplay';
+export { default as GameStatsCard } from './GameStatsCard';
+export { default as ControlsCard } from './ControlsCard';
+export { default as HowToPlayCard } from './HowToPlayCard';

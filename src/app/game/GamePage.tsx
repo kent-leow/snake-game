@@ -9,6 +9,8 @@ import GameControls from '../../components/game/GameControls';
 import SpeedIndicator from '../../components/game/SpeedIndicator';
 import GameStateIndicator from '../../components/game/GameStateIndicator';
 import GameCanvas from '../../components/game/GameCanvas';
+import GameStatsCard from '../../components/game/GameStatsCard';
+import ControlsCard from '../../components/game/ControlsCard';
 import { useGameState } from '../../hooks/useGameState';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { useSpeedData } from '../../hooks/useSpeedData';
@@ -16,6 +18,9 @@ import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '../
 import { GameStateEnum } from '../../lib/game/gameState';
 import type { Direction } from '../../lib/game/types';
 import type { ScoreSubmissionData, ScoreSubmissionResult } from '../../services/ScoreService';
+
+// Import modern card styles
+import '../../styles/gameCards.css';
 
 export function GamePage(): React.JSX.Element {
   const [score, setScore] = useState(0);
@@ -119,6 +124,7 @@ export function GamePage(): React.JSX.Element {
     };
 
     console.log('GamePage: Setting game over data and showing modal:', scoreData);
+    console.log('GamePage: About to set showScoreModal to true');
     setGameOverData(scoreData);
     setShowScoreModal(true);
     
@@ -262,7 +268,7 @@ export function GamePage(): React.JSX.Element {
 
   if (!gameEngineRef.current) {
     return (
-      <PageLayout title='Snake Game' showBackButton={true} scrollable={false}>
+      <PageLayout title='Snake Game' showBackButton={true} scrollable={false} disableLaserEffects={true}>
         <div className='game-loading'>
           <div className='game-loading-text'>Loading game...</div>
         </div>
@@ -271,7 +277,7 @@ export function GamePage(): React.JSX.Element {
   }
 
   return (
-    <PageLayout title='Snake Game' showBackButton={true} scrollable={false}>
+    <PageLayout title='Snake Game' showBackButton={true} scrollable={false} disableLaserEffects={true}>
       {isMobile ? (
         <MobileGameLayout 
           gameState={currentState}
@@ -338,39 +344,12 @@ export function GamePage(): React.JSX.Element {
             {/* Left Side Panel */}
             <div className='desktop-sidebar'>
               {/* Game Stats */}
-              <div className='desktop-stats-panel'>
-                <h3 className='stats-panel-title'>Game Stats</h3>
-                <div className='stats-panel-content'>
-                  {/* Score - larger and prominent */}
-                  <div className='stats-score-card'>
-                    <div className='stats-score-label'>Score</div>
-                    <div className='stats-score-value'>{score}</div>
-                    <div className='stats-subtitle'>
-                      {isGameReady ? 'Ready to play' : 'Loading...'}
-                    </div>
-                  </div>
-                  
-                  {/* Combo Progress - compact inline */}
-                  <div className='bg-gray-700 p-3 rounded'>
-                    <div className='text-xs text-gray-300 mb-2'>Combo Progress</div>
-                    <ComboProgressIndicator {...comboProgressProps} />
-                  </div>
-                  
-                  {/* Speed - compact */}
-                  <div className='bg-gray-700 p-2 rounded'>
-                    <div className='text-xs text-gray-300 mb-1'>Speed</div>
-                    <SpeedIndicator
-                      speedLevel={speedData.speedLevel}
-                      currentSpeed={speedData.currentSpeed}
-                      baseSpeed={speedData.baseSpeed}
-                      isTransitioning={speedData.isTransitioning}
-                      maxLevel={10}
-                      showDetails={false}
-                      className='text-sm'
-                    />
-                  </div>
-                </div>
-              </div>
+              <GameStatsCard
+                score={score}
+                isGameReady={isGameReady}
+                speedData={speedData}
+                comboProgressProps={comboProgressProps}
+              />
             </div>
 
             {/* Center - Game Canvas */}
@@ -389,65 +368,16 @@ export function GamePage(): React.JSX.Element {
             {/* Right Side Panel */}
             <div className='flex flex-col gap-4 w-64 flex-shrink-0'>
               {/* Game Controls */}
-              <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
-                <div className='flex items-center justify-between mb-3'>
-                  <h3 className='text-base font-semibold text-white'>Controls</h3>
-                  <GameStateIndicator currentState={currentState} />
-                </div>
-                <GameControls
-                  currentState={currentState}
-                  onStartGame={handleStartGame}
-                  onPauseGame={handlePauseGame}
-                  onResumeGame={handleResumeGame}
-                  onRestartGame={handleRestartGame}
-                  onGoToMenu={handleGoToMenu}
-                  showKeyboardHints={false}
-                  hideStartButton={true}
-                />
-              </div>
-
-              {/* Keyboard Instructions */}
-              <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
-                <h3 className='text-base font-semibold mb-3 text-white'>How to Play</h3>
-                <div className='space-y-2 text-xs text-gray-300'>
-                  <div className='flex items-center gap-2'>
-                    <div className='flex gap-1'>
-                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>↑</kbd>
-                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>W</kbd>
-                    </div>
-                    <span>Move Up</span>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <div className='flex gap-1'>
-                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>↓</kbd>
-                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>S</kbd>
-                    </div>
-                    <span>Move Down</span>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <div className='flex gap-1'>
-                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>←</kbd>
-                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>A</kbd>
-                    </div>
-                    <span>Move Left</span>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <div className='flex gap-1'>
-                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>→</kbd>
-                      <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>D</kbd>
-                    </div>
-                    <span>Move Right</span>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>Space</kbd>
-                    <span>Pause</span>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <kbd className='px-2 py-1 bg-gray-700 rounded text-xs'>R</kbd>
-                    <span>Restart</span>
-                  </div>
-                </div>
-              </div>
+              <ControlsCard
+                currentState={currentState}
+                onStartGame={handleStartGame}
+                onPauseGame={handlePauseGame}
+                onResumeGame={handleResumeGame}
+                onRestartGame={handleRestartGame}
+                onGoToMenu={handleGoToMenu}
+                showKeyboardHints={false}
+                hideStartButton={true}
+              />
             </div>
           </div>
         </div>
@@ -460,7 +390,7 @@ export function GamePage(): React.JSX.Element {
           scoreData={gameOverData}
           onClose={handleScoreModalClose}
           onSubmitted={handleScoreSubmitted}
-          autoSubmit={true}
+          autoSubmit={false}
         />
       )}
     </PageLayout>

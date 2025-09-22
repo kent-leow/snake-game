@@ -123,10 +123,11 @@ export const ComboProgressIndicator: React.FC<ComboProgressProps> = React.memo((
       <div
         style={{
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
           fontSize: '9px',
           lineHeight: '1.2',
+          gap: '2px',
         }}
       >
         {isActive ? (
