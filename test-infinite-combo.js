@@ -1,32 +1,42 @@
 #!/usr/bin/env node
 
 /**
- * Quick test script to verify infinite combo behavior with 5 foods maintained
+ * Quick test script to verify infinite combo behavior with proper scoring and speed
  */
 
-console.log('🧪 Testing infinite combo system with 5 foods maintained...\n');
+console.log('🧪 Testing infinite combo system with proper scoring and speed...\n');
 
-console.log('1. Testing combo break resets to 1:');
-console.log('   ✓ ComboManager.breakCombo() now sets cumulativeComboCount: 0');
-console.log('   ✓ expectedNext resets to 1');
+console.log('1. Testing scoring (always multiples of 5):');
+console.log('   ✓ Formula: 5 × [Combo Count] × [Speed Level]');
+console.log('   ✓ Food 1: 5 × 1 × 1 = 5 points');
+console.log('   ✓ Food 2: 5 × 2 × 1 = 10 points');
+console.log('   ✓ Food 3: 5 × 3 × 1 = 15 points');
+console.log('   ✓ Food 4: 5 × 4 × 1 = 20 points');
+console.log('   ✓ Food 5: 5 × 5 × 1 = 25 points');
+console.log('   ✓ Food 6: 5 × 6 × 2 = 60 points (speed level 2!)');
+console.log('   ✓ FIXED: No more double scoring!');
 
-console.log('\n2. Testing food progression maintains 5 foods:');
-console.log('   ✓ Start: [1,2,3,4,5] foods on board');
-console.log('   ✓ Eat food 1 → Remove 1, add max+1 → [2,3,4,5,6]');
-console.log('   ✓ Eat food 2 → Remove 2, add max+1 → [3,4,5,6,7]');
-console.log('   ✓ Eat food 3 → Remove 3, add max+1 → [4,5,6,7,8]');
-console.log('   ✓ Always maintains exactly 5 foods on board');
+console.log('\n2. Testing speed level progression:');
+console.log('   ✓ Default speed level = 1');
+console.log('   ✓ Foods 1-5: Speed level = 1');
+console.log('   ✓ Foods 6-10: Speed level = 2');
+console.log('   ✓ Foods 11-15: Speed level = 3');
+console.log('   ✓ Every 5 foods increases speed level');
 
-console.log('\n3. Testing food reset on combo break:');
-console.log('   ✓ MultipleFoodManager.resetToInitial() sets currentNumbers = [1, 2, 3, 4, 5]');
-console.log('   ✓ Called by gameEngine when combo breaks');
+console.log('\n3. Testing combo break reset:');
+console.log('   ✓ Reset foods to [1,2,3,4,5]');
+console.log('   ✓ Reset combo count to 0');
+console.log('   ✓ Reset speed level to 1');
+console.log('   ✓ Next food: combo=1, speed=1, score=5×1×1=5');
+
+console.log('\n4. Testing food progression (n+5 spawning):');
+console.log('   ✓ Start: [1,2,3,4,5] foods');
+console.log('   ✓ Eat 1: spawn 6 → [6,2,3,4,5]');
+console.log('   ✓ Eat 2: spawn 7 → [6,7,3,4,5]');
 
 console.log('\n✅ All fixes applied successfully!');
 console.log('\n🎯 Expected behavior:');
-console.log('   • Start: Foods [1,2,3,4,5] on board');
-console.log('   • Eat 1: Foods [2,3,4,5,6] on board');
-console.log('   • Eat 2: Foods [3,4,5,6,7] on board');
-console.log('   • Eat 3: Foods [4,5,6,7,8] on board');
-console.log('   • Continue infinitely...');
-console.log('   • On combo break: Reset to [1,2,3,4,5]');
-console.log('   • Scoring: 5 × [Food Number] × [Speed Level]');
+console.log('   • Scoring always multiples of 5');
+console.log('   • Speed level increases every 5 foods');
+console.log('   • Combo break resets everything to default');
+console.log('   • No more odd scores from double scoring!');

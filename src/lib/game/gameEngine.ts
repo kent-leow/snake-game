@@ -156,6 +156,8 @@ export class GameEngine {
           const snakePositions = this.snakeGame.getSnake().segments;
           this.multipleFoodManager.resetToInitial(snakePositions);
         }
+        // RESET combo counter to 0 when combo breaks
+        this.foodConsumed = 0;
       }
     });
   }
@@ -326,27 +328,22 @@ export class GameEngine {
     // Increment global food eaten counter for combo scoring
     this.foodConsumed++;
     
-    // Process combo logic for sequence tracking (affects speed only)
+    // Process combo logic for sequence tracking
     this.comboManager.processFood(food.number);
     
-    // Calculate points using formula: 5 × Combo × Speed
-    // Combo = current food number (the sequential number being eaten)
-    // Speed = speed level (number of completed combos for speed progression)
-    const baseFoodPoints = 5;
-    const comboNumber = food.number; // Use the actual food number as combo multiplier
-    const speedLevel = Math.max(1, this.speedManager.getSpeedLevel()); // Minimum 1 to avoid zero
+    // Calculate speed level: increases every 5 foods eaten in combo
+    const speedLevel = Math.floor((this.foodConsumed - 1) / 5) + 1;
     
-    const totalPoints = baseFoodPoints * comboNumber * speedLevel;
+    // Calculate points using formula: 5 × Combo × Speed
+    // Combo = number of foods eaten in current combo sequence (1, 2, 3, 4...)
+    // Speed = speed level increases every 5 foods (1, 2, 3, 4...)
+    const baseFoodPoints = 5;
+    const comboCount = this.foodConsumed;
+    
+    const totalPoints = baseFoodPoints * comboCount * speedLevel;
 
-    // Update score with the total points calculated using new formula
+    // Update score with ONLY one scoring system to avoid double scoring
     const scoreBreakdown = this.scoreManager.addScore(totalPoints, 0);
-
-    // Also update legacy scoring system for backward compatibility
-    this.scoringSystem.addScore({
-      type: 'food',
-      points: totalPoints,
-      position: food.position,
-    });
 
     // Make snake grow
     this.snakeGame.addGrowth(1, 'food');

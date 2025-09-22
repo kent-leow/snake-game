@@ -88,10 +88,9 @@ export class MultipleFoodManager {
       this.currentNumbers.splice(index, 1);
     }
 
-    // Calculate next number: highest current number + 1 to maintain 5 foods
-    // If we have [1,2,3,4,5] and eat 1, we get [2,3,4,5] then add 6 → [2,3,4,5,6]
-    const maxNumber = Math.max(...this.currentNumbers);
-    const nextNumber = maxNumber + 1;
+    // Calculate replacement number: consumed number + 5
+    // Eat 1 → spawn 6, Eat 2 → spawn 7, Eat 3 → spawn 8, etc.
+    const nextNumber = number + 5;
     this.currentNumbers.push(nextNumber);
     this.currentNumbers.sort((a, b) => a - b);
 
