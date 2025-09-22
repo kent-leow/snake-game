@@ -255,8 +255,8 @@ export function GamePage(): React.JSX.Element {
   if (!gameEngineRef.current) {
     return (
       <PageLayout title='Snake Game' showBackButton={true} scrollable={false}>
-        <div className='flex flex-col items-center gap-6'>
-          <div className='text-center'>Loading game...</div>
+        <div className='game-loading'>
+          <div className='game-loading-text'>Loading game...</div>
         </div>
       </PageLayout>
     );
@@ -270,12 +270,12 @@ export function GamePage(): React.JSX.Element {
           showTouchControls={true}
           onDirectionChange={handleDirectionChange}
         >
-          <div className='h-full flex flex-col p-3 gap-3'>
-            <div className='bg-gray-800 p-3 rounded-lg shadow-lg flex-1 flex flex-col'>
+          <div className='mobile-game-container'>
+            <div className='mobile-game-canvas-wrapper'>
               <GameCanvas
                 gameEngine={gameEngineRef.current}
                 gameConfig={gameConfig}
-                className='flex-1'
+                className='mobile-game-canvas'
                 targetFPS={60}
                 enableTouchControls={true}
                 onDirectionChange={handleDirectionChange}
@@ -283,35 +283,35 @@ export function GamePage(): React.JSX.Element {
               />
               
               {/* Game Stats for Mobile */}
-              <div className='mt-2 space-y-2'>
-                <div className='flex justify-between items-center text-sm bg-gray-700 p-2 rounded'>
+              <div className='mobile-game-stats'>
+                <div className='mobile-score-row'>
                   <div>
-                    <span className='text-gray-400'>Score: </span>
-                    <span className='font-bold text-green-400'>{score}</span>
+                    <span className='score-label'>Score: </span>
+                    <span className='score-value'>{score}</span>
                   </div>
-                  <div className='flex items-center gap-2'>
+                  <div className='speed-indicator-container'>
                     <SpeedIndicator
                       speedLevel={speedData.speedLevel}
                       currentSpeed={speedData.currentSpeed}
                       baseSpeed={speedData.baseSpeed}
                       isTransitioning={speedData.isTransitioning}
                       showDetails={false}
-                      className='text-xs'
+                      className='mobile-speed-indicator'
                     />
                     <GameStateIndicator currentState={currentState} />
                   </div>
                 </div>
                 
                 {/* Combo Progress for Mobile - compact */}
-                <div className='bg-gray-700 p-2 rounded'>
-                  <div className='text-xs text-gray-300 mb-1'>Combo</div>
+                <div className='mobile-combo-section'>
+                  <div className='combo-label'>Combo</div>
                   <ComboProgressIndicator {...comboProgressProps} />
                 </div>
               </div>
             </div>
             
             {/* Mobile Controls */}
-            <div className='bg-gray-800 p-3 rounded-lg shadow-lg flex-shrink-0'>
+            <div className='mobile-controls-wrapper'>
               <GameControls
                 currentState={currentState}
                 onStartGame={handleStartGame}
@@ -326,19 +326,19 @@ export function GamePage(): React.JSX.Element {
           </div>
         </MobileGameLayout>
       ) : (
-        <div className='h-full flex items-center justify-center p-4 game-page-container' onClick={handleGameAreaClick}>
-          <div className='flex items-center justify-center gap-6 max-w-7xl w-full'>
+        <div className='desktop-game-container' onClick={handleGameAreaClick}>
+          <div className='desktop-game-layout'>
             {/* Left Side Panel */}
-            <div className='flex flex-col gap-4 w-64 flex-shrink-0'>
+            <div className='desktop-sidebar'>
               {/* Game Stats */}
-              <div className='bg-gray-800 p-4 rounded-lg shadow-lg'>
-                <h3 className='text-base font-semibold mb-3 text-white'>Game Stats</h3>
-                <div className='space-y-3'>
+              <div className='desktop-stats-panel'>
+                <h3 className='stats-panel-title'>Game Stats</h3>
+                <div className='stats-panel-content'>
                   {/* Score - larger and prominent */}
-                  <div className='bg-gray-700 p-3 rounded border-l-4 border-green-400'>
-                    <div className='text-xs text-gray-300'>Score</div>
-                    <div className='text-2xl font-bold text-green-400'>{score}</div>
-                    <div className='text-xs text-gray-400'>
+                  <div className='stats-score-card'>
+                    <div className='stats-score-label'>Score</div>
+                    <div className='stats-score-value'>{score}</div>
+                    <div className='stats-subtitle'>
                       {isGameReady ? 'Ready to play' : 'Loading...'}
                     </div>
                   </div>

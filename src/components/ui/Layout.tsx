@@ -12,17 +12,17 @@ export default function Layout({
   className = '',
 }: LayoutProps): React.JSX.Element {
   return (
-    <div className={`min-h-screen bg-gray-900 text-white ${className}`}>
+    <div className={`layout-container ${className}`}>
       {title && (
-        <header className='bg-gray-800 shadow-lg'>
-          <div className='container mx-auto px-4 py-6'>
-            <h1 className='text-3xl font-bold text-center text-green-400'>
+        <header className='layout-header'>
+          <div className='layout-header-content'>
+            <h1 className='layout-title'>
               {title}
             </h1>
           </div>
         </header>
       )}
-      <main className='container mx-auto px-4 py-8'>{children}</main>
+      <main className='layout-main'>{children}</main>
     </div>
   );
 }

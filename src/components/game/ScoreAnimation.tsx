@@ -121,13 +121,13 @@ export const FloatingScoreAnimation: React.FC<ScoreAnimationProps> = ({
         transform: 'translate(-50%, -50%)',
       }}
     >
-      <div className="flex items-center space-x-1">
+      <div className="score-animation-content">
         <span>{formatPoints()}</span>
         {animation.type === 'combo' && (
-          <span className="text-sm opacity-75">COMBO!</span>
+          <span className="score-animation-label">COMBO!</span>
         )}
         {animation.type === 'bonus' && (
-          <span className="text-sm opacity-75">BONUS!</span>
+          <span className="score-animation-label">BONUS!</span>
         )}
       </div>
     </div>
@@ -247,11 +247,11 @@ export const ScoreFeedback: React.FC<ScoreFeedbackProps> = ({
       {/* Score Display */}
       <div className="score-container">
         {compact ? (
-          <div className="text-lg font-mono font-bold text-green-400">
+          <div className="score-animation-large">
             {score.toLocaleString()}
           </div>
         ) : (
-          <div className="text-2xl font-mono font-bold text-green-400">
+          <div className="score-animation-extra-large">
             SCORE: {score.toLocaleString()}
           </div>
         )}
@@ -259,7 +259,7 @@ export const ScoreFeedback: React.FC<ScoreFeedbackProps> = ({
 
       {/* Combo Display */}
       {comboCount > 1 && (
-        <div className="mt-2">
+        <div className="score-animation-bonus">
           <ComboDisplay comboCount={comboCount} />
         </div>
       )}

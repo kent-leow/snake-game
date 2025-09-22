@@ -44,16 +44,26 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000' width='100' height='100'/><text y='.9em' font-size='90'>🐍</text></svg>" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen overflow-x-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable}`}
+        style={{
+          WebkitFontSmoothing: 'antialiased',
+          MozOsxFontSmoothing: 'grayscale',
+          minHeight: '100vh',
+          overflowX: 'hidden'
+        }}
       >
-        <div id="app-root" className="min-h-screen">
+        <div id="app-root" style={{ minHeight: '100vh' }}>
           {children}
         </div>
         
         {/* Retro scanlines overlay */}
         <div 
-          className="fixed inset-0 pointer-events-none z-50 opacity-[0.015]"
           style={{
+            position: 'fixed',
+            inset: '0',
+            pointerEvents: 'none',
+            zIndex: '50',
+            opacity: '0.015',
             background: `repeating-linear-gradient(
               0deg,
               transparent 0px,
@@ -65,12 +75,18 @@ export default function RootLayout({
         />
         
         {/* Background ambient particles */}
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-neon-green rounded-full opacity-30 animate-floating"></div>
-          <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-neon-cyan rounded-full opacity-40 animate-floating animate-delay-2"></div>
-          <div className="absolute bottom-1/3 left-1/3 w-1.5 h-1.5 bg-neon-pink rounded-full opacity-25 animate-floating animate-delay-4"></div>
-          <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-neon-purple rounded-full opacity-35 animate-floating animate-delay-1"></div>
-          <div className="absolute bottom-1/4 right-1/2 w-2 h-2 bg-neon-orange rounded-full opacity-20 animate-floating animate-delay-3"></div>
+        <div style={{
+          position: 'fixed',
+          inset: '0',
+          pointerEvents: 'none',
+          zIndex: '0',
+          overflow: 'hidden'
+        }}>
+          <div className="floating-particle floating-particle-1"></div>
+          <div className="floating-particle floating-particle-2"></div>
+          <div className="floating-particle floating-particle-3"></div>
+          <div className="floating-particle floating-particle-4"></div>
+          <div className="floating-particle floating-particle-5"></div>
         </div>
       </body>
     </html>

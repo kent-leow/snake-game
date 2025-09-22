@@ -16,13 +16,13 @@ export function HighScoreTable({
 
   if (loading) {
     return (
-      <div className="text-center py-12 animate-fade-in">
-        <div className="relative inline-block">
-          <div className={`w-16 h-16 border-4 border-neon-green border-t-transparent rounded-full ${prefersReducedMotion ? '' : 'animate-spin'} mx-auto mb-4`}></div>
-          <div className="absolute inset-0 w-16 h-16 border-4 border-neon-cyan border-b-transparent rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+      <div className="highscore-loading">
+        <div className="highscore-spinner-container">
+          <div className={`highscore-spinner-primary ${prefersReducedMotion ? '' : 'animate-spin'}`}></div>
+          <div className="highscore-spinner-secondary"></div>
         </div>
-        <p className="text-gray-400 text-lg animate-neon-pulse">Loading high scores...</p>
-        <div className="mt-2 text-sm text-gray-500 animate-fade-in animate-delay-1">
+        <p className="highscore-loading-text">Loading high scores...</p>
+        <div className="highscore-loading-subtitle">
           Fetching the hall of fame...
         </div>
       </div>
@@ -39,14 +39,14 @@ export function HighScoreTable({
     };
 
     return (
-      <div className="text-center py-12 animate-scale-in">
-        <div className="glass-effect rounded-lg p-8 border border-red-500/30 error-glow">
-          <div className="text-6xl mb-4 animate-bounce">⚠️</div>
-          <div className="text-neon-pink text-xl mb-4">Error Loading Scores</div>
-          <p className="text-red-300 mb-6">{error}</p>
+      <div className="highscore-error">
+        <div className="highscore-error-card">
+          <div className="highscore-error-icon">⚠️</div>
+          <div className="highscore-error-title">Error Loading Scores</div>
+          <p className="highscore-error-message">{error}</p>
           <button
             onClick={handleRetry}
-            className="btn-danger transform hover:scale-105 transition-all duration-300"
+            className="btn-danger highscore-retry-btn"
           >
             🔄 Try Again
           </button>
@@ -57,20 +57,20 @@ export function HighScoreTable({
 
   if (!scores || scores.length === 0) {
     return (
-      <div className="text-center py-12 animate-scale-in">
-        <div className="glass-effect rounded-lg p-8 border border-white/10">
-          <div className="text-6xl mb-4 animate-floating">🏆</div>
-          <h3 className="text-2xl font-semibold text-neon-green mb-4">
+      <div className="highscore-empty">
+        <div className="highscore-empty-card">
+          <div className="highscore-empty-icon">🏆</div>
+          <h3 className="highscore-empty-title">
             No High Scores Yet
           </h3>
-          <p className="text-gray-400 mb-8 text-lg">
+          <p className="highscore-empty-text">
             Be the first to set a high score! Play the game and see your name here.
           </p>
           <a
             href="/game"
-            className="inline-block bg-gradient-to-r from-green-600 to-cyan-500 hover:from-green-500 hover:to-cyan-400 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 border-2 border-transparent hover:border-green-400"
+            className="btn-primary highscore-start-playing"
           >
-            <span className="flex items-center space-x-2">
+            <span className="button-content">
               <span>🎮</span>
               <span>Start Playing</span>
             </span>

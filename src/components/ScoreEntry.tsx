@@ -110,31 +110,31 @@ export function ScoreEntry({
           </div>
         </div>
         <div className={styles.cardScoreInfo}>
-          <div className={`${styles.scoreValue} text-xl font-bold`}>
+          <div className={`${styles.scoreValue} score-entry-value`}>
             {score.score.toLocaleString()}
           </div>
-          <div className="text-xs text-gray-400">points</div>
+          <div className="score-entry-label">points</div>
         </div>
       </div>
 
       <div className={styles.cardMetrics}>
         <div className={styles.cardMetric}>
-          <div className={`${styles.comboValue} ${styles.metricValue} text-sm font-medium`}>
+          <div className={`${styles.comboValue} ${styles.metricValue} score-entry-metric`}>
             {score.gameMetrics.longestCombo}x
           </div>
-          <div className="text-xs text-gray-400">Best Combo</div>
+          <div className="score-entry-label">Best Combo</div>
         </div>
         <div className={styles.cardMetric}>
-          <div className={`${styles.timeValue} ${styles.metricValue} text-sm font-medium`}>
+          <div className={`${styles.timeValue} ${styles.metricValue} score-entry-metric`}>
             {formatTime(score.gameMetrics.gameTimeSeconds)}
           </div>
-          <div className="text-xs text-gray-400">Game Time</div>
+          <div className="score-entry-label">Game Time</div>
         </div>
         <div className={styles.cardMetric}>
-          <div className={`${styles.foodValue} ${styles.metricValue} text-sm font-medium`}>
+          <div className={`${styles.foodValue} ${styles.metricValue} score-entry-metric`}>
             {score.gameMetrics.totalFood}
           </div>
-          <div className="text-xs text-gray-400">Food Eaten</div>
+          <div className="score-entry-label">Food Eaten</div>
         </div>
       </div>
     </div>

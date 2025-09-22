@@ -27,9 +27,9 @@ export function ClientNavigation({
   const pathname = usePathname();
 
   return (
-    <nav className={`bg-gray-800 shadow-lg ${className}`}>
-      <div className='container mx-auto px-4'>
-        <div className='flex justify-center space-x-8'>
+    <nav className={`navigation-bar ${className}`}>
+      <div className='navigation-container'>
+        <div className='navigation-items'>
           {navigationItems.map(item => {
             const isActive = pathname === item.href;
 
@@ -37,11 +37,7 @@ export function ClientNavigation({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center space-x-2 px-4 py-3 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'text-green-400 border-b-2 border-green-400'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
-                }`}
+                className={`navigation-item ${isActive ? 'active' : 'inactive'}`}
               >
                 {item.icon && <span>{item.icon}</span>}
                 <span>{item.label}</span>
