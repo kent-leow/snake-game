@@ -7,6 +7,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import type { ComboEvent } from '../types/Combo';
+import styles from '../styles/combo.module.css';
 
 export interface ComboFeedbackProps {
   /** Current combo event to display */
@@ -144,7 +145,7 @@ const FloatingText: React.FC<FloatingTextProps> = ({
 
   return (
     <div
-      className="floating-text"
+      className={`${styles.floatingText} ${color.includes('#2196f3') ? styles['floatingText--started'] : color.includes('#4caf50') ? styles['floatingText--progress'] : color.includes('#ffd700') ? styles['floatingText--completed'] : styles['floatingText--broken']}`}
       style={getAnimationStyle()}
       aria-label={text}
       aria-live="polite"
@@ -203,7 +204,7 @@ const PointsAnimation: React.FC<PointsAnimationProps> = ({ points, onComplete })
 
   return (
     <div
-      className="points-animation"
+      className={styles.pointsAnimation}
       style={getAnimationStyle()}
       aria-label={`Plus ${points} points`}
       aria-live="polite"
@@ -291,7 +292,7 @@ const SequenceVisualization: React.FC<SequenceVisualizationProps> = ({
 
   return (
     <div
-      className="sequence-visualization"
+      className={styles.sequenceVisualization}
       style={getSequenceStyle()}
       role="presentation"
       aria-hidden="true"
@@ -402,7 +403,7 @@ export const ComboFeedback: React.FC<ComboFeedbackProps> = ({
 
   return (
     <div
-      className={`combo-feedback ${className}`}
+      className={`${styles.comboFeedback} ${className}`}
       style={getContainerStyle()}
       role="status"
       aria-live="polite"

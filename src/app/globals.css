@@ -5,6 +5,8 @@
 @import '../styles/navigation.css';
 @import '../styles/mobile.css';
 @import '../styles/effects.css';
+@import '../styles/canvas.css';
+@import '../styles/gameControls.css';
 
 :root {
   /* Modern Retro Color Palette */

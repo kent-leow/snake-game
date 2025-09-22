@@ -8,6 +8,7 @@
 import React, { useMemo } from 'react';
 import type { ComboState } from '../types/Combo';
 import { COMBO_SEQUENCE } from '../constants/ComboConfig';
+import styles from '../styles/combo.module.css';
 
 export interface ComboProgressProps {
   /** Current progress in the combo sequence (0-5) */
@@ -47,39 +48,13 @@ export const ComboProgressIndicator: React.FC<ComboProgressProps> = React.memo((
 
   return (
     <div
-      className={`combo-progress-indicator ${className}`}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '6px',
-        padding: '6px 8px',
-        background: isActive 
-          ? 'rgba(33, 150, 243, 0.15)' 
-          : 'rgba(0, 0, 0, 0.6)',
-        border: isActive 
-          ? '1px solid rgba(33, 150, 243, 0.4)' 
-          : '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: '6px',
-        color: 'white',
-        fontFamily: 'monospace',
-        fontSize: '10px',
-        transition: 'all 0.3s ease',
-        backdropFilter: 'blur(4px)',
-        maxWidth: '100%',
-        overflow: 'hidden',
-      }}
+      className={`${styles.comboProgressIndicator} ${isActive ? styles['comboProgressIndicator--active'] : styles['comboProgressIndicator--inactive']} ${className}`}
       role="group"
       aria-label="Combo progress indicator"
     >
       {/* Progress bar with steps */}
       <div 
-        className="combo-steps"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '2px',
-          justifyContent: 'center',
-        }}
+        className={styles.comboSteps}
         role="progressbar"
         aria-valuenow={Math.round((currentProgress / COMBO_SEQUENCE.length) * 100)}
         aria-valuemin={0}
