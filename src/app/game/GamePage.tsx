@@ -37,7 +37,7 @@ export function GamePage(): React.JSX.Element {
   // Speed data for UI indicator
   const speedData = useSpeedData(gameEngineRef.current);
 
-  // Combo progress data
+  // Combo progress data for stats panels only
   const comboProgressProps = useComboProgressProps(
     gameEngineRef.current?.getComboManager()?.getCurrentState() || {
       currentSequence: [],
@@ -79,12 +79,19 @@ export function GamePage(): React.JSX.Element {
    * Handle game over and collect data for score submission
    */
   const handleGameOver = useCallback((finalScore: number, snake: any, cause?: 'boundary' | 'self', collisionPosition?: any) => {
-    if (!gameEngineRef.current) return;
+    console.log('GamePage: handleGameOver called with:', { finalScore, cause, collisionPosition });
+    
+    if (!gameEngineRef.current) {
+      console.error('GamePage: gameEngineRef.current is null in handleGameOver');
+      return;
+    }
 
     // Get game statistics and data
     const gameStats = gameEngineRef.current.getGameOverManager()?.getGameStatistics();
     const comboStats = gameEngineRef.current.getComboManager().getStatistics();
     const speedStats = gameEngineRef.current.getSpeedStatistics();
+    
+    console.log('GamePage: Game stats:', { gameStats, comboStats, speedStats });
     
     // Calculate game duration in seconds
     const gameTimeSeconds = gameStats?.duration || 0;
@@ -111,13 +118,14 @@ export function GamePage(): React.JSX.Element {
       },
     };
 
+    console.log('GamePage: Setting game over data and showing modal:', scoreData);
     setGameOverData(scoreData);
     setShowScoreModal(true);
     
     // Call the game state action
     actions.endGame();
     
-    console.log('Game over:', { finalScore, cause, collisionPosition, scoreData });
+    console.log('GamePage: Game over complete - modal should show');
   }, [actions]);
 
   // Utility function to focus the game canvas
@@ -279,7 +287,6 @@ export function GamePage(): React.JSX.Element {
                 targetFPS={60}
                 enableTouchControls={true}
                 onDirectionChange={handleDirectionChange}
-                enableComboVisuals={true}
               />
               
               {/* Game Stats for Mobile */}
@@ -304,7 +311,7 @@ export function GamePage(): React.JSX.Element {
                 
                 {/* Combo Progress for Mobile - compact */}
                 <div className='mobile-combo-section'>
-                  <div className='combo-label'>Combo</div>
+                  <div className='combo-label'>Combo Progress</div>
                   <ComboProgressIndicator {...comboProgressProps} />
                 </div>
               </div>
@@ -344,8 +351,8 @@ export function GamePage(): React.JSX.Element {
                   </div>
                   
                   {/* Combo Progress - compact inline */}
-                  <div className='bg-gray-700 p-2 rounded'>
-                    <div className='text-xs text-gray-300 mb-1'>Combo</div>
+                  <div className='bg-gray-700 p-3 rounded'>
+                    <div className='text-xs text-gray-300 mb-2'>Combo Progress</div>
                     <ComboProgressIndicator {...comboProgressProps} />
                   </div>
                   
@@ -375,7 +382,6 @@ export function GamePage(): React.JSX.Element {
                   targetFPS={60}
                   enableTouchControls={false}
                   onDirectionChange={handleDirectionChange}
-                  enableComboVisuals={true}
                 />
               </div>
             </div>
