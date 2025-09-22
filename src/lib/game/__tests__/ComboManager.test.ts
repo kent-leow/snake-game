@@ -150,10 +150,16 @@ describe('ComboManager', () => {
 
   describe('Input Validation', () => {
     it('should throw error for invalid food numbers', () => {
-      expect(() => comboManager.processFood(0 as 1 | 2 | 3 | 4 | 5)).toThrow('Invalid food number: 0. Must be 1-5.');
-      expect(() => comboManager.processFood(6 as 1 | 2 | 3 | 4 | 5)).toThrow('Invalid food number: 6. Must be 1-5.');
-      expect(() => comboManager.processFood(-1 as 1 | 2 | 3 | 4 | 5)).toThrow('Invalid food number: -1. Must be 1-5.');
-      expect(() => comboManager.processFood(1.5 as 1 | 2 | 3 | 4 | 5)).toThrow('Invalid food number: 1.5. Must be 1-5.');
+      expect(() => comboManager.processFood(0)).toThrow('Invalid food number: 0. Must be a positive integer.');
+      expect(() => comboManager.processFood(-1)).toThrow('Invalid food number: -1. Must be a positive integer.');
+      expect(() => comboManager.processFood(1.5)).toThrow('Invalid food number: 1.5. Must be a positive integer.');
+    });
+
+    it('should accept any positive integer food number', () => {
+      // Food numbers 6-10 should map to sequence 1-5
+      expect(() => comboManager.processFood(6)).not.toThrow();
+      expect(() => comboManager.processFood(7)).not.toThrow();
+      expect(() => comboManager.processFood(100)).not.toThrow();
     });
   });
 
@@ -306,6 +312,7 @@ describe('ComboManager', () => {
         expectedNext: 5, // Should be 3
         comboProgress: 2,
         totalCombos: 0,
+        cumulativeComboCount: 2,
         isComboActive: true,
       };
       

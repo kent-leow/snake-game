@@ -6,8 +6,8 @@ import type { Position } from '../lib/game/types';
 export interface ComboState {
   /** Numbers eaten in current attempt */
   currentSequence: number[];
-  /** Next number needed for combo (1-5) */
-  expectedNext: 1 | 2 | 3 | 4 | 5;
+  /** Next number needed for combo */
+  expectedNext: number;
   /** How far through sequence (0-5) */
   comboProgress: 0 | 1 | 2 | 3 | 4 | 5;
   /** Total combos completed this game */
@@ -36,8 +36,8 @@ export interface ComboResult {
  * Event representing food consumption for combo tracking
  */
 export interface FoodConsumptionEvent {
-  /** The number of the food block consumed (1-5) */
-  foodNumber: 1 | 2 | 3 | 4 | 5;
+  /** The number of the food block consumed (any positive number) */
+  foodNumber: number;
   /** Position where food was consumed */
   position: Position;
   /** Timestamp of consumption */

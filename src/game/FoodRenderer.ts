@@ -350,11 +350,13 @@ export class FoodRenderer {
    */
   private renderEnhancedBackground(
     position: Position, 
-    number: 1 | 2 | 3 | 4 | 5,
+    number: number,
     size: number,
     isComboTarget: boolean = false
   ): void {
-    const baseColor = this.config.colors[number];
+    // Map number to config color key (cycle through 1-5)
+    const colorIndex = ((number - 1) % 5) + 1 as 1 | 2 | 3 | 4 | 5;
+    const baseColor = this.config.colors[colorIndex];
     
     // Draw enhanced shadow
     if (this.config.enableShadow) {
@@ -410,14 +412,16 @@ export class FoodRenderer {
    */
   private renderEnhancedBorder(
     position: Position, 
-    number: 1 | 2 | 3 | 4 | 5,
+    number: number,
     size: number,
     glowIntensity: number,
     isComboTarget: boolean = false
   ): void {
     if (this.config.borderWidth <= 0) return;
 
-    const baseColor = this.config.colors[number];
+    // Map number to config color key (cycle through 1-5)
+    const colorIndex = ((number - 1) % 5) + 1 as 1 | 2 | 3 | 4 | 5;
+    const baseColor = this.config.colors[colorIndex];
     const borderColor = getBorderColor(baseColor, isComboTarget);
     
     // Enhanced glow for combo targets
@@ -455,7 +459,7 @@ export class FoodRenderer {
   /**
    * Render enhanced number text with effects
    */
-  private renderEnhancedNumber(position: Position, number: 1 | 2 | 3 | 4 | 5, isComboTarget: boolean = false): void {
+  private renderEnhancedNumber(position: Position, number: number, isComboTarget: boolean = false): void {
     const centerX = position.x + this.gridSize / 2;
     const centerY = position.y + this.gridSize / 2;
 

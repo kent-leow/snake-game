@@ -14,6 +14,14 @@ import {
 } from '../../constants/ComboConfig';
 
 /**
+ * Callback interface for food progression events
+ */
+export interface FoodProgressionCallbacks {
+  onComboCompleted?: () => void;
+  onComboBreak?: () => void;
+}
+
+/**
  * Manages combo state and sequence tracking for the 1→2→3→4→5 food consumption system
  * Implements a state machine that tracks player progress and awards bonus points
  */
@@ -22,6 +30,7 @@ export class ComboManager {
   private config: ComboConfig;
   private callbacks: ComboChangeCallback[] = [];
   private eventHistory: ComboEvent[] = [];
+  private progressionCallbacks: FoodProgressionCallbacks = {};
 
   constructor(config: Partial<ComboConfig> = {}) {
     this.config = { ...DEFAULT_COMBO_CONFIG, ...config };
@@ -31,16 +40,16 @@ export class ComboManager {
   /**
    * Process food consumption and update combo state
    */
-  public processFood(consumedNumber: 1 | 2 | 3 | 4 | 5): ComboResult {
+  public processFood(consumedNumber: number): ComboResult {
     // Validate input
-    if (!this.isValidFoodNumber(consumedNumber)) {
-      throw new Error(`Invalid food number: ${consumedNumber}. Must be 1-5.`);
+    if (consumedNumber <= 0 || !Number.isInteger(consumedNumber)) {
+      throw new Error(`Invalid food number: ${consumedNumber}. Must be a positive integer.`);
     }
 
     let result: ComboResult;
 
     // Check if this is the expected next number in sequence
-    if (this.isExpectedNumber(consumedNumber)) {
+    if (consumedNumber === this.state.expectedNext) {
       result = this.advanceSequence(consumedNumber);
     } else {
       result = this.breakCombo();
@@ -74,6 +83,13 @@ export class ComboManager {
     const resetEvent = this.createComboEvent('broken', 0);
     this.recordEvent(resetEvent);
     this.notifyCallbacks(resetEvent);
+  }
+
+  /**
+   * Set callbacks for food progression events
+   */
+  public setProgressionCallbacks(callbacks: FoodProgressionCallbacks): void {
+    this.progressionCallbacks = callbacks;
   }
 
   /**
@@ -187,21 +203,16 @@ export class ComboManager {
   /**
    * Advance the combo sequence with the consumed number
    */
-  private advanceSequence(number: 1 | 2 | 3 | 4 | 5): ComboResult {
+  private advanceSequence(number: number): ComboResult {
     const newSequence = [...this.state.currentSequence, number];
-    const newProgress = newSequence.length as 0 | 1 | 2 | 3 | 4 | 5;
+    const newProgress = newSequence.length;
 
-    // Check if combo is complete
-    if (newProgress === SEQUENCE_LENGTH) {
-      return this.completeCombo();
-    }
-
-    // Advance progress and increment cumulative combo count
+    // Continue sequence infinitely - just increment expected next
     const newState: ComboState = {
       ...this.state,
       currentSequence: newSequence,
-      expectedNext: COMBO_SEQUENCE[newProgress],
-      comboProgress: newProgress,
+      expectedNext: (number + 1) as 1 | 2 | 3 | 4 | 5, // This will be overridden anyway
+      comboProgress: Math.min(newProgress, 5) as 0 | 1 | 2 | 3 | 4 | 5,
       cumulativeComboCount: this.state.cumulativeComboCount + 1,
       isComboActive: true,
     };
@@ -209,29 +220,8 @@ export class ComboManager {
     return {
       type: 'progress',
       newState,
-      pointsAwarded: 0, // No bonus points for partial progress
-      message: `Combo progress: ${newProgress}/${SEQUENCE_LENGTH}`,
-    };
-  }
-
-  /**
-   * Complete a combo and award bonus points
-   */
-  private completeCombo(): ComboResult {
-    const newState: ComboState = {
-      currentSequence: [],
-      expectedNext: 1,
-      comboProgress: 0,
-      totalCombos: this.state.totalCombos + 1,
-      cumulativeComboCount: this.state.cumulativeComboCount + 1, // Increment for the 5th food eaten
-      isComboActive: false,
-    };
-
-    return {
-      type: 'complete',
-      newState,
-      pointsAwarded: this.config.comboBonusPoints,
-      message: `Combo completed! +${this.config.comboBonusPoints} bonus points`,
+      pointsAwarded: 0,
+      message: `Combo progress: ${newProgress}`,
     };
   }
 
@@ -246,7 +236,7 @@ export class ComboManager {
       expectedNext: 1,
       comboProgress: 0,
       totalCombos: this.state.totalCombos,
-      cumulativeComboCount: this.state.cumulativeComboCount + 1, // Increment for the food that broke the combo
+      cumulativeComboCount: 0, // RESET to 0, not increment!
       isComboActive: false,
     };
 
@@ -258,23 +248,11 @@ export class ComboManager {
 
     if (wasActive) {
       result.message = 'Combo broken! Sequence reset.';
+      // Trigger food progression reset callback
+      this.progressionCallbacks.onComboBreak?.();
     }
 
     return result;
-  }
-
-  /**
-   * Check if the consumed number is the expected next in sequence
-   */
-  private isExpectedNumber(number: 1 | 2 | 3 | 4 | 5): boolean {
-    return number === this.state.expectedNext;
-  }
-
-  /**
-   * Validate if food number is in valid range
-   */
-  private isValidFoodNumber(number: number): number is 1 | 2 | 3 | 4 | 5 {
-    return number >= 1 && number <= 5 && Number.isInteger(number);
   }
 
   /**

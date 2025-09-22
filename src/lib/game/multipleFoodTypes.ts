@@ -5,7 +5,7 @@ import type { Position } from './types';
  */
 export interface NumberedFood {
   id: string;
-  number: 1 | 2 | 3 | 4 | 5;
+  number: number; // Now supports any positive number, not just 1-5
   position: Position;
   color: string;
   timestamp: number;
@@ -41,6 +41,8 @@ export interface MultipleFoodConfig {
     food4: number;
     food5: number;
   };
+  /** Base value for calculating food values beyond 5 */
+  baseFoodValue: number;
 }
 
 /**
@@ -64,4 +66,5 @@ export const DEFAULT_MULTIPLE_FOOD_CONFIG: MultipleFoodConfig = {
     food4: 40,
     food5: 50,
   },
+  baseFoodValue: 10,
 };

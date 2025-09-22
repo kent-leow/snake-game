@@ -8,12 +8,16 @@ import {
 
 /**
  * Manager class for handling multiple numbered food blocks
- * Maintains exactly 5 food blocks (numbered 1-5) on the game board at all times
+ * Maintains exactly 5 food blocks on the game board at all times
+ * Foods are numbered sequentially starting from 1
  */
 export class MultipleFoodManager {
   private foods: Map<number, NumberedFood> = new Map();
   private config: MultipleFoodConfig;
   private readonly maxSpawnAttempts: number = 100;
+  
+  // Current food numbers being displayed (5 consecutive numbers)
+  private currentNumbers: number[] = [1, 2, 3, 4, 5];
 
   constructor(config: Partial<MultipleFoodConfig> = {}) {
     this.config = { ...DEFAULT_MULTIPLE_FOOD_CONFIG, ...config };
@@ -25,14 +29,14 @@ export class MultipleFoodManager {
   public initializeFoods(snakePositions: Position[]): void {
     this.foods.clear();
     
-    // Create foods for numbers 1-5
-    for (let number = 1; number <= 5; number++) {
+    // Create foods for current numbers
+    for (const number of this.currentNumbers) {
       const position = this.generateValidPosition(
         snakePositions, 
         this.getExistingFoodPositions()
       );
       
-      const food = this.createFood(number as 1 | 2 | 3 | 4 | 5, position);
+      const food = this.createFood(number, position);
       this.foods.set(number, food);
     }
   }
@@ -47,7 +51,7 @@ export class MultipleFoodManager {
   /**
    * Get food block by number
    */
-  public getFood(number: 1 | 2 | 3 | 4 | 5): NumberedFood | undefined {
+  public getFood(number: number): NumberedFood | undefined {
     return this.foods.get(number);
   }
 
@@ -63,35 +67,46 @@ export class MultipleFoodManager {
     return null;
   }
 
-  /**
-   * Consume a food block and spawn a new one with the same number
+    /**
+   * Consume a food block and spawn replacement
    */
   public consumeFood(
-    number: 1 | 2 | 3 | 4 | 5, 
+    number: number, 
     snakePositions: Position[]
   ): FoodConsumptionResult | null {
-    const consumedFood = this.foods.get(number);
-    if (!consumedFood) {
+    const food = this.foods.get(number);
+    if (!food) {
       return null;
     }
 
-    // Generate new position for replacement food
+    // Remove the consumed food
+    this.foods.delete(number);
+    
+    // Remove from current numbers array
+    const index = this.currentNumbers.indexOf(number);
+    if (index !== -1) {
+      this.currentNumbers.splice(index, 1);
+    }
+
+    // Calculate next number: highest current number + 1 to maintain 5 foods
+    // If we have [1,2,3,4,5] and eat 1, we get [2,3,4,5] then add 6 → [2,3,4,5,6]
+    const maxNumber = Math.max(...this.currentNumbers);
+    const nextNumber = maxNumber + 1;
+    this.currentNumbers.push(nextNumber);
+    this.currentNumbers.sort((a, b) => a - b);
+
+    // Create replacement food with the next number
     const newPosition = this.generateValidPosition(
       snakePositions,
-      this.getExistingFoodPositions().filter(pos => 
-        pos.x !== consumedFood.position.x || pos.y !== consumedFood.position.y
-      )
+      this.getExistingFoodPositions()
     );
-
-    // Create new food with the same number
-    const newFood = this.createFood(number, newPosition);
     
-    // Replace in the map
-    this.foods.set(number, newFood);
+    const newFood = this.createFood(nextNumber, newPosition);
+    this.foods.set(nextNumber, newFood);
 
     return {
-      consumedFood,
-      newFood
+      consumedFood: food,
+      newFood,
     };
   }
 
@@ -176,27 +191,19 @@ export class MultipleFoodManager {
    * Create a numbered food block
    */
   private createFood(
-    number: 1 | 2 | 3 | 4 | 5,
+    number: number,
     position: Position
   ): NumberedFood {
-    // Map number to config keys
-    const configKeys = {
-      1: { color: 'food1', value: 'food1' },
-      2: { color: 'food2', value: 'food2' },
-      3: { color: 'food3', value: 'food3' },
-      4: { color: 'food4', value: 'food4' },
-      5: { color: 'food5', value: 'food5' },
-    } as const;
-    
-    const keys = configKeys[number];
+    const color = this.getFoodColor(number);
+    const value = this.getFoodValue(number);
     
     return {
       id: this.generateFoodId(number),
       number,
       position,
-      color: this.config.colors[keys.color],
+      color,
       timestamp: Date.now(),
-      value: this.config.values[keys.value]
+      value
     };
   }
 
@@ -226,6 +233,48 @@ export class MultipleFoodManager {
    */
   public reset(): void {
     this.foods.clear();
+    this.currentNumbers = [1, 2, 3, 4, 5];
+  }
+
+  /**
+   * Reset to initial state (1-5) when combo breaks
+   */
+  public resetToInitial(snakePositions: Position[]): void {
+    this.currentNumbers = [1, 2, 3, 4, 5];
+    this.initializeFoods(snakePositions);
+  }
+
+  /**
+   * Get current food numbers
+   */
+  public getCurrentNumbers(): number[] {
+    return [...this.currentNumbers];
+  }
+
+  /**
+   * Get food color based on its number
+   */
+  private getFoodColor(number: number): string {
+    // Use the position in sequence (1-5) to determine color
+    const position = ((number - 1) % 5) + 1;
+    const colorKeys = ['food1', 'food2', 'food3', 'food4', 'food5'] as const;
+    const colorKey = colorKeys[position - 1];
+    return this.config.colors[colorKey];
+  }
+
+  /**
+   * Get food value based on its number
+   */
+  private getFoodValue(number: number): number {
+    // Use the position in sequence (1-5) to determine base value, then multiply by progression level
+    const position = ((number - 1) % 5) + 1;
+    const valueKeys = ['food1', 'food2', 'food3', 'food4', 'food5'] as const;
+    const valueKey = valueKeys[position - 1];
+    const baseValue = this.config.values[valueKey];
+    
+    // For numbers beyond 5, multiply by progression level
+    const progressionLevel = Math.floor((number - 1) / 5) + 1;
+    return baseValue * progressionLevel;
   }
 
   /**

@@ -1831,6 +1831,121 @@ html {
   margin-bottom: 0.25rem;
 }
 
+/* Combo Progress Styles */
+.combo-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 0.375rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.75rem;
+}
+
+.combo-progress.active {
+  border-color: var(--neon-green);
+  box-shadow: 0 0 5px rgba(34, 197, 94, 0.3);
+}
+
+.combo-progress.inactive {
+  opacity: 0.7;
+}
+
+.combo-progress-compact {
+  font-size: 0.75rem;
+}
+
+.combo-progress-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 1.5px;
+  overflow: hidden;
+}
+
+.combo-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+  transition: width 0.3s ease;
+}
+
+.combo-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.combo-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.combo-label {
+  color: var(--text-muted);
+}
+
+.combo-progress-text {
+  font-weight: bold;
+  color: var(--neon-green);
+}
+
+.combo-next {
+  font-size: 0.7rem;
+  color: var(--neon-cyan);
+  font-weight: bold;
+}
+
+.combo-total-text {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.combo-sequence {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.combo-step {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.combo-step.completed {
+  background: var(--neon-green);
+  color: black;
+  transform: scale(1.1);
+}
+
+.combo-step.current {
+  background: var(--neon-cyan);
+  color: black;
+  animation: pulse 1s infinite;
+}
+
+.combo-step.pending {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-muted);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
 .mobile-controls-wrapper {
   background: var(--retro-bg-secondary);
   padding: 0.75rem;

@@ -216,8 +216,8 @@ describe('GameEngine - Combo Integration', () => {
       
       // Invalid food number should throw error
       expect(() => {
-        comboManager.processFood(0 as 1 | 2 | 3 | 4 | 5);
-      }).toThrow('Invalid food number: 0. Must be 1-5.');
+        comboManager.processFood(0);
+      }).toThrow('Invalid food number: 0. Must be a positive integer.');
     });
 
     it('should maintain game state consistency even with combo errors', () => {
@@ -225,7 +225,7 @@ describe('GameEngine - Combo Integration', () => {
       
       try {
         const comboManager = gameEngine.getComboManager();
-        comboManager.processFood(0 as 1 | 2 | 3 | 4 | 5);
+        comboManager.processFood(0);
       } catch {
         // Error expected
       }

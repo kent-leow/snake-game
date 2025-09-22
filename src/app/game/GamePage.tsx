@@ -6,6 +6,7 @@ import PageLayout from '../../components/ui/PageLayout';
 import MobileGameLayout from '../../components/mobile/MobileGameLayout';
 import GameControls from '../../components/game/GameControls';
 import SpeedIndicator from '../../components/game/SpeedIndicator';
+import ComboProgress from '../../components/game/ComboProgress';
 import GameStateIndicator from '../../components/game/GameStateIndicator';
 import GameCanvas from '../../components/game/GameCanvas';
 import GameStatsCard from '../../components/game/GameStatsCard';
@@ -13,6 +14,7 @@ import ControlsCard from '../../components/game/ControlsCard';
 import { useGameState } from '../../hooks/useGameState';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { useSpeedData } from '../../hooks/useSpeedData';
+import { useComboData } from '../../hooks/useComboData';
 import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '../../lib/game/gameEngine';
 import { GameStateEnum } from '../../lib/game/gameState';
 import type { Direction } from '../../lib/game/types';
@@ -40,6 +42,9 @@ export function GamePage(): React.JSX.Element {
   
   // Speed data for UI indicator
   const speedData = useSpeedData(gameEngineRef.current);
+  
+  // Combo data for UI indicator
+  const comboData = useComboData(gameEngineRef.current);
 
 
 
@@ -101,9 +106,7 @@ export function GamePage(): React.JSX.Element {
       gameMetrics: {
         totalFood: gameStats?.foodConsumed || 0,
         totalCombos: comboStats.totalCombos,
-        longestCombo: Math.max(...[1, 2, 3, 4, 5].map((_, idx) => 
-          comboStats.currentProgress >= idx + 1 ? idx + 1 : 0
-        )), // Simple approximation
+        longestCombo: comboStats.longestSequence, // Use longestSequence from stats
         maxSpeedLevel: speedStats.maxLevelReached,
         gameTimeSeconds,
         finalSnakeLength: gameStats?.maxSnakeLength || snake?.segments?.length || 3,
@@ -315,6 +318,18 @@ export function GamePage(): React.JSX.Element {
                     />
                     <GameStateIndicator currentState={currentState} />
                   </div>
+                </div>
+                
+                {/* Combo Progress */}
+                <div className='mobile-score-row'>
+                  <ComboProgress
+                    currentNumber={comboData.currentNumber}
+                    expectedNext={comboData.expectedNext}
+                    totalCombo={comboData.totalCombo}
+                    isActive={comboData.isActive}
+                    compact={true}
+                    className='mobile-combo-progress'
+                  />
                 </div>
                 
 

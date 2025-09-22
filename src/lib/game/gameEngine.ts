@@ -144,6 +144,20 @@ export class GameEngine {
       // Forward combo events to speed manager for automatic speed adjustment
       this.speedManager.handleComboEvent(event);
     });
+
+    // Set up food progression callbacks
+    this.comboManager.setProgressionCallbacks({
+      onComboCompleted: () => {
+        // No longer needed - food progression happens automatically
+      },
+      onComboBreak: () => {
+        // Reset food to initial state (1-5) when combo breaks
+        if (this.useMultipleFood) {
+          const snakePositions = this.snakeGame.getSnake().segments;
+          this.multipleFoodManager.resetToInitial(snakePositions);
+        }
+      }
+    });
   }
 
   /**
@@ -315,17 +329,14 @@ export class GameEngine {
     // Process combo logic for sequence tracking (affects speed only)
     this.comboManager.processFood(food.number);
     
-    // Calculate points using new formula: 5 × Combo × Speed
-    // Combo = total foods eaten in this game session (1, 2, 3, 4, 5, 6, 7, 8...)
+    // Calculate points using formula: 5 × Combo × Speed
+    // Combo = current food number (the sequential number being eaten)
     // Speed = speed level (number of completed combos for speed progression)
     const baseFoodPoints = 5;
-    const comboCount = this.foodConsumed; // Simple incremental count
-    const speedLevel = this.speedManager.getSpeedLevel(); // Number of completed combos
+    const comboNumber = food.number; // Use the actual food number as combo multiplier
+    const speedLevel = Math.max(1, this.speedManager.getSpeedLevel()); // Minimum 1 to avoid zero
     
-    // New formula: 5 × Combo × Speed
-    // Use minimum speed of 1 to avoid zero score
-    const effectiveSpeed = Math.max(1, speedLevel);
-    const totalPoints = baseFoodPoints * comboCount * effectiveSpeed;
+    const totalPoints = baseFoodPoints * comboNumber * speedLevel;
 
     // Update score with the total points calculated using new formula
     const scoreBreakdown = this.scoreManager.addScore(totalPoints, 0);
@@ -333,7 +344,7 @@ export class GameEngine {
     // Also update legacy scoring system for backward compatibility
     this.scoringSystem.addScore({
       type: 'food',
-      points: totalPoints, // Use total points calculated with new formula
+      points: totalPoints,
       position: food.position,
     });
 
@@ -739,6 +750,13 @@ export class GameEngine {
    */
   public getMultipleFoods(): NumberedFood[] {
     return this.multipleFoodManager.getFoods();
+  }
+
+  /**
+   * Get multiple food manager instance for external access
+   */
+  public getMultipleFoodManager(): MultipleFoodManager {
+    return this.multipleFoodManager;
   }
 
   /**
