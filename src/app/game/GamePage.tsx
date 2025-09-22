@@ -35,7 +35,7 @@ export function GamePage(): React.JSX.Element {
 
   // Game state management
   const { currentState, actions } = useGameState({
-    initialState: GameStateEnum.PLAYING, // Start directly in playing state
+    initialState: GameStateEnum.MENU, // Start in menu state, then transition to playing
   });
   const { isMobile } = useResponsiveLayout();
   
@@ -59,18 +59,22 @@ export function GamePage(): React.JSX.Element {
   // Memoize canvas size to prevent flickering from frequent re-calculations
   const [actualSize] = useState(() => {
     // Use canvas sizes that are perfectly divisible by gridSize to ensure no overflow
-    // Mobile: 320px (16px per cell) or Desktop: 500px (25px per cell)
-    return typeof window !== 'undefined' && window.innerWidth <= 768 ? 320 : 500;
+    // Mobile: 320px (16 cells × 20px) or Desktop: 500px (25 cells × 20px) 
+    if (typeof window !== 'undefined') {
+      const isMobileWidth = window.innerWidth <= 768;
+      return isMobileWidth ? 320 : 500;
+    }
+    return 500; // default for SSR
   });
 
   // Memoize game config to prevent unnecessary re-renders
   const gameConfig = useMemo(() => ({
-    gridSize: gridSize,
+    gridSize: gridSize, // This should be the cell size in pixels (20)
     gameSpeed: 150,
     enableSound: true,
     canvasWidth: actualSize,
     canvasHeight: actualSize,
-  }), [gridSize, actualSize]);
+  }), [actualSize]);
 
   const handleGameReady = useCallback((): void => {
     setIsGameReady(true);
@@ -147,7 +151,7 @@ export function GamePage(): React.JSX.Element {
 
   // Auto-focus canvas when game is ready and playing
   useEffect(() => {
-    if (isGameReady && (currentState === 'playing' || currentState === 'paused')) {
+    if (isGameReady && (currentState === GameStateEnum.PLAYING || currentState === GameStateEnum.PAUSED)) {
       focusCanvas();
     }
   }, [isGameReady, currentState, focusCanvas]);
@@ -211,10 +215,14 @@ export function GamePage(): React.JSX.Element {
   }, [focusCanvas]);
 
   /**
-   * Handle score submission completion
+   * Handle score submission completion with error handling
    */
   const handleScoreSubmitted = useCallback((result: ScoreSubmissionResult) => {
     console.log('Score submitted:', result);
+    if (!result.success) {
+      // Don't crash the game on score submission failure - just log it
+      console.warn('Score submission failed, but game continues:', result.error);
+    }
   }, []);
 
   /**
@@ -254,17 +262,21 @@ export function GamePage(): React.JSX.Element {
         gameEngineRef.current.stop();
       }
     };
-  }, [handleScoreChange, handleGameReady, actions]); // Removed actualSize dependency
+  }, [handleScoreChange, handleGameReady, handleGameOver]); // Fixed dependencies
 
-  // Auto-start game immediately when ready
+  // Auto-start game when ready - proper state transition
   useEffect(() => {
-    if (isGameReady && gameEngineRef.current) {
-      // Start the game immediately - no menu state
-      gameEngineRef.current.start();
-      actions.startGame();
-      focusCanvas();
+    if (isGameReady && gameEngineRef.current && currentState === GameStateEnum.MENU) {
+      // Only auto-start if in menu state to avoid double starts
+      setTimeout(() => {
+        if (gameEngineRef.current) {
+          gameEngineRef.current.start();
+          actions.startGame();
+          focusCanvas();
+        }
+      }, 100); // Small delay to ensure proper initialization
     }
-  }, [isGameReady, actions, focusCanvas]);
+  }, [isGameReady, currentState, actions, focusCanvas]);
 
   if (!gameEngineRef.current) {
     return (

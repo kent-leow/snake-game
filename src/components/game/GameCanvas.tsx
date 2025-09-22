@@ -48,12 +48,12 @@ export const GameCanvas: React.FC<GameCanvasProps> = React.memo(({
   const { isMobile } = useResponsiveLayout();
 
   /**
-   * Update game state and render
+   * Update game state and render - optimized to prevent unnecessary updates
    */
   const handleUpdate = useCallback((deltaTime: number, interpolation: number): void => {
     try {
-      if (gameEngine) {
-        // Call the game engine update method to move the snake
+      if (gameEngine && gameEngine.getGameState().isRunning) {
+        // Only update if game is actually running to save CPU
         gameEngine.update();
       }
       

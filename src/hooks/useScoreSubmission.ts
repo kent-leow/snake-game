@@ -94,15 +94,19 @@ export const useScoreSubmission = (options: UseScoreSubmissionOptions = {}): Use
         if (result.success) {
           onSuccess?.(result);
         } else {
+          // Non-critical error - game continues
           const errorMessage = result.error || 'Failed to submit score';
-          setError(errorMessage);
+          console.warn('Score submission failed (non-critical):', errorMessage);
+          setError(`Score could not be saved: ${errorMessage}`);
           onError?.(errorMessage);
         }
 
         return result;
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        setError(errorMessage);
+        // Graceful degradation - game continues even if score fails to save
+        const errorMessage = error instanceof Error ? error.message : 'Network error - score will be saved locally';
+        console.warn('Score submission error (non-critical):', errorMessage);
+        setError(`Database unavailable: ${errorMessage}`);
         onError?.(errorMessage);
         
         const failureResult: ScoreSubmissionResult = {

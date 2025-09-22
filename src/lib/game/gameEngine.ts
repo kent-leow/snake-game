@@ -216,22 +216,22 @@ export class GameEngine {
     
     this.lastMoveTime = currentTime;
 
-    // Check for collisions before moving
+    // Move snake first to get new position
+    const moveSuccess = this.snakeGame.move();
+    
+    if (!moveSuccess) {
+      // Game over due to movement failure
+      this.handleGameOver();
+      return false;
+    }
+
+    // Check for collisions AFTER movement
     const collisionResult = this.collisionDetector.checkAllCollisions(this.snakeGame.getSnake());
     
     if (collisionResult.hasCollision) {
       // Game over due to collision
-      console.log('Collision detected:', collisionResult);
+      console.log('Collision detected after movement:', collisionResult);
       this.handleGameOver(collisionResult);
-      return false;
-    }
-
-    // Move snake
-    const moveSuccess = this.snakeGame.move();
-    
-    if (!moveSuccess) {
-      // Game over
-      this.handleGameOver();
       return false;
     }
 
