@@ -1,4 +1,188 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+
+/* Additional layer for custom utilities */
+@layer utilities {
+  /* Custom text colors with neon glow effects */
+  .text-neon-green {
+    color: #39ff14;
+    text-shadow: 
+      0 0 5px #39ff14,
+      0 0 10px #39ff14,
+      0 0 20px #39ff14;
+  }
+
+  .text-neon-pink {
+    color: #ff073a;
+    text-shadow: 
+      0 0 5px #ff073a,
+      0 0 10px #ff073a,
+      0 0 20px #ff073a;
+  }
+
+  .text-neon-cyan {
+    color: #00ffff;
+    text-shadow: 
+      0 0 5px #00ffff,
+      0 0 10px #00ffff,
+      0 0 20px #00ffff;
+  }
+
+  .text-neon-orange {
+    color: #ff8c00;
+    text-shadow: 
+      0 0 5px #ff8c00,
+      0 0 10px #ff8c00,
+      0 0 20px #ff8c00;
+  }
+
+  .text-neon-purple {
+    color: #8a2be2;
+    text-shadow: 
+      0 0 5px #8a2be2,
+      0 0 10px #8a2be2,
+      0 0 20px #8a2be2;
+  }
+
+  .text-neon-yellow {
+    color: #ffff00;
+    text-shadow: 
+      0 0 5px #ffff00,
+      0 0 10px #ffff00,
+      0 0 20px #ffff00;
+  }
+
+  /* Retro grid background */
+  .retro-grid {
+    background-image: 
+      linear-gradient(rgba(57, 255, 20, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(57, 255, 20, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Glass morphism effect */
+  .glass-effect {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Button styles */
+  .btn-primary {
+    background: linear-gradient(to right, #059669, #0891b2);
+    color: white;
+    font-weight: bold;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.2),
+      0 0 15px rgba(57, 255, 20, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(to right, #10b981, #0ea5e9);
+    transform: translateY(-0.25rem);
+    box-shadow: 
+      0 6px 16px rgba(0, 0, 0, 0.3),
+      0 0 25px rgba(57, 255, 20, 0.5);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(to right, #374151, #4b5563);
+    color: white;
+    font-weight: bold;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.2),
+      0 0 15px rgba(147, 51, 234, 0.2);
+  }
+
+  .btn-secondary:hover {
+    background: linear-gradient(to right, #4b5563, #7c3aed);
+    transform: translateY(-0.25rem);
+    box-shadow: 
+      0 6px 16px rgba(0, 0, 0, 0.3),
+      0 0 25px rgba(147, 51, 234, 0.5);
+  }
+
+  /* Game card styling */
+  .game-card {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    box-shadow: 
+      0 12px 24px rgba(0, 0, 0, 0.3),
+      0 0 30px rgba(57, 255, 20, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .game-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 16px 32px rgba(0, 0, 0, 0.4),
+      0 0 40px rgba(57, 255, 20, 0.2);
+  }
+
+  /* Animation delay utilities */
+  .animate-delay-1 { animation-delay: 0.1s; }
+  .animate-delay-2 { animation-delay: 0.2s; }
+  .animate-delay-3 { animation-delay: 0.3s; }
+  .animate-delay-4 { animation-delay: 0.4s; }
+  .animate-delay-5 { animation-delay: 0.5s; }
+
+  /* Control key styling */
+  .control-key {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background-color: #374151;
+    color: #e5e7eb;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    border: 1px solid #4b5563;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Form elements */
+  .form-input,
+  .form-select {
+    width: 100%;
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(5px);
+    border: 2px solid #4b5563;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  .form-input:focus,
+  .form-select:focus {
+    border-color: #10b981;
+    outline: none;
+    box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+  }
+
+  .form-checkbox {
+    width: 1.25rem;
+    height: 1.25rem;
+    background: #1f2937;
+    border: 2px solid #4b5563;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .form-checkbox:checked {
+    background: #10b981;
+    border-color: #10b981;
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
+  }
+}
+
 @import '../styles/components.css';
 @import '../styles/game.css';
 @import '../styles/gameOver.css';
