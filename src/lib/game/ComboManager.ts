@@ -179,6 +179,7 @@ export class ComboManager {
       expectedNext: 1,
       comboProgress: 0,
       totalCombos: 0,
+      cumulativeComboCount: 0,
       isComboActive: false,
     };
   }
@@ -195,12 +196,13 @@ export class ComboManager {
       return this.completeCombo();
     }
 
-    // Advance progress
+    // Advance progress and increment cumulative combo count
     const newState: ComboState = {
       ...this.state,
       currentSequence: newSequence,
       expectedNext: COMBO_SEQUENCE[newProgress],
       comboProgress: newProgress,
+      cumulativeComboCount: this.state.cumulativeComboCount + 1,
       isComboActive: true,
     };
 
@@ -221,6 +223,7 @@ export class ComboManager {
       expectedNext: 1,
       comboProgress: 0,
       totalCombos: this.state.totalCombos + 1,
+      cumulativeComboCount: this.state.cumulativeComboCount + 1, // Increment for the 5th food eaten
       isComboActive: false,
     };
 
@@ -243,6 +246,7 @@ export class ComboManager {
       expectedNext: 1,
       comboProgress: 0,
       totalCombos: this.state.totalCombos,
+      cumulativeComboCount: this.state.cumulativeComboCount + 1, // Increment for the food that broke the combo
       isComboActive: false,
     };
 

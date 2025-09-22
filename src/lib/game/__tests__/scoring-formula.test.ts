@@ -1,5 +1,5 @@
 /**
- * Test to verify the new scoring formula: 10 base points + (combo progress × speed level)
+ * Test to verify the new scoring formula: 5 × Combo × Speed
  */
 import { GameEngine, type GameEngineConfig, type GameEngineCallbacks } from '../gameEngine';
 
@@ -30,33 +30,28 @@ describe('New Scoring Formula Verification', () => {
     gameEngine.stop();
   });
 
-  it('should calculate correct points for: no combos, no speed = 10 base points only', () => {
-    // GIVEN: Initial state (no combos completed, no speed increase)
-    const comboManager = gameEngine.getComboManager();
+  it('should calculate correct points for: first food = 5 × 1 × 1 = 5 points', () => {
+    // GIVEN: Initial state (no combos completed yet)
     const speedManager = gameEngine.getSpeedManager();
     
     expect(speedManager.getSpeedLevel()).toBe(0); // No combos completed yet
-    expect(comboManager.getCurrentState().comboProgress).toBe(0); // No current combo progress
     
-    // WHEN: Eat first food (no combo)
+    // WHEN: Eat first food
     const multipleFoods = gameEngine.getMultipleFoods();
     const food1 = multipleFoods.find(f => f.number === 1)!;
     
-    // Manually calculate expected score
-    const basePoints = 10;
-    const comboProgress = 0; // First food, no progress yet
-    const speedLevel = 0; // No combos completed yet
-    const expectedBonus = comboProgress * speedLevel; // 0 * 0 = 0
-    const expectedTotal = basePoints + expectedBonus; // 10 + 0 = 10
+    // New formula: 5 × FoodCount × Speed
+    // For first food: foodCount = 1, speed = 1 (minimum)
+    const expectedPoints = 5 * 1 * 1; // 5 × 1 × 1 = 5
     
     // Simulate food consumption
     gameEngine['handleMultipleFoodConsumption'](food1);
     
-    // THEN: Should get exactly 10 points
-    expect(gameEngine.getScoreManager().getCurrentScore()).toBe(expectedTotal);
+    // THEN: Should get exactly 5 points
+    expect(gameEngine.getScoreManager().getCurrentScore()).toBe(expectedPoints);
   });
 
-  it('should calculate correct points for: combo progress 2, speed level 1 = 10 + (2×1) = 12 points', () => {
+  it('should calculate correct points for: sixth food after complete combo = 5 × 6 × 1 = 30 points', () => {
     // GIVEN: Complete one combo to get speed level 1
     
     // Complete full combo 1→2→3→4→5 to get speed level 1
@@ -67,30 +62,24 @@ describe('New Scoring Formula Verification', () => {
     
     expect(gameEngine.getSpeedManager().getSpeedLevel()).toBe(1); // One combo completed
     
-    // Reset score to test next sequence
-    gameEngine.getScoreManager().reset();
-    
-    // WHEN: Start new combo and eat first two foods (1→2)
+    // WHEN: Eat the 6th food
     const food1 = gameEngine.getMultipleFoods().find(f => f.number === 1)!;
-    const food2 = gameEngine.getMultipleFoods().find(f => f.number === 2)!;
+    const previousScore = gameEngine.getScoreManager().getCurrentScore();
     
-    gameEngine['handleMultipleFoodConsumption'](food1); // Progress = 1
-    gameEngine['handleMultipleFoodConsumption'](food2); // Progress = 2
+    gameEngine['handleMultipleFoodConsumption'](food1); // 6th food eaten
     
-    // Get the score from the second food consumption
-    const scoreHistory = gameEngine.getScoreManager().getScoreHistory();
-    const secondFoodScore = scoreHistory[1]; // Second food's score breakdown
+    // Get the score increase from this food
+    const currentScore = gameEngine.getScoreManager().getCurrentScore();
+    const scoreIncrease = currentScore - previousScore;
     
-    // THEN: Second food should give 10 + (2×1) = 12 points
-    expect(secondFoodScore.basePoints).toBe(10);
-    expect(secondFoodScore.comboBonus).toBe(2); // 2 progress × 1 speed level
-    expect(secondFoodScore.totalPoints).toBe(12);
+    // THEN: 6th food should give 5 × 6 × 1 = 30 points
+    expect(scoreIncrease).toBe(30);
   });
 
-  it('should calculate correct points for: combo progress 4, speed level 2 = 10 + (4×2) = 18 points', () => {
+  it('should calculate correct points with two completed combos for 11th food = 5 × 11 × 2 = 110 points', () => {
     // GIVEN: Complete two combos to get speed level 2
     
-    // Complete two full combos
+    // Complete two full combos (10 foods total)
     for (let combo = 0; combo < 2; combo++) {
       [1, 2, 3, 4, 5].forEach(num => {
         const food = gameEngine.getMultipleFoods().find(f => f.number === num)!;
@@ -99,27 +88,26 @@ describe('New Scoring Formula Verification', () => {
     }
     
     expect(gameEngine.getSpeedManager().getSpeedLevel()).toBe(2); // Two combos completed
+    expect(gameEngine.getComboManager().getCurrentState().cumulativeComboCount).toBe(10); // 10 foods eaten
     
-    // Reset score to test next sequence
-    gameEngine.getScoreManager().reset();
+    // WHEN: Eat the 11th food
+    const food1 = gameEngine.getMultipleFoods().find(f => f.number === 1)!;
+    const previousScore = gameEngine.getScoreManager().getCurrentScore();
     
-    // WHEN: Start new combo and eat 1→2→3→4
-    [1, 2, 3, 4].forEach(num => {
-      const food = gameEngine.getMultipleFoods().find(f => f.number === num)!;
-      gameEngine['handleMultipleFoodConsumption'](food);
-    });
+    gameEngine['handleMultipleFoodConsumption'](food1); // cumulativeComboCount becomes 11
     
-    // Get the score from the fourth food consumption
-    const scoreHistory = gameEngine.getScoreManager().getScoreHistory();
-    const fourthFoodScore = scoreHistory[3]; // Fourth food's score breakdown
+    // Check that cumulative count increased
+    expect(gameEngine.getComboManager().getCurrentState().cumulativeComboCount).toBe(11);
     
-    // THEN: Fourth food should give 10 + (4×2) = 18 points
-    expect(fourthFoodScore.basePoints).toBe(10);
-    expect(fourthFoodScore.comboBonus).toBe(8); // 4 progress × 2 speed level
-    expect(fourthFoodScore.totalPoints).toBe(18);
+    // Get the score increase from this food
+    const currentScore = gameEngine.getScoreManager().getCurrentScore();
+    const scoreIncrease = currentScore - previousScore;
+    
+    // THEN: 11th food should give 5 × 11 × 2 = 110 points
+    expect(scoreIncrease).toBe(110);
   });
 
-  it('should reset bonus to zero when combo is broken', () => {
+  it('should continue food count even when combo is broken', () => {
     // GIVEN: Complete one combo to get speed level 1
     [1, 2, 3, 4, 5].forEach(num => {
       const food = gameEngine.getMultipleFoods().find(f => f.number === num)!;
@@ -128,29 +116,29 @@ describe('New Scoring Formula Verification', () => {
     
     expect(gameEngine.getSpeedManager().getSpeedLevel()).toBe(1);
     
-    // Reset score to test
-    gameEngine.getScoreManager().reset();
-    
     // WHEN: Start combo correctly (1→2) then break it (eat 4 instead of 3)
     const food1 = gameEngine.getMultipleFoods().find(f => f.number === 1)!;
     const food2 = gameEngine.getMultipleFoods().find(f => f.number === 2)!;
     const food4 = gameEngine.getMultipleFoods().find(f => f.number === 4)!; // Wrong! Should be 3
     
-    gameEngine['handleMultipleFoodConsumption'](food1); // Progress = 1
-    gameEngine['handleMultipleFoodConsumption'](food2); // Progress = 2
-    gameEngine['handleMultipleFoodConsumption'](food4); // Breaks combo, progress = 0
+    gameEngine['handleMultipleFoodConsumption'](food1); // 6th food
+    gameEngine['handleMultipleFoodConsumption'](food2); // 7th food
     
-    // Get the score from the third food consumption (broken combo)
-    const scoreHistory = gameEngine.getScoreManager().getScoreHistory();
-    const thirdFoodScore = scoreHistory[2]; // Third food's score breakdown
+    // Get score before breaking combo
+    const scoreBeforeBreak = gameEngine.getScoreManager().getCurrentScore();
     
-    // THEN: Third food should give 10 + (0×1) = 10 points (combo broken)
-    expect(thirdFoodScore.basePoints).toBe(10);
-    expect(thirdFoodScore.comboBonus).toBe(0); // 0 progress × 1 speed level (combo broken)
-    expect(thirdFoodScore.totalPoints).toBe(10);
+    // This should break the combo but still count as 8th food
+    gameEngine['handleMultipleFoodConsumption'](food4); // 8th food, but combo broken
     
-    // And combo should be broken
+    // Check that combo is broken (progress should reset to 0, expectedNext back to 1)
     expect(gameEngine.getComboManager().getCurrentState().comboProgress).toBe(0);
-    expect(gameEngine.getComboManager().getCurrentState().isComboActive).toBe(false);
+    expect(gameEngine.getComboManager().getCurrentState().expectedNext).toBe(1);
+    
+    // Get the score increase from the broken combo food (8th food)
+    const currentScore = gameEngine.getScoreManager().getCurrentScore();
+    const scoreIncrease = currentScore - scoreBeforeBreak;
+    
+    // THEN: 8th food should still give 5 × 8 × 1 = 40 points (food count continues)
+    expect(scoreIncrease).toBe(40);
   });
 });

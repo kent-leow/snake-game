@@ -12,6 +12,8 @@ export interface ComboState {
   comboProgress: 0 | 1 | 2 | 3 | 4 | 5;
   /** Total combos completed this game */
   totalCombos: number;
+  /** Cumulative count of foods eaten in sequence (1,2,3,4,5,6,7,8...) */
+  cumulativeComboCount: number;
   /** Whether player is in middle of sequence */
   isComboActive: boolean;
 }

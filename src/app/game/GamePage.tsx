@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import ScoreSubmissionModal from '../../components/ScoreSubmissionModal';
-import ComboProgressIndicator, { useComboProgressProps } from '../../components/ComboProgressIndicator';
 import PageLayout from '../../components/ui/PageLayout';
 import MobileGameLayout from '../../components/mobile/MobileGameLayout';
 import GameControls from '../../components/game/GameControls';
@@ -42,16 +41,7 @@ export function GamePage(): React.JSX.Element {
   // Speed data for UI indicator
   const speedData = useSpeedData(gameEngineRef.current);
 
-  // Combo progress data for stats panels only
-  const comboProgressProps = useComboProgressProps(
-    gameEngineRef.current?.getComboManager()?.getCurrentState() || {
-      currentSequence: [],
-      expectedNext: 1,
-      comboProgress: 0,
-      totalCombos: 0,
-      isComboActive: false,
-    }
-  );
+
 
   // Calculate canvas dimensions - FIXED SIZE aligned to grid
   const gridSize = 20;
@@ -327,11 +317,7 @@ export function GamePage(): React.JSX.Element {
                   </div>
                 </div>
                 
-                {/* Combo Progress for Mobile - compact */}
-                <div className='mobile-combo-section'>
-                  <div className='combo-label'>Combo Progress</div>
-                  <ComboProgressIndicator {...comboProgressProps} />
-                </div>
+
               </div>
             </div>
             
@@ -360,7 +346,6 @@ export function GamePage(): React.JSX.Element {
                 score={score}
                 isGameReady={isGameReady}
                 speedData={speedData}
-                comboProgressProps={comboProgressProps}
               />
             </div>
 

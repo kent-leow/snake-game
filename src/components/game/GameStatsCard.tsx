@@ -2,15 +2,12 @@
 
 import React from 'react';
 import SpeedIndicator from './SpeedIndicator';
-import ComboProgressIndicator from '../ComboProgressIndicator';
-import type { useComboProgressProps } from '../ComboProgressIndicator';
 import type { SpeedData } from '../../hooks/useSpeedData';
 
 interface GameStatsCardProps {
   score: number;
   isGameReady: boolean;
   speedData: SpeedData;
-  comboProgressProps: ReturnType<typeof useComboProgressProps>;
   className?: string;
 }
 
@@ -21,7 +18,6 @@ export const GameStatsCard: React.FC<GameStatsCardProps> = ({
   score,
   isGameReady,
   speedData,
-  comboProgressProps,
   className = ''
 }) => {
   return (
@@ -62,16 +58,6 @@ export const GameStatsCard: React.FC<GameStatsCardProps> = ({
           </div>
         </div>
 
-        {/* Combo Metric */}
-        <div className="game-stats-metric">
-          <div className="game-stats-metric__header">
-            <span className="game-stats-metric__icon">🔥</span>
-            <span className="game-stats-metric__label">Combo Progress</span>
-          </div>
-          <div className="game-stats-metric__content">
-            <ComboProgressIndicator {...comboProgressProps} />
-          </div>
-        </div>
       </div>
     </div>
   );

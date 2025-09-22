@@ -365,6 +365,7 @@ export class CanvasRenderer {
         expectedNext: comboState.expectedNext,
         comboProgress: comboState.comboProgress,
         totalCombos: 0, // Not needed for rendering
+        cumulativeComboCount: 0, // Not needed for rendering
         isComboActive: comboState.isComboActive,
       });
     } else {

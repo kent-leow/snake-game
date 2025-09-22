@@ -309,30 +309,36 @@ export class GameEngine {
    * Handle multiple food consumption logic
    */
   private handleMultipleFoodConsumption(food: NumberedFood): void {
-    // Process combo first to determine bonus points
-    const comboResult = this.comboManager.processFood(food.number);
+    // Increment global food eaten counter for combo scoring
+    this.foodConsumed++;
     
-    // Calculate points using new formula: 10 base points + (combo × speed level)
-    const basePoints = 10; // FOOD_BASE_POINTS as specified
-    const currentComboProgress = comboResult.newState.comboProgress; // 0-5
-    const currentSpeedLevel = this.speedManager.getSpeedLevel(); // Number of completed combos
-    const bonusPoints = currentComboProgress * currentSpeedLevel;
+    // Process combo logic for sequence tracking (affects speed only)
+    this.comboManager.processFood(food.number);
+    
+    // Calculate points using new formula: 5 × Combo × Speed
+    // Combo = total foods eaten in this game session (1, 2, 3, 4, 5, 6, 7, 8...)
+    // Speed = speed level (number of completed combos for speed progression)
+    const baseFoodPoints = 5;
+    const comboCount = this.foodConsumed; // Simple incremental count
+    const speedLevel = this.speedManager.getSpeedLevel(); // Number of completed combos
+    
+    // New formula: 5 × Combo × Speed
+    // Use minimum speed of 1 to avoid zero score
+    const effectiveSpeed = Math.max(1, speedLevel);
+    const totalPoints = baseFoodPoints * comboCount * effectiveSpeed;
 
-    // Update score with breakdown using new ScoreManager
-    const scoreBreakdown = this.scoreManager.addScore(basePoints, bonusPoints);
+    // Update score with the total points calculated using new formula
+    const scoreBreakdown = this.scoreManager.addScore(totalPoints, 0);
 
     // Also update legacy scoring system for backward compatibility
     this.scoringSystem.addScore({
       type: 'food',
-      points: basePoints + bonusPoints, // Use total points to maintain consistency
+      points: totalPoints, // Use total points calculated with new formula
       position: food.position,
     });
 
     // Make snake grow
     this.snakeGame.addGrowth(1, 'food');
-
-    // Track food consumption
-    this.foodConsumed++;
 
     // Consume the food and spawn replacement
     const snakePositions = this.snakeGame.getSnake().segments;
